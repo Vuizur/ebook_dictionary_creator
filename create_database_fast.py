@@ -1,0 +1,230 @@
+import json
+from os import closerange
+import sqlite3
+from typing import Tuple
+import unicodedata
+from collections import namedtuple
+import time
+import os
+
+ACCENT_MAPPING = {
+        '́': '',
+        '̀': '',
+        'а́': 'а',
+        'а̀': 'а',
+        'е́': 'е',
+        'ѐ': 'е',
+        'и́': 'и',
+        'ѝ': 'и',
+        'о́': 'о',
+        'о̀': 'о',
+        'у́': 'у',
+        'у̀': 'у',
+        'ы́': 'ы',
+        'ы̀': 'ы',
+        'э́': 'э',
+        'э̀': 'э',
+        'ю́': 'ю',
+        '̀ю': 'ю',
+        'я́́': 'я',
+        'я̀': 'я',
+    }
+ACCENT_MAPPING = {unicodedata.normalize('NFKC', i): j for i, j in ACCENT_MAPPING.items()}
+
+def unaccentify( s):
+    source = unicodedata.normalize('NFKC', s)
+    for old, new in ACCENT_MAPPING.items():
+        source = source.replace(old, new)
+    return source
+
+def append_form_to_record(form: dict, form_dict:dict):
+    form_tags = form["tags"]
+    word_form = form["form"]
+
+    if len(form_tags) == 2 and (("nominative" in form_tags and "plural" in form_tags) or ("genitive" in form_tags and "plural")):
+        if "nominative" in form_tags and "plural" in form_tags:
+            form_dict["nominative_plural_form"] = word_form
+        elif "genitive" in form_tags and "plural" in form_tags:
+            form_dict["genitive_plural_form"] = word_form
+    else:
+        for form_tag in form_tags:
+            if form_tag == "canonical":
+                form_dict["canonical_form"] = word_form
+            elif form_tag == "romanization":
+                form_dict["romanized_form"] = word_form
+            elif form_tag == "genitive":
+                form_dict["genitive_form"] = word_form
+            elif form_tag == "adjective":
+                form_dict["adjective_form"] = word_form
+
+
+    #if len(form_tags) == 1:
+    #    if form_tags[0] == "canonical":
+    #        form_dict["canonical_form"] = word_form
+    #    elif form_tags[0] == "romanization":
+    #        form_dict["romanized_form"] = word_form
+    #    elif form_tags[0] == "genitive":
+    #        form_dict["genitive_form"] = word_form
+    #    elif form_tags[0] == "adjective":
+    #        form_dict["adjective_form"] = word_form
+    #    else:
+    #        pass
+    #        #print("unknown form")
+    #        #print(form_tags[0])
+    #elif len(form_tags) == 2:
+    #    if "nominative" in form_tags and "plural" in form_tags:
+    #        form_dict["nominative_plural_form"] = word_form
+    #    elif "genitive" in form_tags and "plural" in form_tags:
+    #        form_dict["genitive_plural_form"] = word_form
+    #    else:
+    #        pass
+    #        #print("unknown form with 2 tags:")
+    #        #print(form_tags)
+    #else:
+    #    pass
+    #    #print("unknown form with strange number of tags:")
+    #    #print(form_tags)
+
+
+#engine = create_engine('sqlite:///words.db')
+#sessionmake = sessionmaker(bind=engine)
+#session: Session = sessionmake()
+try:
+    os.remove("words4.db")
+except:
+    pass
+with open('create_db_tables.sql', 'r') as sql_file:
+    sql_script = sql_file.read()
+
+con = sqlite3.connect('words4.db')
+cur = con.cursor()
+cur.executescript(sql_script)
+
+con.commit()
+
+with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
+
+    form_of_words_to_add_later: "list[tuple(int, str)]" = []
+    for line in f:
+
+        dict_json = json.loads(line)
+
+        #iterate through all hundreds of thousands objects
+        form_col = None
+        form_string = None
+        word_ipa_pronunciation = None
+        pos = None
+        form_dict = {
+        "canonical_form": None,
+        "romanized_form": None,
+        "genitive_form": None,
+        "adjective_form": None,
+        "nominative_plural_form": None,
+        "genitive_plural_form": None
+        }
+        ipa_pronunciation = None
+        lang = None
+        word = None
+        lang_code = None
+
+        obj = dict_json
+        word_pos = obj["pos"]
+        try:
+            for form in obj["forms"]:
+                append_form_to_record(form, form_dict)
+        except:
+            #print("Error for word")
+            pass
+        try:
+            word_ipa_pronunciation = obj["sounds"][0]["ipa"]
+        except:
+            pass
+        word_lang = obj["lang"]
+        word_lang_code = obj["lang_code"]
+        word_word = obj["word"]
+        word_lowercase = word_word.lower()
+        word_without_yo = word_lowercase.replace("ё", "е")
+        try:
+            if len(obj["senses"]) <= 1 and "Russian spellings with е instead of ё" in obj["senses"][0]["categories"]:
+                continue
+        except:
+            pass
+
+        cur.execute("INSERT INTO word (pos, canonical_form, romanized_form, genitive_form, adjective_form, nominative_plural_form, \
+            genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (word_pos, form_dict["canonical_form"], form_dict["romanized_form"], form_dict["genitive_form"], form_dict["adjective_form"]\
+            , form_dict["nominative_plural_form"], form_dict["genitive_plural_form"], word_ipa_pronunciation, word_lang, word_word, word_lang_code, word_lowercase, word_without_yo))
+        word_id = cur.lastrowid
+        #word_id, base_word_string
+        
+
+        for sense in obj["senses"]:
+            try:
+                if "Russian spellings with е instead of ё" in sense["categories"]:
+                    #print(word_word)
+                    continue
+            except:
+                pass
+            
+            if "form_of" in sense:
+                for base_word in sense["form_of"]:
+                    form_of_words_to_add_later.append((word_id, base_word["word"]))
+                cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
+                sense_id = cur.lastrowid
+                try:
+                    for gloss in sense["glosses"]:
+                        gloss_sense_id = sense_id
+                        gloss_string = gloss
+                        cur.execute("INSERT INTO gloss (sense_id, word_case) VALUES(?, ?)", (gloss_sense_id, gloss_string))
+                except:
+                    pass
+                #todo: fix for glosses that aren't the base word (pretty rare case)
+            else:
+                cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
+                sense_id = cur.lastrowid
+                try:
+                    for gloss in sense["glosses"]:
+                        gloss_sense_id = sense_id
+                        gloss_string = gloss
+                        cur.execute("INSERT INTO gloss (sense_id, gloss_string, word_case) VALUES(?, ?, \"nominative\")", (gloss_sense_id, gloss_string))
+                except:
+                    pass
+       
+    con.commit()
+        #add form of words after all data has been inserted
+
+    with open("forms_to_add_later.json", 'w', encoding="utf-8") as f:
+    # indent=2 is not needed but makes the file human-readable
+        json.dump(form_of_words_to_add_later, f, indent=2, ensure_ascii=False) 
+
+    cur.execute("CREATE INDEX word_word_index ON word(word);")
+    cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
+    cur.execute("CREATE INDEX word_lowercase_index ON word(word_lowercase);")
+    cur.execute("CREATE INDEX word_lower_and_without_yo_index ON word(word_lower_and_without_yo);")
+    cur.execute("CREATE INDEX sense_word_id_index ON sense(word_id);")
+    cur.execute("CREATE INDEX gloss_sense_id_index ON gloss(sense_id);")
+
+
+    con.commit()
+    records = []
+    t0 = time.time()
+
+    for index in range(0, len(form_of_words_to_add_later), 1000):
+
+        for word_id, base_word in form_of_words_to_add_later[index: index+1000]:
+            unaccented_word = unaccentify(base_word)
+
+            cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+SELECT ?, COALESCE ( \
+(SELECT w.word_id FROM word w WHERE w.word = ?), \
+(SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
+(SELECT w.word_id FROM word w WHERE w.word = ?) \
+)", (word_id, base_word, base_word, unaccented_word))
+
+
+    t1 = time.time()
+    print(t1 - t0)
+
+con.commit()
+con.close()
+

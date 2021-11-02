@@ -1,0 +1,5 @@
+*.json
+*.db
+.vs/*
+output_dict.xhtml
+__pycache__/*

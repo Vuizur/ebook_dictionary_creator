@@ -34,10 +34,6 @@ def append_form_to_record(form: dict, form_dict:dict):
         #print("unknown form with strange number of tags:")
         #print(form_tags)
 
-
-#engine = create_engine('sqlite:///words.db')
-#sessionmake = sessionmaker(bind=engine)
-#session: Session = sessionmake()
 try:
     os.remove("spanish_dict.db")
 except:
@@ -48,7 +44,6 @@ with open('create_db_tables_spanish.sql', 'r') as sql_file:
 con = sqlite3.connect('spanish_dict.db')
 cur = con.cursor()
 cur.executescript(sql_script)
-#cur.execute("PRAGMA journal_mode = WAL;")
 con.commit()
 
 

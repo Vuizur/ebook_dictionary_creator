@@ -6,36 +6,8 @@ import unicodedata
 from collections import namedtuple
 import time
 import os
+import remove_accents
 
-ACCENT_MAPPING = {
-        '́': '',
-        '̀': '',
-        'а́': 'а',
-        'а̀': 'а',
-        'е́': 'е',
-        'ѐ': 'е',
-        'и́': 'и',
-        'ѝ': 'и',
-        'о́': 'о',
-        'о̀': 'о',
-        'у́': 'у',
-        'у̀': 'у',
-        'ы́': 'ы',
-        'ы̀': 'ы',
-        'э́': 'э',
-        'э̀': 'э',
-        'ю́': 'ю',
-        '̀ю': 'ю',
-        'я́́': 'я',
-        'я̀': 'я',
-    }
-ACCENT_MAPPING = {unicodedata.normalize('NFKC', i): j for i, j in ACCENT_MAPPING.items()}
-
-def unaccentify( s):
-    source = unicodedata.normalize('NFKC', s)
-    for old, new in ACCENT_MAPPING.items():
-        source = source.replace(old, new)
-    return source
 
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
@@ -212,7 +184,7 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
     for index in range(0, len(form_of_words_to_add_later), 1000):
 
         for word_id, base_word in form_of_words_to_add_later[index: index+1000]:
-            unaccented_word = unaccentify(base_word)
+            unaccented_word = remove_accents.unaccentify(base_word)
 
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
 SELECT ?, COALESCE ( \

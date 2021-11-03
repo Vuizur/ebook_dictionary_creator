@@ -1,11 +1,8 @@
 import json
-from os import closerange
 import sqlite3
-from typing import Tuple
-import unicodedata
-from collections import namedtuple
 import time
 import os
+from add_openrussian_to_database import add_openrussian_to_db
 import remove_accents
 
 
@@ -28,39 +25,6 @@ def append_form_to_record(form: dict, form_dict:dict):
                 form_dict["genitive_form"] = word_form
             elif form_tag == "adjective":
                 form_dict["adjective_form"] = word_form
-
-
-    #if len(form_tags) == 1:
-    #    if form_tags[0] == "canonical":
-    #        form_dict["canonical_form"] = word_form
-    #    elif form_tags[0] == "romanization":
-    #        form_dict["romanized_form"] = word_form
-    #    elif form_tags[0] == "genitive":
-    #        form_dict["genitive_form"] = word_form
-    #    elif form_tags[0] == "adjective":
-    #        form_dict["adjective_form"] = word_form
-    #    else:
-    #        pass
-    #        #print("unknown form")
-    #        #print(form_tags[0])
-    #elif len(form_tags) == 2:
-    #    if "nominative" in form_tags and "plural" in form_tags:
-    #        form_dict["nominative_plural_form"] = word_form
-    #    elif "genitive" in form_tags and "plural" in form_tags:
-    #        form_dict["genitive_plural_form"] = word_form
-    #    else:
-    #        pass
-    #        #print("unknown form with 2 tags:")
-    #        #print(form_tags)
-    #else:
-    #    pass
-    #    #print("unknown form with strange number of tags:")
-    #    #print(form_tags)
-
-
-#engine = create_engine('sqlite:///words.db')
-#sessionmake = sessionmaker(bind=engine)
-#session: Session = sessionmake()
 try:
     os.remove("words4.db")
 except:
@@ -79,14 +43,13 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
     form_of_words_to_add_later: "list[tuple(int, str)]" = []
     for line in f:
 
-        dict_json = json.loads(line)
+        obj = json.loads(line)
 
-        #iterate through all hundreds of thousands objects
         form_col = None
         form_string = None
         word_ipa_pronunciation = None
         pos = None
-        form_dict = {
+        form_dict: dict[str, str] = {
         "canonical_form": None,
         "romanized_form": None,
         "genitive_form": None,
@@ -99,7 +62,6 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         word = None
         lang_code = None
 
-        obj = dict_json
         word_pos = obj["pos"]
         try:
             for form in obj["forms"]:
@@ -111,6 +73,18 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
             word_ipa_pronunciation = obj["sounds"][0]["ipa"]
         except:
             pass
+        
+        #remove everything after the first word because canonical forms are currently bugged in the wiktionary data
+        #this creates inconsistent data, but for looking up the stress only words without space matter
+        #TODO: fix and hope it gets solved upstream
+        try:
+            canonical_form_split = form_dict["canonical_form"].split(" ")
+            #fix those wrong strings like балда f inan 
+            if len(canonical_form_split[1]) == 1:
+                form_dict["canonical_form"] = canonical_form_split[0]
+        except:
+            pass
+
         word_lang = obj["lang"]
         word_lang_code = obj["lang_code"]
         word_word = obj["word"]
@@ -126,6 +100,7 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
             genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (word_pos, form_dict["canonical_form"], form_dict["romanized_form"], form_dict["genitive_form"], form_dict["adjective_form"]\
             , form_dict["nominative_plural_form"], form_dict["genitive_plural_form"], word_ipa_pronunciation, word_lang, word_word, word_lang_code, word_lowercase, word_without_yo))
+        
         word_id = cur.lastrowid
         #word_id, base_word_string
         
@@ -197,6 +172,7 @@ SELECT ?, COALESCE ( \
     t1 = time.time()
     print(t1 - t0)
 
+
 con.commit()
 con.close()
-
+add_openrussian_to_db()

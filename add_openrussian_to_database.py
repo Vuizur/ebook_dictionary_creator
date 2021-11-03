@@ -60,13 +60,16 @@ def add_openrussian_to_db():
             words_split_up.append(word)
     words_split_up = [word for word in words_split_up if " " not in word]
     words_split_up = list(dict.fromkeys(words_split_up))
+
     for w in words_split_up:
         word_without_apostrophes = remove_apostrophes(w)
         word_accented = convert_ap_accent_to_real(w)
         word_lowercase = word_without_apostrophes.lower()
         word_lower_and_without_yo = remove_yo(word_lowercase)
+        
         already_there = con.execute("SELECT word FROM word w WHERE w.canonical_form = ?",
             (word_accented,)).fetchone()
+
         if already_there == None:
             con.execute("INSERT INTO word (word, canonical_form, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?)",
                 (word_without_apostrophes, word_accented, word_lowercase, word_lower_and_without_yo)
@@ -74,4 +77,5 @@ def add_openrussian_to_db():
             #print(w)
     con.commit()
     con.close()
-add_openrussian_to_db()
+
+#add_openrussian_to_db()

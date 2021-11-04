@@ -1,7 +1,7 @@
 import sqlite3
 from typing import DefaultDict, Iterator
 import itertools
-
+#THIS IS OLD!!!!!!!
 class RussianDictionary:
     _con = sqlite3.connect("words2.db")
     _cur = _con.cursor()

@@ -3,7 +3,7 @@ import sqlite3
 import time
 import os
 from add_openrussian_to_database import add_openrussian_to_db
-import remove_accents
+from helper_functions import unaccentify, remove_accent_if_only_one_syllable
 
 
 def append_form_to_record(form: dict, form_dict:dict):
@@ -85,11 +85,18 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         except:
             pass
 
+        
         word_lang = obj["lang"]
         word_lang_code = obj["lang_code"]
         word_word = obj["word"]
         word_lowercase = word_word.lower()
         word_without_yo = word_lowercase.replace("ё", "е")
+        
+        if form_dict["canonical_form"] != None:
+            form_dict["canonical_form"] = remove_accent_if_only_one_syllable(form_dict["canonical_form"])
+        else:
+            form_dict["canonical_form"] = word_word
+        
         try:
             if len(obj["senses"]) <= 1 and "Russian spellings with е instead of ё" in obj["senses"][0]["categories"]:
                 continue
@@ -159,7 +166,7 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
     for index in range(0, len(form_of_words_to_add_later), 1000):
 
         for word_id, base_word in form_of_words_to_add_later[index: index+1000]:
-            unaccented_word = remove_accents.unaccentify(base_word)
+            unaccented_word = unaccentify(base_word)
 
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
 SELECT ?, COALESCE ( \

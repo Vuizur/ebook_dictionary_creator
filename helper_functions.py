@@ -31,4 +31,14 @@ def unaccentify( s):
         source = source.replace(old, new)
     return source
 
-str = "А́лла"
+def remove_accent_if_only_one_syllable(s: str):
+    s_unaccented = unaccentify(s)
+    s_unaccented_lower = s_unaccented.lower()
+    vowels = 0
+    for char in s_unaccented_lower:
+        if char in "аоэуыяеюи":
+            vowels += 1
+    if vowels <= 1:
+        return s_unaccented
+    else:
+        return s

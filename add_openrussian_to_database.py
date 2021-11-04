@@ -1,5 +1,7 @@
 import sqlite3
 
+from helper_functions import remove_accent_if_only_one_syllable
+
 def convert_ap_accent_to_real(word: str) -> str:
     res = ""
     for char in word:
@@ -63,7 +65,7 @@ def add_openrussian_to_db():
 
     for w in words_split_up:
         word_without_apostrophes = remove_apostrophes(w)
-        word_accented = convert_ap_accent_to_real(w)
+        word_accented = remove_accent_if_only_one_syllable(convert_ap_accent_to_real(w))
         word_lowercase = word_without_apostrophes.lower()
         word_lower_and_without_yo = remove_yo(word_lowercase)
         

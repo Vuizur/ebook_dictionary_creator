@@ -4,7 +4,7 @@ import time
 import os
 from add_openrussian_to_database import add_openrussian_to_db
 from helper_functions import unaccentify, remove_accent_if_only_one_syllable
-
+import re
 
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
@@ -37,6 +37,8 @@ cur = con.cursor()
 cur.executescript(sql_script)
 
 con.commit()
+
+alternative_yo_pattern = re.compile(".*Alternative spelling.*ё")
 
 with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
 
@@ -74,6 +76,11 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         except:
             pass
         
+
+        #check if Alternative spelling is in canonical form and then if a ё follows. If this is true, ignore word
+        if form_dict["canonical_form"] != None and alternative_yo_pattern.match(form_dict["canonical_form"]) != None:
+            continue
+
         #remove everything after the first word because canonical forms are currently bugged in the wiktionary data
         #this creates inconsistent data, but for looking up the stress only words without space matter
         #TODO: fix and hope it gets solved upstream
@@ -98,10 +105,13 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
             form_dict["canonical_form"] = word_word
         
         try:
-            if len(obj["senses"]) <= 1 and "Russian spellings with е instead of ё" in obj["senses"][0]["categories"]:
+            #this could theoretically remove valid words from the library if there is a ё-version of them, but I am not
+            #convinced that this is a problem
+            if "Russian spellings with е instead of ё" in obj["senses"][0]["categories"]:
                 continue
         except:
             pass
+        
 
         cur.execute("INSERT INTO word (pos, canonical_form, romanized_form, genitive_form, adjective_form, nominative_plural_form, \
             genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",

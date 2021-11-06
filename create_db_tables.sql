@@ -8,6 +8,7 @@ CREATE TABLE word
     word_id INTEGER NOT NULL PRIMARY KEY,
     pos VARCHAR, --here had been pos_id
     canonical_form VARCHAR,
+    alternative_canonical_form VARCHAR,
     romanized_form VARCHAR,
     genitive_form VARCHAR,
     adjective_form VARCHAR,

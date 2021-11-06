@@ -1,4 +1,5 @@
 import unicodedata
+import re
 
 ACCENT_MAPPING = {
         '́': '',
@@ -42,3 +43,12 @@ def remove_accent_if_only_one_syllable(s: str):
         return s_unaccented
     else:
         return s
+
+def has_cyrillic_letters(s: str):
+    m = re.findall(r'[А-я]+', s)
+    return m != []
+
+#Wiktionary data is a bit buggy
+def remove_weird_characters_for_alternative_canonical(s: str):
+    return(s.replace("^*", ""))
+

@@ -3,7 +3,7 @@ import sqlite3
 import time
 import os
 from add_openrussian_to_database import add_openrussian_to_db
-from helper_functions import unaccentify, remove_accent_if_only_one_syllable
+from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, unaccentify, remove_accent_if_only_one_syllable
 import re
 
 def append_form_to_record(form: dict, form_dict:dict):
@@ -17,8 +17,10 @@ def append_form_to_record(form: dict, form_dict:dict):
             form_dict["genitive_plural_form"] = word_form
     else:
         for form_tag in form_tags:
-            if form_tag == "canonical":
+            if form_tag == "canonical" and form_dict["canonical_form"] == None:
                 form_dict["canonical_form"] = word_form
+            elif form_tag == "canonical":
+                form_dict["alternative_canonial_form"] = remove_weird_characters_for_alternative_canonical(word_form)
             elif form_tag == "romanization":
                 form_dict["romanized_form"] = word_form
             elif form_tag == "genitive":
@@ -53,6 +55,7 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         pos = None
         form_dict: dict[str, str] = {
         "canonical_form": None,
+        "alternative_canonial_form": None,
         "romanized_form": None,
         "genitive_form": None,
         "adjective_form": None,
@@ -76,10 +79,13 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         except:
             pass
         
-
+        #skip all words where canonical_form does not have cyrillic letters because most likely it is something wrong like "n inan f"
+        #and
         #check if Alternative spelling is in canonical form and then if a ё follows. If this is true, ignore word
-        if form_dict["canonical_form"] != None and alternative_yo_pattern.match(form_dict["canonical_form"]) != None:
+        if form_dict["canonical_form"] != None and (alternative_yo_pattern.match(form_dict["canonical_form"]) != None or
+            not has_cyrillic_letters(form_dict["canonical_form"])):
             continue
+
 
         #remove everything after the first word because canonical forms are currently bugged in the wiktionary data
         #this creates inconsistent data, but for looking up the stress only words without space matter
@@ -106,16 +112,17 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
         
         try:
             #this could theoretically remove valid words from the library if there is a ё-version of them, but I am not
-            #convinced that this is a problem
+            #convinced that this is a problem -- Update: This is a problem if you look at the base category, but this version with 
+            #the senses might be safe. I should probably remove this entire block of code TODO: fix
             if "Russian spellings with е instead of ё" in obj["senses"][0]["categories"]:
                 continue
         except:
             pass
         
 
-        cur.execute("INSERT INTO word (pos, canonical_form, romanized_form, genitive_form, adjective_form, nominative_plural_form, \
-            genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (word_pos, form_dict["canonical_form"], form_dict["romanized_form"], form_dict["genitive_form"], form_dict["adjective_form"]\
+        cur.execute("INSERT INTO word (pos, canonical_form, alternative_canonical_form, romanized_form, genitive_form, adjective_form, nominative_plural_form, \
+            genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (word_pos, form_dict["canonical_form"], form_dict["alternative_canonial_form"], form_dict["romanized_form"], form_dict["genitive_form"], form_dict["adjective_form"]\
             , form_dict["nominative_plural_form"], form_dict["genitive_plural_form"], word_ipa_pronunciation, word_lang, word_word, word_lang_code, word_lowercase, word_without_yo))
         
         word_id = cur.lastrowid
@@ -163,6 +170,8 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
 
     cur.execute("CREATE INDEX word_word_index ON word(word);")
     cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
+    cur.execute("CREATE INDEX alternative_word_canonical_form_index ON word(alternative_canonical_form);")
+
     cur.execute("CREATE INDEX word_lowercase_index ON word(word_lowercase);")
     cur.execute("CREATE INDEX word_lower_and_without_yo_index ON word(word_lower_and_without_yo);")
     cur.execute("CREATE INDEX sense_word_id_index ON sense(word_id);")

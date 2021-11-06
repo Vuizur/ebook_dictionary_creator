@@ -69,8 +69,8 @@ def add_openrussian_to_db():
         word_lowercase = word_without_apostrophes.lower()
         word_lower_and_without_yo = remove_yo(word_lowercase)
         
-        already_there = con.execute("SELECT word FROM word w WHERE w.canonical_form = ?",
-            (word_accented,)).fetchone()
+        already_there = con.execute("SELECT word FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?",
+            (word_accented, word_accented)).fetchone()
 
         if already_there == None:
             con.execute("INSERT INTO word (word, canonical_form, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?)",

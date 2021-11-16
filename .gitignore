@@ -5,3 +5,4 @@ output_dict.xhtml
 __pycache__/*
 openrussian-csvs/*
 words4.zip
+vocab_differences.txt

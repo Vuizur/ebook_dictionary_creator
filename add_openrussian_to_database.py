@@ -30,9 +30,32 @@ def contains_apostrophes_or_yo(word: str) -> bool:
             return True
     return False
 
+def output_difference_of_word_list(openrussian_wordlist: list[str]):
+    con = sqlite3.connect("words4.db")
+    cur = con.cursor()
+    words = cur.execute("SELECT word FROM word").fetchall()
+    OR_wordlist = set()
+    for word in openrussian_wordlist:
+        OR_wordlist.add(remove_apostrophes(word))
+
+    wiktionary_wordlist = set()
+    for word in words:
+        wiktionary_wordlist.add(word[0])
+
+    stuff_not_in_wiktionary = OR_wordlist - wiktionary_wordlist
+    stuff_not_in_OpenRussian = wiktionary_wordlist - OR_wordlist
+    with open("vocab_differences.txt", "w+", encoding="utf-8") as output:
+        output.write("######## VOCABULARY NOT IN WIKTIONARY  ##########")
+        for wrd in stuff_not_in_wiktionary:
+            output.write(wrd + "\n")
+        output.write("\n\n\n####### VOCABULARY NOT IN OpenRUSSIAN ###########\n\n")
+        for wrd in stuff_not_in_OpenRussian:    
+            output.write(wrd + "\n")
+    
+
 def add_openrussian_to_db():
     con = sqlite3.connect("words4.db")
-    openrussian = sqlite3.connect("openrussian.db")
+    openrussian = sqlite3.connect("openrussian_csv_new.db")
     
     words_to_add: list[str] = []
     adjectives = openrussian.execute("SELECT comparative, superlative, short_m, short_f, short_n, short_pl from adjectives").fetchall()
@@ -63,6 +86,9 @@ def add_openrussian_to_db():
     words_split_up = [word for word in words_split_up if " " not in word]
     words_split_up = list(dict.fromkeys(words_split_up))
 
+    output_difference_of_word_list(words_split_up)
+    quit()
+
     for w in words_split_up:
         word_without_apostrophes = remove_apostrophes(w)
         word_accented = remove_accent_if_only_one_syllable(convert_ap_accent_to_real(w))
@@ -79,5 +105,8 @@ def add_openrussian_to_db():
             #print(w)
     con.commit()
     con.close()
+
+if __name__ == "__main__":
+    add_openrussian_to_db()
 
 #add_openrussian_to_db()

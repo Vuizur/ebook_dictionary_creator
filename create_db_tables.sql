@@ -29,13 +29,22 @@ CREATE TABLE sense
     word_id INTEGER NOT NULL,
     FOREIGN KEY(word_id) REFERENCES word(word_id)
 );
+
 CREATE TABLE form_of_word
 (
+    form_of_word_id INTEGER NOT NULL PRIMARY KEY,
     word_id INTEGER NOT NULL,
     base_word_id INTEGER NOT NULL,
     FOREIGN KEY(word_id) REFERENCES word(word_id),
     FOREIGN KEY(base_word_id) REFERENCES word(word_id)
-    PRIMARY KEY(word_id, base_word_id)
+);
+
+CREATE TABLE gramm_case
+(
+    gramm_case_id INTEGER NOT NULL PRIMARY KEY,
+    form_of_word_id INTEGER NOT NULL,
+    case_text VARCHAR,
+    FOREIGN KEY(form_of_word_id) REFERENCES form_of_word(form_of_word_id)
 );
 
 --CREATE TABLE sense_tag

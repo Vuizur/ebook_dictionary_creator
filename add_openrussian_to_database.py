@@ -86,8 +86,8 @@ def add_openrussian_to_db():
     words_split_up = [word for word in words_split_up if " " not in word]
     words_split_up = list(dict.fromkeys(words_split_up))
 
-    output_difference_of_word_list(words_split_up)
-    quit()
+    #output_difference_of_word_list(words_split_up)
+    #quit()
 
     for w in words_split_up:
         word_without_apostrophes = remove_apostrophes(w)

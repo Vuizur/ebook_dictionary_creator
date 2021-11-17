@@ -43,8 +43,8 @@ con.commit()
 alternative_yo_pattern = re.compile(".*Alternative spelling.*ё")
 
 with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
-
-    form_of_words_to_add_later: "list[tuple(int, str)]" = []
+    #tuple structure: word_id, base_word_string, grammar case
+    form_of_words_to_add_later: "list[tuple(int, str, str)]" = []
     for line in f:
 
         obj = json.loads(line)
@@ -139,7 +139,11 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
             
             if "form_of" in sense:
                 for base_word in sense["form_of"]:
-                    form_of_words_to_add_later.append((word_id, base_word["word"]))
+                    tag_string: str = ""
+                    for tag in sense["tags"]:
+                        tag_string += tag + " "
+
+                    form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
                 cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
                 sense_id = cur.lastrowid
                 try:
@@ -176,7 +180,8 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
     cur.execute("CREATE INDEX word_lower_and_without_yo_index ON word(word_lower_and_without_yo);")
     cur.execute("CREATE INDEX sense_word_id_index ON sense(word_id);")
     cur.execute("CREATE INDEX gloss_sense_id_index ON gloss(sense_id);")
-
+    cur.execute("CREATE INDEX word_id_index ON form_of_word(word_id);")
+    cur.execute("CREATE INDEX base_word_id_index ON form_of_word(base_word_id);")
 
     con.commit()
     records = []
@@ -184,15 +189,19 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
 
     for index in range(0, len(form_of_words_to_add_later), 1000):
 
-        for word_id, base_word in form_of_words_to_add_later[index: index+1000]:
+        for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:
             unaccented_word = unaccentify(base_word)
-
+            
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
 SELECT ?, COALESCE ( \
 (SELECT w.word_id FROM word w WHERE w.word = ?), \
 (SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
 (SELECT w.word_id FROM word w WHERE w.word = ?) \
 )", (word_id, base_word, base_word, unaccented_word))
+            form_of_word_id = cur.lastrowid
+            cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
+            
+            
 
 
     t1 = time.time()

@@ -28,18 +28,26 @@ xmlns:mbp="https://kindlegen.s3.amazonaws.com/AmazonKindlePublishingGuidelines.p
         #get alternative canonical form as inflection as well
         #and add all unaccented versions as inflection as well
 
-        inflections = cur.execute("""SELECT w1.canonical_form, w2.canonical_form FROM word w1
+        inflections = cur.execute("""SELECT w1.canonical_form FROM word w1
 JOIN form_of_word fow ON fow.word_id = w1.word_id 
 JOIN word w2 ON w2.word_id = fow.base_word_id 
-WHERE w2.canonical_form = ?""", canonical_form).fetchall()
+WHERE w2.canonical_form = ?""", (canonical_form,)).fetchall()
 
         for inflection in inflections:
             xhtmllist.extend(["<idx:iform value=\"", inflection[0], "\"></idx:iform>"])
 
         xhtmllist.append("</idx:infl>\n</idx:orth>")
 
-        for gloss in values[1]:
-            xhtmllist.extend(["<p>", gloss,  "</p>"])
+        glosses = cur.execute("""SELECT g.gloss_string
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
+
+        for gloss in glosses:
+            if gloss[0] == None: #This appears to happen for some reason
+                continue
+            xhtmllist.extend(["<p>", gloss[0],  "</p>"])
 
         if counter % 50000 == 0:
             print(counter)
@@ -51,6 +59,13 @@ WHERE w2.canonical_form = ?""", canonical_form).fetchall()
     </body>
 
     </html>""")
+
+    #DEBUG part
+    with open("xhtmllist.txt", "w+", encoding="utf-8") as outf:
+        for ln in xhtmllist:
+            outf.write(ln + "\n")
+
+
     xhtml = "".join(xhtmllist)
 
     with open("output_dict.xhtml", "w", encoding="utf-8") as f:
@@ -59,3 +74,6 @@ WHERE w2.canonical_form = ?""", canonical_form).fetchall()
 
     cur.close()
     con.close()
+
+if __name__ == "__main__":
+    create_kindle_dict_from_db()

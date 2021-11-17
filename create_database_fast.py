@@ -210,4 +210,4 @@ SELECT ?, COALESCE ( \
 
 con.commit()
 con.close()
-add_openrussian_to_db()
+#add_openrussian_to_db()

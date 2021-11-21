@@ -7,3 +7,13 @@ openrussian-csvs/*
 words4.zip
 vocab_differences.txt
 xhtmllist.txt
+russian_dict_epub/OEBPS/Text/
+output_dictionary1.xhtml
+russian_dict_epub.epub
+create_kindle_dict/Section0001 copy.xhtml
+russian_dict_epub-conversionLog.csv
+russian_dict_template/OEBPS/Text/*
+russian_dict_template/OEBPS/content.opf
+russian_dict_epub/OEBPS/content.opf
+russian_dict.epub
+russian_dict_template.zip

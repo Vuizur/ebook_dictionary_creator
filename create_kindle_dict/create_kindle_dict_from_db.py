@@ -1,4 +1,6 @@
+from os import path
 import sqlite3
+from pyglossary.glossary import Glossary
 
 STARTING_XHTML = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
@@ -195,5 +197,76 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     cur.close()
     con.close()
 
+def create_py_glossary_and_export():
+    Glossary.init()
+    glos = Glossary()
+
+    defiFormat = "h"
+
+    con = sqlite3.connect("words4.db")
+    cur = con.cursor()
+    
+    base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
+    base_forms_no_dupes = []
+    #TODO: This removes meanings of words!
+    already_used_forms = []
+
+    for word_id, canonical_form in base_forms:
+        if canonical_form in already_used_forms:
+            continue
+        else:
+            base_forms_no_dupes.append((word_id, canonical_form))
+            already_used_forms.append(canonical_form)
+
+    print(str(len(base_forms)) + " base forms")
+
+
+    base_forms = base_forms_no_dupes
+    counter = 0
+    for word_id, canonical_form in base_forms:
+        counter = counter + 1
+        #get inflections
+        #TODO: get alternative canonical form as inflection as well
+        #and add all unaccented versions as inflection as well
+
+        inflections = cur.execute("""SELECT w1.canonical_form FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+JOIN word w2 ON w2.word_id = fow.base_word_id 
+WHERE w2.canonical_form = ?""", (canonical_form,)).fetchall()
+
+        infl_list = []
+
+        for inflection in inflections:
+            infl_list.append(inflection[0])
+        infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
+        glosses = cur.execute("""SELECT g.gloss_string
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
+
+        glosses_list = []
+        for gloss in glosses:
+            if gloss[0] == None: #This appears to happen for some reason
+                continue
+            glosses_list.append(gloss[0])
+
+        glosshtml = ""
+        for gloss in glosses_list:
+            glosshtml += "<p>" + gloss + "</p>"
+        all_forms = [canonical_form]
+        all_forms.extend(infl_list)
+        glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
+        if counter % 2000 == 0:
+            print(str(counter) + " words")
+    glos.setInfo("title", "Russian-English Dictionary")
+    glos.setInfo("author", "Vuizur")
+    glos.sourceLangName = "Russian"
+    glos.targetLangName = "English"
+    #Spellcheck set to false because not supported for Russian
+    glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
+    #I don't know why the result does not work
+
 if __name__ == "__main__":
-    create_kindle_dict_from_db()
+    #create_kindle_dict_from_db()
+    create_py_glossary_and_export()

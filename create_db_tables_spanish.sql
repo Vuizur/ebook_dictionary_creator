@@ -4,6 +4,7 @@ CREATE TABLE word
     pos VARCHAR,
     word VARCHAR,
     lang_code VARCHAR
+    P
     --theoretically derived words could be added too
 );
 

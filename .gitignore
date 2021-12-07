@@ -17,3 +17,11 @@ russian_dict_template/OEBPS/content.opf
 russian_dict_epub/OEBPS/content.opf
 russian_dict.epub
 russian_dict_template.zip
+test.dict
+test.mobi/OEBPS/*
+test.idx
+test.ifo
+test.syn
+testdict.epub
+spanish_dict.mobi/OEBPS/*
+spanish_dictionary.kobo/words

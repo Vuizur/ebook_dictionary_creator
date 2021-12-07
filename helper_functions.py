@@ -52,3 +52,7 @@ def has_cyrillic_letters(s: str):
 def remove_weird_characters_for_alternative_canonical(s: str):
     return(s.replace("^*", ""))
 
+gloss_string = "Compound of a form of the verb andar, anda and the pronoun le ."
+base_word = gloss_string.split(" form of the verb ", 1)[1].replace(",", " and ").split(" and ")[0]
+
+print(base_word)

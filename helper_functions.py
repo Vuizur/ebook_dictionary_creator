@@ -52,7 +52,7 @@ def has_cyrillic_letters(s: str):
 def remove_weird_characters_for_alternative_canonical(s: str):
     return(s.replace("^*", ""))
 
-gloss_string = "Alternative spelling of Baréin"
-standard_form = gloss_string[24:].replace(" (", ";").split(";", 1)[0]
+gloss_string = "Pronunciation spelling of abuelo"
+standard_form = gloss_string[26:].replace(" (", ";").split(";", 1)[0]
 
 print(standard_form)

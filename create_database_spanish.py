@@ -117,14 +117,14 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
     print(t1 - t0)
 
     compound_words = cur.execute("""
-SELECT w.word_id, g.gloss_id, g.gloss_string 
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE g.gloss_string LIKE "Compound of the%"
 """).fetchall()
 
-    for word_id, gloss_id, gloss_string in compound_words:
+    for word_id, sense_id, gloss_id, gloss_string in compound_words:
         if "Compound of the infinitive" in gloss_string:
             #let's hope this works for all infinitive cases, but maybe notS
             string_sliced = gloss_string[27:]
@@ -132,7 +132,6 @@ WHERE g.gloss_string LIKE "Compound of the%"
             #This could be customized to match only verbs, but I'll leave it like that for now
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
 SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif "imperative form of" in gloss_string:
             base_word = gloss_string.split("imperative form of ", 1)[1].replace(",", " and ").split(" and ")[0]
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
@@ -152,31 +151,26 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
             except Exception as e:
                 print(e)
 
-            print(pret_base_word)
-            print(base_word)
+            #print(pret_base_word)
+            #print(base_word)
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
             SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif " indicative form " in gloss_string:
             base_word = gloss_string.split(" indicative form ", 1)[1].replace(",", " and ").split(" and ")[0]
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
             SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif " subjunctive form of " in gloss_string:
             base_word = gloss_string.split(" subjunctive form of ", 1)[1].replace(",", " and ").split(" and ")[0]
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
             SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif " participle of " in gloss_string:
             base_word = gloss_string.split(" participle of ", 1)[1].replace(",", " and ").split(" and ")[0]
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
             SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif " form of the verb " in gloss_string:
             base_word = gloss_string.split(" form of the verb ", 1)[1].replace(",", " and ").split(" and ")[0]
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
             SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word))
-            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         elif " of the imperfect " in gloss_string:
             imp_base_word = gloss_string.split(" of the imperfect ", 1)[1].replace(",", " and ").split(" and ")[0]
             #TODO: Fix for special cases where there are two options
@@ -190,8 +184,48 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
                 """, (imp_base_word,)).fetchone()[0]
             except Exception as e:
                 print(e)
-            print(imp_base_word)
-            print(base_word)
+                print(gloss_string)
+        elif " of the present indicative " in gloss_string:
+            pi_base_word = gloss_string.split(" of the present indicative ", 1)[1].replace(",", " and ").split(" and ")[0]
+            #TODO: Fix for special cases where there are two options
+            try:
+                base_word = cur.execute("""
+                SELECT w2.word 
+    FROM word w1
+    JOIN form_of_word fow ON w1.word_id = fow.word_id
+    JOIN word w2 ON w2.word_id = fow.base_word_id 
+    WHERE w1.word = ?
+                """, (pi_base_word,)).fetchone()[0]
+            except Exception as e:
+                print(e)
+                print(gloss_string)
+        elif " conditional form of " in gloss_string:
+            c_base_word = gloss_string.split(" conditional form of ", 1)[1].replace(",", " and ").split(" and ")[0]
+            #TODO: Fix for special cases where there are two options
+            try:
+                base_word = cur.execute("""
+                SELECT w2.word 
+    FROM word w1
+    JOIN form_of_word fow ON w1.word_id = fow.word_id
+    JOIN word w2 ON w2.word_id = fow.base_word_id 
+    WHERE w1.word = ?
+                """, (c_base_word,)).fetchone()[0]
+            except Exception as e:
+                print(e)
+                print(gloss_string)
+
+        
+        else:
+            print(word_id)
+            print(str(word_id))
+            print(gloss_string)
+        
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+
+            #print(imp_base_word)
+            #print(base_word)
     #cur.execute("DELETE FROM gloss WHERE gloss_string LIKE \"%Misspelling%\"")
     #This mistake annoys me, fixed by code?
     #cur.execute("DELETE FROM word WHERE word = \"habia\"") 
@@ -200,7 +234,7 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
     cur.execute("DELETE FROM word WHERE word LIKE \"%-\"")  
 
 
-    #Now add correct glosses to Alternate Form
+    #Now add correct glosses to Alternate Form (TODO: Refactor everything)
 
     alternative_forms = cur.execute("""
 SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
@@ -279,6 +313,38 @@ WHERE g.gloss_string LIKE "Alternative spelling of%"
         cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
 
+    archaic_spelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Archaic spelling of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in archaic_spelling:
+        standard_form = gloss_string[20:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+    pron_spelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Pronunciation spelling of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in pron_spelling:
+        standard_form = gloss_string[26:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
     #Delete misspelling
     misspelling = cur.execute("""
 SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
@@ -337,9 +403,6 @@ WHERE w1.word_id != w3.word_id
         cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word4_id))
 
         #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
-
-
-
 
     #Now break up base_of relations that go like word1 -> word2 -> word3
     transitive_base_of_relation_3 = cur.execute("""

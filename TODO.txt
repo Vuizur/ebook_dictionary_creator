@@ -1,0 +1,1 @@
+Prevent the program from inserting two words that have the same canonical form and part of speech

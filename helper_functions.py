@@ -1,5 +1,8 @@
 import unicodedata
 import re
+from unidecode import unidecode
+
+
 
 ACCENT_MAPPING = {
         '́': '',
@@ -55,4 +58,4 @@ def remove_weird_characters_for_alternative_canonical(s: str):
 gloss_string = "Pronunciation spelling of abuelo"
 standard_form = gloss_string[26:].replace(" (", ";").split(";", 1)[0]
 
-print(standard_form)
+print(unidecode("niño"))

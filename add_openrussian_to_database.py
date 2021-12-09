@@ -30,6 +30,13 @@ def contains_apostrophes_or_yo(word: str) -> bool:
             return True
     return False
 
+def begins_with_star(word: str) -> bool:
+    """Returns true if the word should be ignored"""
+    return len(word) == 0 or word == None or word[0] == "*"
+
+def remove_parantheses(word: str) -> bool:
+    return word.replace("(", "").replace(")", "")
+
 def output_difference_of_word_list(openrussian_wordlist: list[str]):
     con = sqlite3.connect("words4.db")
     cur = con.cursor()
@@ -52,8 +59,8 @@ def output_difference_of_word_list(openrussian_wordlist: list[str]):
         for wrd in stuff_not_in_OpenRussian:    
             output.write(wrd + "\n")
     
-
 def add_openrussian_to_db():
+
     con = sqlite3.connect("words4.db")
     openrussian = sqlite3.connect("openrussian_csv_new.db")
     
@@ -90,6 +97,9 @@ def add_openrussian_to_db():
     #quit()
 
     for w in words_split_up:
+        if begins_with_star(w):
+            continue #this means that the word is unused -> we don't need it
+        w = remove_parantheses(w)
         word_without_apostrophes = remove_apostrophes(w)
         word_accented = remove_accent_if_only_one_syllable(convert_ap_accent_to_real(w))
         word_lowercase = word_without_apostrophes.lower()

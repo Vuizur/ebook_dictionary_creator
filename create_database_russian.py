@@ -6,6 +6,8 @@ from add_openrussian_to_database import add_openrussian_to_db
 from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, unaccentify, remove_accent_if_only_one_syllable
 import re
 
+DO_NOT_ADD_GRAMMAR_INFO = True #Set true to reduce size of DB
+
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
     word_form = form["form"]
@@ -31,7 +33,7 @@ try:
     os.remove("words4.db")
 except:
     pass
-with open('create_db_tables.sql', 'r') as sql_file:
+with open('create_db_tables_russian.sql', 'r') as sql_file:
     sql_script = sql_file.read()
 
 con = sqlite3.connect('words4.db')
@@ -148,9 +150,10 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
                 sense_id = cur.lastrowid
                 try:
                     for gloss in sense["glosses"]:
-                        gloss_sense_id = sense_id
-                        gloss_string = gloss
-                        cur.execute("INSERT INTO gloss (sense_id, word_case) VALUES(?, ?)", (gloss_sense_id, gloss_string))
+                        if DO_NOT_ADD_GRAMMAR_INFO:
+                            gloss = None
+
+                        cur.execute("INSERT INTO gloss (sense_id, word_case) VALUES(?, ?)", (sense_id, gloss))
                 except:
                     pass
                 #todo: fix for glosses that aren't the base word (pretty rare case)
@@ -159,9 +162,9 @@ with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
                 sense_id = cur.lastrowid
                 try:
                     for gloss in sense["glosses"]:
-                        gloss_sense_id = sense_id
-                        gloss_string = gloss
-                        cur.execute("INSERT INTO gloss (sense_id, gloss_string, word_case) VALUES(?, ?, \"nominative\")", (gloss_sense_id, gloss_string))
+                        if DO_NOT_ADD_GRAMMAR_INFO:
+                            gloss = None
+                        cur.execute("INSERT INTO gloss (sense_id, gloss_string, word_case) VALUES(?, ?, \"nominative\")", (sense_id, gloss))
                 except:
                     pass
        
@@ -201,8 +204,6 @@ SELECT ?, COALESCE ( \
             form_of_word_id = cur.lastrowid
             cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
             
-            
-
 
     t1 = time.time()
     print(t1 - t0)
@@ -210,4 +211,5 @@ SELECT ?, COALESCE ( \
 
 con.commit()
 con.close()
-#add_openrussian_to_db()
+
+add_openrussian_to_db()

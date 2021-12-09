@@ -48,25 +48,14 @@ cur.executescript(sql_script)
 con.commit()
 
 
-with open("spanish-dict-utf8.json", "r", encoding="utf-8") as f:
+with open("spanish-dict-utf8_new.json", "r", encoding="utf-8") as f:
                                 #word_id, base_word_string
     form_of_words_to_add_later: "list[tuple(int, str)]" = []
     for line in f:
 
         obj = json.loads(line)
 
-        #iterate through all hundreds of thousands objects
-        #form_col = None
-        #form_string = None
         pos = None
-        #form_dict = {
-        #"canonical_form": None,
-        #"romanized_form": None,
-        #"genitive_form": None,
-        #"adjective_form": None,
-        #"nominative_plural_form": None,
-        #"genitive_plural_form": None
-        #}
         word = None
         lang_code = None
         word_pos = obj["pos"]
@@ -81,6 +70,9 @@ with open("spanish-dict-utf8.json", "r", encoding="utf-8") as f:
         for sense in obj["senses"]:
             if "form_of" in sense:
                 for base_word in sense["form_of"]:
+                    #TODO: This introduces some errors, but fixes more important ones
+                    if base_word["word"][-1] == "." and base_word["word"][-2].islower():
+                        base_word["word"] = base_word["word"][:-1]
                     form_of_words_to_add_later.append((word_id, base_word["word"]))
                 #todo: fix for glosses that aren't the base word (pretty rare case)
             else:
@@ -200,8 +192,178 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
                 print(e)
             print(imp_base_word)
             print(base_word)
-    cur.execute("DELETE FROM gloss WHERE gloss_string LIKE \"%Misspelling%\"")
-        
+    #cur.execute("DELETE FROM gloss WHERE gloss_string LIKE \"%Misspelling%\"")
+    #This mistake annoys me, fixed by code?
+    #cur.execute("DELETE FROM word WHERE word = \"habia\"") 
+    #You will never want to look theses up and they get displayed in Kindle for some reason
+    cur.execute("DELETE FROM word WHERE word LIKE \"-%\"")  
+    cur.execute("DELETE FROM word WHERE word LIKE \"%-\"")  
+
+
+    #Now add correct glosses to Alternate Form
+
+    alternative_forms = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Alternative form of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in alternative_forms:
+        standard_form = gloss_string[20:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+#I changed my mind, not like this
+#        sense_ids = cur.execute("""
+#SELECT s.sense_id
+#FROM word w 
+#INNER JOIN sense s ON s.word_id = w.word_id 
+#WHERE w.word = ?
+#""", (standard_form,))
+#        
+#        #This executes probably too often, but whatever
+#        for updated_sense_id in sense_ids:
+#            cur.execute("INSERT OR IGNORE INTO sense (sense_id, word_id) VALUES (?, ?)", (updated_sense_id[0], word_id))
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+    #Add obsolete spelling /form as inflection
+
+    obsolete_forms = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Obsolete form of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in obsolete_forms:
+        standard_form = gloss_string[17:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+    obsolete_spelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Obsolete spelling of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in obsolete_spelling:
+        standard_form = gloss_string[21:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+    alternative_spelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Alternative spelling of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in alternative_spelling:
+        standard_form = gloss_string[24:].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+    #Delete misspelling
+    misspelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE "Misspelling of%"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in misspelling:
+
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
+
+    #Delete the 3 or so entries that for some reason are base forms of themselves (leads to problems)
+    cur.execute("""DELETE FROM form_of_word
+WHERE form_of_word.word_id = form_of_word.base_word_id""")
+
+#TODO: Maybe we do not want to delete the intermediate links -> commented out
+
+#Yeah, this is bugged for "noviecitas"
+    transitive_base_of_relation_5 = cur.execute("""
+    SELECT w1.word_id, w2.word_id, w3.word_id, w4.word_id, w5.word_id FROM word w1
+    JOIN form_of_word fow ON fow.word_id = w1.word_id 
+    JOIN word w2 ON fow.base_word_id = w2.word_id 
+    JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
+    JOIN word w3 ON fow2.base_word_id = w3.word_id 
+    JOIN form_of_word fow3 ON fow3.word_id = w3.word_id 
+    JOIN word w4 ON fow3.base_word_id = w4.word_id 
+    JOIN form_of_word fow4 ON fow4.word_id = w4.word_id 
+    JOIN word w5 ON fow4.base_word_id = w5.word_id 
+    WHERE w1.word_id != w3.word_id AND w2.word_id != w4.word_id 
+    AND w1.word != "noviecitas"
+    """).fetchall()
+
+    for word1_id, word2_id, word3_id, word4_id, word5_id in transitive_base_of_relation_5:
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word5_id))
+
+        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+
+
+#This is slow, but whatever
+    transitive_base_of_relation_4 = cur.execute("""
+SELECT w1.word_id, w2.word_id, w3.word_id, w4.word_id FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+JOIN word w2 ON fow.base_word_id = w2.word_id 
+JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
+JOIN word w3 ON fow2.base_word_id = w3.word_id 
+JOIN form_of_word fow3 ON fow3.word_id = w3.word_id 
+JOIN word w4 ON fow3.base_word_id = w4.word_id 
+WHERE w1.word_id != w3.word_id
+    """).fetchall()
+
+    for word1_id, word2_id, word3_id, word4_id in transitive_base_of_relation_4:
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word4_id))
+
+        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+
+
+
+
+    #Now break up base_of relations that go like word1 -> word2 -> word3
+    transitive_base_of_relation_3 = cur.execute("""
+    SELECT w1.word_id, w2.word_id, w3.word_id FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+JOIN word w2 ON fow.base_word_id = w2.word_id 
+JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
+JOIN word w3 ON fow2.base_word_id = w3.word_id 
+    """).fetchall()
+
+    for word1_id, word2_id, word3_id in transitive_base_of_relation_3:
+
+        if word1_id != word3_id:
+            cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word3_id))
+        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+
+
+    #Now delete entries that don't have senses -> There would be currently many basic words like fue vieses or visto in this that 
+    #are caused by a bug in Wiktextract if I hadn't implemented a workaround
+    cur.execute("""DELETE FROM word 
+WHERE word.word_id NOT IN (SELECT sense.word_id FROM sense) AND word.word_id NOT IN (SELECT form_of_word.word_id FROM form_of_word)
+""")
+
+
 con.commit()
 con.close()
 

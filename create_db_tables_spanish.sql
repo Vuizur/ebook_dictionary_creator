@@ -27,5 +27,6 @@ CREATE TABLE gloss
     gloss_id INTEGER NOT NULL PRIMARY KEY,
     sense_id INTEGER,
     gloss_string VARCHAR,
+    lang VARCHAR,
     FOREIGN KEY(sense_id) REFERENCES sense(sense_id)
 );

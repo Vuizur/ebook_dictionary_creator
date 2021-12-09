@@ -10,6 +10,7 @@ def create_spanish_kindle_dict():
     con = sqlite3.connect("spanish_dict.db")
     cur = con.cursor()
     print("Getting base forms")
+    #TODO: This ignores words that have glosses, but are also base forms of other words -> Fix this!
     base_forms = cur.execute("SELECT w.word_id, w.word FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
     base_forms_no_dupes = []
     #TODO: This removes meanings of words!

@@ -2,8 +2,6 @@ import sqlite3
 
 from helper_functions import remove_accent_if_only_one_syllable
 
-DATABASE_NAME = "russian_dict.db"
-
 def convert_ap_accent_to_real(word: str) -> str:
     res = ""
     for char in word:
@@ -39,8 +37,8 @@ def begins_with_star(word: str) -> bool:
 def remove_parantheses(word: str) -> bool:
     return word.replace("(", "").replace(")", "")
 
-def output_difference_of_word_list(openrussian_wordlist: list[str]):
-    con = sqlite3.connect(DATABASE_NAME)
+def output_difference_of_word_list(openrussian_wordlist: list[str], database_path):
+    con = sqlite3.connect(database_path)
     cur = con.cursor()
     words = cur.execute("SELECT word FROM word").fetchall()
     OR_wordlist = set()
@@ -61,9 +59,9 @@ def output_difference_of_word_list(openrussian_wordlist: list[str]):
         for wrd in stuff_not_in_OpenRussian:    
             output.write(wrd + "\n")
     
-def add_openrussian_to_db():
+def add_openrussian_to_db(database_path):
 
-    con = sqlite3.connect(DATABASE_NAME)
+    con = sqlite3.connect(database_path)
     openrussian = sqlite3.connect("openrussian_csv_new.db")
     
     words_to_add: list[str] = []
@@ -117,8 +115,3 @@ def add_openrussian_to_db():
             #print(w)
     con.commit()
     con.close()
-
-if __name__ == "__main__":
-    add_openrussian_to_db()
-
-#add_openrussian_to_db()

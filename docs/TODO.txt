@@ -3,3 +3,9 @@ Add the forms given by the new Wiktextract dumps (Russian but also maybe for Spa
 
 Create public project with name ebookreader_dictionary_creator
 Exact prevents uppercase symbols to be matched, so I should evaluate if I should use it
+
+Add a command line interface that executes everything
+
+Fix create_openrussian_database_from_csv so that it doesn't crash from wrong csv data
+
+Fix/report баско́й obsolete

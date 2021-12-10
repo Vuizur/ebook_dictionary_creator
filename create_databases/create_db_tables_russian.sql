@@ -5,14 +5,8 @@ CREATE TABLE word
     canonical_form VARCHAR,
     alternative_canonical_form VARCHAR,
     romanized_form VARCHAR,
-    genitive_form VARCHAR,
-    adjective_form VARCHAR,
-    nominative_plural_form VARCHAR,
-    genitive_plural_form VARCHAR,
     ipa_pronunciation VARCHAR,
-    lang VARCHAR,
     word VARCHAR,
-    lang_code VARCHAR,
     word_lowercase VARCHAR,
     word_lower_and_without_yo VARCHAR
     --theoretically derived words could be added too

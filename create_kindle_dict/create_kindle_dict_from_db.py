@@ -2,8 +2,6 @@ from os import path
 import sqlite3
 from pyglossary.glossary import Glossary
 
-DATABASE_NAME = "russian_dict.db"
-
 STARTING_XHTML = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
@@ -71,10 +69,9 @@ END_NAV = """</ol></nav>
 
 CREATE_INFLECTION_TAGS_REGARDLESS = False
 
-DATABASE_NAME = "russian_dict.db"
 
-def create_kindle_dict_from_db():
-    con = sqlite3.connect(DATABASE_NAME)
+def create_kindle_dict_from_db(database_path):
+    con = sqlite3.connect(database_path)
     cur = con.cursor()
     
     base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
@@ -201,13 +198,13 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     cur.close()
     con.close()
 
-def create_py_glossary_and_export():
+def create_py_glossary_and_export(database_path):
     Glossary.init()
     glos = Glossary()
 
     defiFormat = "h"
 
-    con = sqlite3.connect(DATABASE_NAME)
+    con = sqlite3.connect(database_path)
     cur = con.cursor()
     
     base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
@@ -270,7 +267,3 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     #Spellcheck set to false because not supported for Russian
     glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
     #I don't know why the result does not work
-
-if __name__ == "__main__":
-    #create_kindle_dict_from_db()
-    create_py_glossary_and_export()

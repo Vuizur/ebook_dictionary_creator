@@ -7,7 +7,6 @@ from helper_functions import has_cyrillic_letters, remove_weird_characters_for_a
 import re
 
 DO_NOT_ADD_GRAMMAR_INFO = True #Set true to reduce size of DB
-DATABASE_NAME = "russian_dict.db"
 
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
@@ -31,15 +30,15 @@ def append_form_to_record(form: dict, form_dict:dict):
             elif form_tag == "adjective":
                 form_dict["adjective_form"] = word_form
 
-def create_database_russian():
+def create_database_russian(database_path: str, wiktextract_json_path: str):
     try:
-        os.remove(DATABASE_NAME)
+        os.remove(database_path)
     except:
         pass
     with open('create_databases/create_db_tables_russian.sql', 'r') as sql_file:
         sql_script = sql_file.read()
 
-    con = sqlite3.connect(DATABASE_NAME)
+    con = sqlite3.connect(database_path)
     cur = con.cursor()
     cur.executescript(sql_script)
 
@@ -47,17 +46,14 @@ def create_database_russian():
 
     alternative_yo_pattern = re.compile(".*Alternative spelling.*ё")
 
-    with open("russian-dict-utf8_2.json", "r", encoding="utf-8") as f:
+    with open(wiktextract_json_path, "r", encoding="utf-8") as f:
         #tuple structure: word_id, base_word_string, grammar case
         form_of_words_to_add_later: "list[tuple(int, str, str)]" = []
         for line in f:
 
             obj = json.loads(line)
 
-            form_col = None
-            form_string = None
             word_ipa_pronunciation = None
-            pos = None
             form_dict: dict[str, str] = {
             "canonical_form": None,
             "alternative_canonial_form": None,
@@ -67,10 +63,6 @@ def create_database_russian():
             "nominative_plural_form": None,
             "genitive_plural_form": None
             }
-            ipa_pronunciation = None
-            lang = None
-            word = None
-            lang_code = None
 
             word_pos = obj["pos"]
             try:
@@ -91,7 +83,6 @@ def create_database_russian():
                 not has_cyrillic_letters(form_dict["canonical_form"])):
                 continue
 
-
             #remove everything after the first word because canonical forms are currently bugged in the wiktionary data
             #this creates inconsistent data, but for looking up the stress only words without space matter
             #TODO: fix and hope it gets solved upstream
@@ -103,9 +94,6 @@ def create_database_russian():
             except:
                 pass
 
-            
-            word_lang = obj["lang"]
-            word_lang_code = obj["lang_code"]
             word_word = obj["word"]
             word_lowercase = word_word.lower()
             word_without_yo = word_lowercase.replace("ё", "е")
@@ -125,14 +113,13 @@ def create_database_russian():
                 pass
             
 
-            cur.execute("INSERT INTO word (pos, canonical_form, alternative_canonical_form, romanized_form, genitive_form, adjective_form, nominative_plural_form, \
-                genitive_plural_form, ipa_pronunciation, lang, word, lang_code, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (word_pos, form_dict["canonical_form"], form_dict["alternative_canonial_form"], form_dict["romanized_form"], form_dict["genitive_form"], form_dict["adjective_form"]\
-                , form_dict["nominative_plural_form"], form_dict["genitive_plural_form"], word_ipa_pronunciation, word_lang, word_word, word_lang_code, word_lowercase, word_without_yo))
+            cur.execute("INSERT INTO word (pos, canonical_form, alternative_canonical_form, romanized_form, \
+                ipa_pronunciation, word, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (word_pos, form_dict["canonical_form"], form_dict["alternative_canonial_form"], form_dict["romanized_form"], \
+               word_ipa_pronunciation, word_word, word_lowercase, word_without_yo))
 
             word_id = cur.lastrowid
             #word_id, base_word_string
-
 
             for sense in obj["senses"]:
                 try:
@@ -215,7 +202,4 @@ def create_database_russian():
     con.commit()
     con.close()
 
-    add_openrussian_to_db()
-
-if __name__ == "__main__":
-    create_database_russian()
+    add_openrussian_to_db(database_path)

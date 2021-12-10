@@ -15,28 +15,30 @@ def create_spanish_kindle_dict():
     base_forms = cur.execute("""SELECT word_id, word FROM word 
 WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
 """).fetchall()
-    #base_forms_no_dupes = []
-    ##TODO: This removes meanings of words!
-    #already_used_forms = []
-    #print("Eliminating duplicates")
-    #for word_id, canonical_form in base_forms:
-    #    if canonical_form in already_used_forms:
-    #        continue
-    #    else:
-    #        base_forms_no_dupes.append((word_id, canonical_form))
-    #        already_used_forms.append(canonical_form)
-#
-    #base_forms = base_forms_no_dupes
     
     inflection_num = 0
     counter = 0
     print("Iterating through base forms:")
+
+    #This is needed to detect collisions between inflections ->
+    #I don't yet know if the existence of one inflection stops the other from being found (but probably?)
+    #TODO: Test with fui or fue
+
+    all_inflections = []
+    for word_id, canonical_form in base_forms:
+        inflections = cur.execute("""SELECT w1.word FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+JOIN word w2 ON w2.word_id = fow.base_word_id 
+WHERE w2.word = ?""", (canonical_form,)).fetchall()
+        word_inflections = []
+        for inflection in inflections:
+            word_inflections.append(inflection[0])
+        all_inflections.extend(list(set(word_inflections))) #Necessary because of too much form_of_word linkages
+
+
     for word_id, canonical_form in base_forms:
         counter = counter + 1
         #get inflections
-        #TODO: get alternative canonical form as inflection as well
-        #and add all unaccented versions as inflection as well
-
         inflections = cur.execute("""SELECT w1.word FROM word w1
 JOIN form_of_word fow ON fow.word_id = w1.word_id 
 JOIN word w2 ON w2.word_id = fow.base_word_id 
@@ -45,6 +47,10 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
         infl_list = []
 
         for inflection in inflections:
+            if all_inflections.count(inflection[0]) > 1:
+                #TODO: Finish once the pyglossary feature has been implemented
+                #This should cause the creation of a new headword (if it works like I imagined)
+                print(inflection[0])
             infl_list.append(inflection[0])
         infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
         inflection_num += len(infl_list)

@@ -2,6 +2,8 @@ from os import path
 import sqlite3
 from pyglossary.glossary import Glossary
 
+DATABASE_NAME = "russian_dict.db"
+
 STARTING_XHTML = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
@@ -69,8 +71,10 @@ END_NAV = """</ol></nav>
 
 CREATE_INFLECTION_TAGS_REGARDLESS = False
 
+DATABASE_NAME = "russian_dict.db"
+
 def create_kindle_dict_from_db():
-    con = sqlite3.connect("words4.db")
+    con = sqlite3.connect(DATABASE_NAME)
     cur = con.cursor()
     
     base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
@@ -203,7 +207,7 @@ def create_py_glossary_and_export():
 
     defiFormat = "h"
 
-    con = sqlite3.connect("words4.db")
+    con = sqlite3.connect(DATABASE_NAME)
     cur = con.cursor()
     
     base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()

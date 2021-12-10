@@ -2,6 +2,7 @@ Prevent the program from inserting two words that have the same canonical form a
 Add the forms given by the new Wiktextract dumps (Russian but also maybe for Spanish)
 
 Create public project with name ebookreader_dictionary_creator
+
 Exact prevents uppercase symbols to be matched, so I should evaluate if I should use it
 
 Add a command line interface that executes everything
@@ -9,6 +10,7 @@ Add a command line interface that executes everything
 Fix create_openrussian_database_from_csv so that it doesn't crash from wrong csv data
 
 Fix/report баско́й obsolete
+
 Alternative_canonical_forms is sometimes wrongly filled
 
 Report to Wiktextract that accusative would be nice if it had animate/inanimate tags
@@ -20,3 +22,8 @@ Refactor create_db_tables_spanish into functions and reuse for english version
 Add a custom collation to the Spanish SQLITE file so that it can be searched properly with a nocase version
 
 Delete the openrussian.db database before adding elements again.
+
+Maybe fix the double linkage that occurs when base_form links to a word that is two times in database.
+-> But first assure that there are no valid base_form links across part of speech tokens (who knows?)
+
+Recommend dont_append source in pyglossary

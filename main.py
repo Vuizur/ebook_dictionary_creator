@@ -23,4 +23,5 @@ def create_es_db_full(wiktextract_json_input_path,output_database_path="spanish_
 
 if __name__ == "__main__":
     #create_ru_db_full("kaikki.org-dictionary-Russian.json")
-    create_es_db_full("kaikki.org-dictionary-Spanish_new.json")
+    #create_es_db_full("kaikki.org-dictionary-Spanish_new.json")
+    convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")

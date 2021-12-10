@@ -1,15 +1,11 @@
 import csv, sqlite3, time
 
 
-if __name__ == "__main__":
-
-    conn = sqlite3.connect("openrussian_csv.db")
-
-    dir = "openrussian-csvs"
+def create_openrussian_database(openrussian_database_path):
 
     t = time.time()
 
-    conn = sqlite3.connect("openrussian_csv_new.db" )
+    conn = sqlite3.connect(openrussian_database_path)
     cur = conn.cursor()
     adj_path = "create_databases/openrussian-csvs/russian3 - adjectives.csv"
     conj_path = "create_databases/openrussian-csvs/russian3 - conjugations.csv"

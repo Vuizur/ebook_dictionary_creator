@@ -161,9 +161,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         con.commit()
             #add form of words after all data has been inserted
 
-        with open("forms_to_add_later.json", 'w', encoding="utf-8") as f:
-        # indent=2 is not needed but makes the file human-readable
-            json.dump(form_of_words_to_add_later, f, indent=2, ensure_ascii=False) 
+        #with open("forms_to_add_later.json", 'w', encoding="utf-8") as f:
+        ## indent=2 is not needed but makes the file human-readable
+        #    json.dump(form_of_words_to_add_later, f, indent=2, ensure_ascii=False) 
 
         cur.execute("CREATE INDEX word_word_index ON word(word);")
         cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
@@ -201,5 +201,3 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
     con.commit()
     con.close()
-
-    add_openrussian_to_db(database_path)

@@ -59,10 +59,10 @@ def output_difference_of_word_list(openrussian_wordlist: list[str], database_pat
         for wrd in stuff_not_in_OpenRussian:    
             output.write(wrd + "\n")
     
-def add_openrussian_to_db(database_path):
+def add_openrussian_to_db(database_path, openrussian_database_path):
 
     con = sqlite3.connect(database_path)
-    openrussian = sqlite3.connect("openrussian_csv_new.db")
+    openrussian = sqlite3.connect(openrussian_database_path)
     
     words_to_add: list[str] = []
     adjectives = openrussian.execute("SELECT comparative, superlative, short_m, short_f, short_n, short_pl from adjectives").fetchall()

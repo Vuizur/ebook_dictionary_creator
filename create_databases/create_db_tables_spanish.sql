@@ -3,8 +3,6 @@ CREATE TABLE word
     word_id INTEGER NOT NULL PRIMARY KEY,
     pos VARCHAR,
     word VARCHAR,
-    lang_code VARCHAR
-    P
     --theoretically derived words could be added too
 );
 

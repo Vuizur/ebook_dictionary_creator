@@ -9,3 +9,10 @@ Add a command line interface that executes everything
 Fix create_openrussian_database_from_csv so that it doesn't crash from wrong csv data
 
 Fix/report баско́й obsolete
+Alternative_canonical_forms is sometimes wrongly filled
+
+Report to Wiktextract that accusative would be nice if it had animate/inanimate tags
+
+Add new inflections from Wiktextract
+
+Refactor create_db_tables_spanish into functions and reuse for english version

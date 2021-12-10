@@ -2,3 +2,4 @@ Prevent the program from inserting two words that have the same canonical form a
 Add the forms given by the new Wiktextract dumps (Russian but also maybe for Spanish)
 
 Create public project with name ebookreader_dictionary_creator
+Exact prevents uppercase symbols to be matched, so I should evaluate if I should use it

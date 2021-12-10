@@ -10,3 +10,12 @@ You can set the parameter "exact", but this parameter sucks because it only work
 ### What we have learned
 
 Even if you had tried, you could not have written a worse algorithm. The author should feel bad.
+
+The amazing thing is that the problem with the inflections not being found could be fixed in at most 3 lines of code (seriously) and would not cause any performance hit, but has existed for at least 11 years:
+https://www.mobileread.com/forums/showpost.php?p=1210335&postcount=3
+The problems with ñ being converted to n could also be fixed by a monkey: by simply not doing it. Seriously, there is no conceivable reason why doing it would be of any use.
+
+### Some interesting threads:
+
+https://www.mobileread.com/forums/showthread.php?t=336241
+https://www.mobileread.com/forums/showthread.php?t=309147

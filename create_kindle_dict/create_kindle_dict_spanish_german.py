@@ -3,6 +3,7 @@ import sqlite3
 import csv
 import os
 
+#TODO: Finish
 DICT_CC_FOLDER = "dict_cc_es_de"
 
 def add_es_de_to_database():

@@ -1,2 +1,4 @@
 Prevent the program from inserting two words that have the same canonical form and part of speech (I think it does so for different etymologies)
 Add the forms given by the new Wiktextract dumps (Russian but also maybe for Spanish)
+
+Create public project with name ebookreader_dictionary_creator

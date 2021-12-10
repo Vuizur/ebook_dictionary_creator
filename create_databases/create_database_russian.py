@@ -177,7 +177,7 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         cur.execute("CREATE INDEX base_word_id_index ON form_of_word(base_word_id);")
 
         con.commit()
-        records = []
+
         t0 = time.time()
 
         for index in range(0, len(form_of_words_to_add_later), 1000):

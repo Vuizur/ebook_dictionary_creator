@@ -16,3 +16,7 @@ Report to Wiktextract that accusative would be nice if it had animate/inanimate 
 Add new inflections from Wiktextract
 
 Refactor create_db_tables_spanish into functions and reuse for english version
+
+Add a custom collation to the Spanish SQLITE file so that it can be searched properly with a nocase version
+
+Delete the openrussian.db database before adding elements again.

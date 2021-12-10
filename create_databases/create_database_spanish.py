@@ -1,9 +1,7 @@
 import json
 import sqlite3
-from sqlite3.dbapi2 import Error
 import time
 import os
-
 
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]

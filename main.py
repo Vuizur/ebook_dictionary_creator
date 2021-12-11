@@ -1,9 +1,10 @@
 from create_databases.create_database_russian import create_database_russian
-from create_databases.create_database_spanish import create_database, Language
+from create_databases.create_database import create_database, Language
 from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
 from create_databases.add_openrussian_to_database import add_openrussian_to_db
-from create_kindle_dict.create_kindle_dict_spanish_from_db import create_spanish_kindle_dict
+from create_kindle_dict.create_kindle_dict import create_kindle_dict
+from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db
 
 def create_ru_db_full(wiktextract_json_input_path, openrussian_db_path = "openrussian.db", output_database_path = "russian_dict.db", intermediate_utf8_json_path="russian-dict.json"):
     """Creates an SQLite database containing the data from Wiktextract combined with data by OpenRussian\n
@@ -28,6 +29,8 @@ if __name__ == "__main__":
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
     #    output_database_path="english_dict.db", intermediate_utf8_json_path="english_dict.json")
-    create_database("english_dict.db", "english_dict.json", Language.ENGLISH)
-    #create_spanish_kindle_dict("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
+    #convert_file_to_utf8("kaikki.org-dictionary-Italian.json", "italian-dict.json")
+    #create_database("italian_dict.db", "italian-dict.json", Language.ITALIAN)
+    create_kindle_dict("italian_dict.db", "Italian", "English", "italian_dict", "Vuizur", "Italian-English Dictionary")
+    #create_kindle_dict_from_db("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
     #create_database("spanish_dict.db", "spanish-dict.json", language=Language.SPANISH)

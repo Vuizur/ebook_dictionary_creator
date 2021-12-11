@@ -67,7 +67,7 @@ def add_linkages_to_spanish_compound_words(cur: Cursor):
     """).fetchall()
 
     for word_id, sense_id, gloss_id, gloss_string in compound_words:
-        if "Compound of the infinitive" in gloss_string:
+        if "compound of the infinitive" in gloss_string.lower():
             #let's hope this works for all infinitive cases, but maybe notS
             string_sliced = gloss_string[27:]
             base_word = string_sliced.split(" ")[0]
@@ -156,15 +156,18 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
                 print(gloss_string)
         else:
             print(word_id)
-            print(str(word_id))
             print(gloss_string)
         cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
 
     
 
-def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, delete_words_beginning_or_ending_with_minus = True, delete_surnames = True, delete_entries_with_space = False):
-    #words_without_chars = cur.execute("SELECT w.word FROM word w WHERE w.word NOT REGEXP \"\p{L}+|\p{M}+\"").fetchall
+def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, delete_words_beginning_or_ending_with_minus = True, 
+    delete_sur_given_names = True, delete_entries_with_space = False):
+    
+    #TODO: finish
+    place_signifiers = ["a city", "a town", "a province", "the capital city", "a neighbourhood", "a state", "a canton of"]
+
     word_ids = cur.execute("SELECT w.word_id, w.word FROM word w").fetchall()
     if delete_words_without_chars:
         for word_id, word in word_ids:
@@ -172,13 +175,13 @@ def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, dele
                 print(word)
                 cur.execute("DELETE FROM word WHERE word_id = ?", (word_id,))
     cur.execute("DELETE FROM word WHERE pos = \"circumfix\"")
-    if delete_surnames:
+    if delete_sur_given_names:
         name_tuple = cur.execute("""
 SELECT s.sense_id, g.gloss_id
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
---WHERE g.gloss_string LIKE "%A surname%"
+WHERE g.gloss_string LIKE "%A surname%" OR g.gloss_string LIKE "%a male given name" OR g.gloss_string  LIKE "%a female given name%"
 """).fetchall()
         for sense_id, gloss_id in name_tuple:
             cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
@@ -420,8 +423,9 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: L
             delete_unneeded_entries(cur)
 
 
-
         if language == Language.SPANISH:
+            add_linkages_to_spanish_compound_words(cur)
+        elif language == Language.ITALIAN:
             add_linkages_to_spanish_compound_words(cur)
 
         link_up_alternative_forms_or_spellings(cur)

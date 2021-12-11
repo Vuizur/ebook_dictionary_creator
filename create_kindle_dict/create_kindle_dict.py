@@ -1,7 +1,7 @@
 from pyglossary import Glossary
 import sqlite3
 
-def create_spanish_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str, title: str, try_to_fix_kindle_lookup_stupidity=False):
+def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str, title: str, try_to_fix_kindle_lookup_stupidity=False):
     Glossary.init()
     glos = Glossary()
 
@@ -89,7 +89,3 @@ WHERE w.word = ?""", (canonical_form,)).fetchall()
     print(str(inflection_num) + " inflections")
     cur.close()
     con.close()
-
-if __name__ == "__main__":
-    #create_kindle_dict_from_db()
-    create_spanish_kindle_dict("spanish_dict.db", "Spanish", "English", "spanish_dict.mobi", "Vuizur", "Spanish-English Dictionary")

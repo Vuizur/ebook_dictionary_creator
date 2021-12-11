@@ -8,3 +8,11 @@ Contributions and feedback about words that are not displayed correctly in the S
 
 ### Acknowledgements
 This project would not have been possible without the https://kaikki.org/ data provided by Tatu Ylonen, the OpenRussian data and the Pyglossary libary for the creation of the Kindle dictionary
+
+### Similar projects
+
+https://github.com/nyg/wiktionary-to-kindle apparently works very similarly, also supports inflections, as of now it only supports smaller languages though (has been tested for Finnish).
+
+https://github.com/efskap/kindlewick  
+
+https://github.com/BoboTiG/ebook-reader-dict is a program that parses the Wiktionary dump itself and outputs Kobo compatible files

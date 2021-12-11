@@ -2,7 +2,7 @@ CREATE TABLE word
 (
     word_id INTEGER NOT NULL PRIMARY KEY,
     pos VARCHAR,
-    word VARCHAR,
+    word VARCHAR
     --theoretically derived words could be added too
 );
 

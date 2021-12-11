@@ -27,3 +27,5 @@ Maybe fix the double linkage that occurs when base_form links to a word that is 
 -> But first assure that there are no valid base_form links across part of speech tokens (who knows?)
 
 Recommend dont_append source in pyglossary
+
+Find way to output Dictionary in tabfile

@@ -31,6 +31,9 @@ if __name__ == "__main__":
     #    output_database_path="english_dict.db", intermediate_utf8_json_path="english_dict.json")
     #convert_file_to_utf8("kaikki.org-dictionary-Italian.json", "italian-dict.json")
     #create_database("italian_dict.db", "italian-dict.json", Language.ITALIAN)
-    create_kindle_dict("italian_dict.db", "Italian", "English", "italian_dict", "Vuizur", "Italian-English Dictionary")
-    #create_kindle_dict_from_db("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
+    #create_kindle_dict("italian_dict.db", "Italian", "English", "italian_dict", "Vuizur", "Italian-English Dictionary")
+    
+
+    #create_kindle_dict("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
     #create_database("spanish_dict.db", "spanish-dict.json", language=Language.SPANISH)
+    create_kindle_dict("spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)

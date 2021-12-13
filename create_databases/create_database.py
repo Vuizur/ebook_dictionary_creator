@@ -163,10 +163,11 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, base_word)
     
 
 def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, delete_words_beginning_or_ending_with_minus = True, 
-    delete_sur_given_names = True, delete_entries_with_space = False):
+    delete_sur_given_names = True, delete_entries_with_space = False, delete_cities_towns = True):
     
     #TODO: finish
-    place_signifiers = ["a city", "a town", "a province", "the capital city", "a neighbourhood", "a state", "a canton of"]
+    #place_signifiers = ["a city", "a town", "a province", "the capital city", "a neighbourhood", "a state", "a canton of"]
+
 
     word_ids = cur.execute("SELECT w.word_id, w.word FROM word w").fetchall()
     if delete_words_without_chars:
@@ -174,6 +175,10 @@ def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, dele
             if not word.upper().isupper():
                 print(word)
                 cur.execute("DELETE FROM word WHERE word_id = ?", (word_id,))
+    #if delete_cities_towns:
+    #    for word_id, word in word_ids:
+    #        if 
+    
     cur.execute("DELETE FROM word WHERE pos = \"circumfix\"")
     if delete_sur_given_names:
         name_tuple = cur.execute("""
@@ -416,7 +421,7 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: L
         print(t1 - t0)
 
         if language == Language.ENGLISH:
-            #Kindle's lookup is not very efficient it seems and loading times are unfortunately a bit longer
+            #Loading times are unfortunately a bit longer
             #So it might be a good idea to filter out more, but it hard to find out what
             delete_unneeded_entries(cur, delete_entries_with_space=True)
         else:

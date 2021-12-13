@@ -1,7 +1,14 @@
 from pyglossary import Glossary
 import sqlite3
+from unidecode import unidecode
+import collections
 
-def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str, title: str, try_to_fix_kindle_lookup_stupidity=False):
+def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
+    title: str, try_to_fix_kindle_lookup_stupidity=False):
+    """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup
+    of words that are not recognized by default due to the buggy algorithm that does not look at inflections if a fitting
+    base word exists
+    """
     Glossary.init()
     glos = Glossary()
 
@@ -15,45 +22,40 @@ def create_kindle_dict(source_database_path: str, input_language: str, output_la
     base_forms = cur.execute("""SELECT word_id, word FROM word 
 WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
 """).fetchall()
+
+    #this serves to check overlappings with base forms
+    base_forms_unidecoded = []
+    for base_form in base_forms:
+        base_forms_unidecoded.append(unidecode(base_form[1]))
     
     inflection_num = 0
     counter = 0
     print("Iterating through base forms:")
 
-    #This is needed to detect collisions between inflections ->
-    #I don't yet know if the existence of one inflection stops the other from being found (but probably?)
-    #TODO: Test with fui or fue
+    if try_to_fix_kindle_lookup_stupidity:
+        #This is needed to detect collisions between inflections ->
+        #I don't yet know if the existence of one inflection stops the other from being found (but probably?)
+        #TODO: Test with fui or fue
 
-    all_inflections = []
-    for word_id, canonical_form in base_forms:
-        inflections = cur.execute("""SELECT w1.word FROM word w1
+        all_inflections = []
+        for word_id, canonical_form in base_forms:
+            inflections = cur.execute("""SELECT w1.word FROM word w1
 JOIN form_of_word fow ON fow.word_id = w1.word_id 
 JOIN word w2 ON w2.word_id = fow.base_word_id 
 WHERE w2.word = ?""", (canonical_form,)).fetchall()
-        word_inflections = []
-        for inflection in inflections:
-            word_inflections.append(inflection[0])
-        all_inflections.extend(list(set(word_inflections))) #Necessary because of too much form_of_word linkages
+            word_inflections = []
+            for inflection in inflections:
+                word_inflections.append(unidecode(inflection[0].lower()))
+            all_inflections.extend(list(set(word_inflections))) #Necessary because of too much form_of_word linkages
+    
+        
+        print("Count all elements: ")
+        inflection_counts = collections.Counter(all_inflections)
+        print("Elements counted")
 
     for word_id, canonical_form in base_forms:
         counter = counter + 1
-        #get inflections
-        inflections = cur.execute("""SELECT w1.word FROM word w1
-JOIN form_of_word fow ON fow.word_id = w1.word_id 
-JOIN word w2 ON w2.word_id = fow.base_word_id 
-WHERE w2.word = ?""", (canonical_form,)).fetchall()
 
-        infl_list = []
-
-        for inflection in inflections:
-            if try_to_fix_kindle_lookup_stupidity and all_inflections.count(inflection[0]) > 1:
-                #TODO: Finish once the pyglossary feature has been implemented
-                #This should cause the creation of a new headword (if it works like I imagined)
-                "fjdhf"
-                #print(inflection[0])
-            infl_list.append(inflection[0])
-        infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
-        inflection_num += len(infl_list)
         glosses = cur.execute("""SELECT g.gloss_string
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
@@ -71,8 +73,35 @@ WHERE w.word = ?""", (canonical_form,)).fetchall()
         #TODO: add gloss count
         for gloss in glosses_list:
             glosshtml += "<p>" + gloss + "</p>"
-        all_forms = [canonical_form]
-        all_forms.extend(infl_list)
+
+        #get inflections
+        inflections = cur.execute("""SELECT w1.word FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+JOIN word w2 ON w2.word_id = fow.base_word_id 
+WHERE w2.word = ?""", (canonical_form,)).fetchall()
+
+        infl_list = []
+        for inflection in inflections:
+            infl_list.append(inflection[0])
+        infl_list = list(set(infl_list)) #This has to do with a bug in the linkages that causes words to be doubly linked
+        already_separated_unidecoded_inflections = []
+
+        rest_inflections = []
+        for inflection in infl_list:
+            unidecoded_inflection = unidecode(inflection)
+            if try_to_fix_kindle_lookup_stupidity and (not unidecoded_inflection in already_separated_unidecoded_inflections) \
+                 and ((unidecoded_inflection.lower() in base_forms_unidecoded) or (inflection_counts[inflection] > 1)):
+                #these forms will otherwise not be found by the stupid algorithm
+                pgl_list = ["HTML_HEAD<b>" + canonical_form + "</b>", inflection]
+                glos.addEntryObj(glos.newEntry(pgl_list, glosshtml, defiFormat))
+                already_separated_unidecoded_inflections.append(unidecoded_inflection)
+            else:
+                rest_inflections.append(inflection)
+        
+        inflection_num += len(infl_list)
+        
+        all_forms = ["HTML_HEAD<b>" + canonical_form + "</b>", canonical_form]
+        all_forms.extend(rest_inflections)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
 
         if counter % 2000 == 0:

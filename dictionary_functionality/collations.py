@@ -10,3 +10,15 @@ def collate_yo_ac_case_insensitive(string1: str, string2: str):
         return 1
     else:
         return 0
+
+
+def collate_utf8_lowercase(string1: str, string2: str):
+    string1 = string1.lower()
+    string2 = string2.lower()
+
+    if string1 < string2:
+        return -1
+    elif string1 > string2:
+        return 1
+    else:
+        return 0

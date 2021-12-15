@@ -8,6 +8,25 @@ import re
 
 DO_NOT_ADD_GRAMMAR_INFO = True #Set true to reduce size of DB
 
+def delete_inconsistent_canonical_forms(db_path):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+    res = cur.execute("SELECT word_id, canonical_form, alternative_canonical_form, word FROM word").fetchall()
+
+    for word_id, can_form, alt_can_form, word in res:
+        if " " not in word and word != unaccentify(can_form) or (alt_can_form != None and "f " not in alt_can_form and "m " not in alt_can_form and word != unaccentify(alt_can_form)):
+            
+            print(word)
+            print(can_form)
+            if alt_can_form != None:
+                print(alt_can_form)
+            print("========")
+            word_len = len(word)
+            if unaccentify(can_form[0:word_len]) != word:
+                cur.execute("DELETE FROM word WHERE word_id = ?", (word_id,))
+
+    cur.close()
+    con.close()
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
     word_form = form["form"]

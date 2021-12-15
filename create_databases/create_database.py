@@ -5,13 +5,6 @@ import time
 import os
 from enum import Enum
 
-class Language(Enum):
-    SPANISH = 1
-    ENGLISH = 2
-    ITALIAN = 3
-    FRENCH = 4
-    GERMAN = 5
-
 #TODO: This should be cleaned up/almost entirely removed
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
@@ -181,12 +174,31 @@ def delete_unneeded_entries(cur: Cursor, delete_words_without_chars = True, dele
     
     cur.execute("DELETE FROM word WHERE pos = \"circumfix\"")
     if delete_sur_given_names:
-        name_tuple = cur.execute("""
+        name_tuple = cur.execute(f"""
 SELECT s.sense_id, g.gloss_id
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
-WHERE g.gloss_string LIKE "%A surname%" OR g.gloss_string LIKE "%a male given name" OR g.gloss_string  LIKE "%a female given name%"
+WHERE g.gloss_string LIKE "%A surname%" 
+OR g.gloss_string LIKE "%male given name%" 
+OR g.gloss_string LIKE "%female given name%"
+OR g.gloss_string LIKE "%patronymic surname%"
+OR g.gloss_string LIKE "%habitational surname%"
+OR g.gloss_string LIKE "%occupational surname%"
+OR g.gloss_string LIKE "%patronymical surname%"
+OR g.gloss_string LIKE "%toponymic surname%"
+OR g.gloss_string LIKE "%demonymic surname%"
+OR g.gloss_string LIKE "%rare surname%"
+OR g.gloss_string LIKE "%geographic surname%"
+OR g.gloss_string LIKE "%Christian surname%"
+OR g.gloss_string LIKE "%Spanish surname%"
+OR g.gloss_string LIKE "%Russian surname%"
+OR g.gloss_string LIKE "%religious surname%"
+OR g.gloss_string LIKE "%locative surname%"
+OR g.gloss_string LIKE "% (surname) %"
+OR g.gloss_string LIKE "% (given name) %"
+OR g.gloss_string LIKE "% Arabic given name %"
+OR g.gloss_string LIKE "% (Given name %"
 """).fetchall()
         for sense_id, gloss_id in name_tuple:
             cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
@@ -299,6 +311,41 @@ WHERE g.gloss_string LIKE "Misspelling of%"
         cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
 
+    rest_spelling = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE " spelling of %"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in rest_spelling:
+        standard_form = gloss_string.split("spelling of ")[1].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+        cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+        cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+    
+    abbreviation = cur.execute("""
+SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
+FROM word w 
+INNER JOIN sense s ON s.word_id = w.word_id 
+INNER JOIN gloss g ON g.sense_id = s.sense_id 
+WHERE g.gloss_string LIKE " abbreviation of %"
+""").fetchall()
+
+    for word_id, sense_id, gloss_id, gloss_string in abbreviation:
+        standard_form = gloss_string.split("bbreviation of ")[1].replace(" (", ";").replace(".", ";").split(";", 1)[0]
+
+        results = cur.execute("SELECT * FROM word WHERE word = ?", (standard_form,)).fetchone()
+        if results == None:
+            print(gloss_string)
+        else:
+            cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+        SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)", (word_id, standard_form))
+            cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
+            cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
+
 def directly_link_transitive_base_form_relations(cur: Cursor):
     #Delete the 3 or so entries that for some reason are base forms of themselves (leads to problems)
     cur.execute("""DELETE FROM form_of_word
@@ -358,7 +405,7 @@ JOIN word w3 ON fow2.base_word_id = w3.word_id
 WHERE word.word_id NOT IN (SELECT sense.word_id FROM sense) AND word.word_id NOT IN (SELECT form_of_word.word_id FROM form_of_word)
 """)
 
-def create_database(output_db_path: str, wiktextract_json_file: str, language: Language):
+def create_database(output_db_path: str, wiktextract_json_file: str, language: str):
     try:
         os.remove(output_db_path)
     except:
@@ -420,17 +467,18 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: L
         t1 = time.time()
         print(t1 - t0)
 
-        if language == Language.ENGLISH:
+        if language == "English":
             #Loading times are unfortunately a bit longer
             #So it might be a good idea to filter out more, but it hard to find out what
             delete_unneeded_entries(cur, delete_entries_with_space=True)
+        elif language == "Arabic":
+            delete_unneeded_entries(cur, delete_words_without_chars=False)
         else:
             delete_unneeded_entries(cur)
 
-
-        if language == Language.SPANISH:
+        if language == "Spanish":
             add_linkages_to_spanish_compound_words(cur)
-        elif language == Language.ITALIAN:
+        elif language == "Italian":
             add_linkages_to_spanish_compound_words(cur)
 
         link_up_alternative_forms_or_spellings(cur)

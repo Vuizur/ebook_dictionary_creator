@@ -3,12 +3,7 @@ import sqlite3
 from unidecode import unidecode
 import collections
 
-def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
-    title: str, try_to_fix_kindle_lookup_stupidity=False):
-    """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup
-    of words that are not recognized by default due to the buggy algorithm that does not look at inflections if a fitting
-    base word exists
-    """
+def create_tabfile(source_database_path: str,):
     Glossary.init()
     glos = Glossary()
 

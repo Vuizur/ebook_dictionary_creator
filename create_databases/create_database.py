@@ -311,12 +311,12 @@ WHERE g.gloss_string LIKE "Misspelling of%"
         cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
 
-    rest_spelling = cur.execute("""
+    rest_spelling = cur.execute(f"""
 SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
-WHERE g.gloss_string LIKE " spelling of %"
+WHERE g.gloss_string LIKE "% spelling of %"
 """).fetchall()
 
     for word_id, sense_id, gloss_id, gloss_string in rest_spelling:
@@ -326,12 +326,12 @@ WHERE g.gloss_string LIKE " spelling of %"
         cur.execute("DELETE FROM gloss WHERE gloss_id = ?", (gloss_id,))
         cur.execute("DELETE FROM sense WHERE sense_id = ?", (sense_id,))
     
-    abbreviation = cur.execute("""
+    abbreviation = cur.execute(f"""
 SELECT w.word_id, s.sense_id, g.gloss_id, g.gloss_string 
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
-WHERE g.gloss_string LIKE " abbreviation of %"
+WHERE g.gloss_string LIKE "%abbreviation of %"
 """).fetchall()
 
     for word_id, sense_id, gloss_id, gloss_string in abbreviation:
@@ -339,6 +339,7 @@ WHERE g.gloss_string LIKE " abbreviation of %"
 
         results = cur.execute("SELECT * FROM word WHERE word = ?", (standard_form,)).fetchone()
         if results == None:
+            print("No base form found for:")
             print(gloss_string)
         else:
             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \

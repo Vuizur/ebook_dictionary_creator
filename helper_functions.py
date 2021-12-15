@@ -53,6 +53,3 @@ def has_cyrillic_letters(s: str):
 def remove_weird_characters_for_alternative_canonical(s: str):
     return(s.replace("^*", ""))
 
-
-gloss_string = "Dated spelling of way (much; far)."
-standard_form = gloss_string.split("spelling of ")[1].replace(" (", ";").replace(".", ";").split(";", 1)[0]

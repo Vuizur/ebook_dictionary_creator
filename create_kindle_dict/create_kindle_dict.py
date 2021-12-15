@@ -82,7 +82,10 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
 
         infl_list = []
         for inflection in inflections:
-            infl_list.append(inflection[0])
+            #This seeks to avoid double entries like aquella which links to aquélla and both have the same glosses and are
+            #found both due to the stupid kindle algorithm
+            if try_to_fix_kindle_lookup_stupidity and unidecode(canonical_form) != unidecode(inflection[0]):
+                infl_list.append(inflection[0])
         infl_list = list(set(infl_list)) #This has to do with a bug in the linkages that causes words to be doubly linked
         already_separated_unidecoded_inflections = []
 
@@ -99,7 +102,7 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
                 rest_inflections.append(inflection)
         
         inflection_num += len(infl_list)
-        
+
         all_forms = ["HTML_HEAD<b>" + canonical_form + "</b>", canonical_form]
         all_forms.extend(rest_inflections)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))

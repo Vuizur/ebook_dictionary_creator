@@ -68,8 +68,8 @@ if __name__ == "__main__":
 
     #### From Zero
     #create_dictionary_from_zero("Spanish", "English", "Vuizur", "Spanish-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Spanish.json")
-    #create_dictionary_from_zero("German", "English", "Vuizur", "German-English Dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-German.json")
-    create_dictionary_from_zero("Arabic", "English", "Vuizur", "Arabic-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Arabic.json")
-    create_dictionary_from_zero("Polish", "English", "Vuizur", "Polish-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Polish.json")
-    create_dictionary_from_zero("Portuguese", "English", "Vuizur", "Portuguese-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Portuguese.json")
+    create_dictionary_from_zero("German", "English", "Vuizur", "German-English Dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-German.json")
+    #create_dictionary_from_zero("Arabic", "English", "Vuizur", "Arabic-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Arabic.json")
+    #create_dictionary_from_zero("Polish", "English", "Vuizur", "Polish-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Polish.json")
+    #create_dictionary_from_zero("Portuguese", "English", "Vuizur", "Portuguese-English-dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Portuguese.json")
 

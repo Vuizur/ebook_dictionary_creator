@@ -6,6 +6,21 @@ This project has two goals:
 3. I will soon release the dictionaries as a Tabfile so that you can convert it to other formats as well
 
 Contributions and feedback about words that are not displayed correctly or unhelpful definitions (I tried to remove them all/link them to parent definitions) are always welcome. Additionally, you can tell me if the dictionary for your language is missing essential information.
+
+### Available languages (see in releases):
+* Spanish
+* German
+* Swedish
+
+### Languages to be released (I still have to fix some bugs):
+* Italian (missing linkages)
+* French (missing linkages)
+* Portuguese (missing linkages)
+* Catalan (will have to use inflection tables)
+* Polish (will have to use inflection tables)
+* Finnish (will have to use inflection tables)
+* Latin (for some reason buggy)
+
 ### Acknowledgements
 This project would not have been possible without the https://kaikki.org/ data provided by Tatu Ylonen, the OpenRussian data and the Pyglossary library for the creation of the Kindle dictionary
 

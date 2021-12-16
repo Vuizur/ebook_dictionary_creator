@@ -32,4 +32,8 @@ Find way to output Dictionary in tabfile
 
 A hurtadillas is currently not recognized -> Change this
 
-Maybe don't add duplicates (unidecoded) to inflections if another form has already been separated
+Check for German if the Kindle algorithm really changes ä to a
+
+This term needs a translation to english -> Remove entries that have this
+
+Latin generation doesn't work -> for example aspiciō 

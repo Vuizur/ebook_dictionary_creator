@@ -26,8 +26,8 @@ This project would not have been possible without the https://kaikki.org/ data p
 
 ### Similar projects
 
-https://github.com/nyg/wiktionary-to-kindle 
+https://github.com/nyg/wiktionary-to-kindle parses the Wiktionary itself. 
 
 https://github.com/efskap/kindlewick apparently works very similarly, also supports inflections, as of now it only supports smaller languages though (has been tested for Finnish).
 
-https://github.com/BoboTiG/ebook-reader-dict is a program that parses the Wiktionary dump itself and outputs Kobo compatible files
+https://github.com/BoboTiG/ebook-reader-dict is a program that also parses the Wiktionary dump itself and outputs Kobo compatible files

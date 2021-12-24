@@ -19,7 +19,7 @@ CREATE TABLE sense
     FOREIGN KEY(word_id) REFERENCES word(word_id)
 );
 
-CREATE TABLE form_of_word
+CREATE TABLE form_of_word --There is exactly one entry for each case, so duplicates are possible (same word and base word)
 (
     form_of_word_id INTEGER NOT NULL PRIMARY KEY,
     word_id INTEGER NOT NULL,
@@ -28,13 +28,21 @@ CREATE TABLE form_of_word
     FOREIGN KEY(base_word_id) REFERENCES word(word_id)
 );
 
-CREATE TABLE gramm_case
+--CREATE TABLE gramm_case
+--(
+--    gramm_case_id INTEGER NOT NULL PRIMARY KEY,
+--    form_of_word_id INTEGER NOT NULL,
+--    case_text VARCHAR,
+--    FOREIGN KEY(form_of_word_id) REFERENCES form_of_word(form_of_word_id)
+--);
+
+CREATE TABLE case_tags
 (
-    gramm_case_id INTEGER NOT NULL PRIMARY KEY,
     form_of_word_id INTEGER NOT NULL,
-    case_text VARCHAR,
+    tag_text VARCHAR,
     FOREIGN KEY(form_of_word_id) REFERENCES form_of_word(form_of_word_id)
 );
+
 
 --CREATE TABLE sense_tag
 --(

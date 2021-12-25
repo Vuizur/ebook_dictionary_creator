@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from sqlite3.dbapi2 import Cursor
 import time
 import os
 from create_databases.add_openrussian_to_database import add_openrussian_to_db, remove_yo
@@ -36,6 +37,14 @@ def delete_inconsistent_canonical_forms(db_path):
 
     cur.close()
     con.close()
+
+#TODO: Test
+def has_at_least_one_not_form_of_sense(obj: dict):
+    for sense in obj["senses"]:
+        if "form_of" not in sense:
+            return True
+    return False
+
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
     word_form = form["form"]
@@ -58,6 +67,30 @@ def append_form_to_record(form: dict, form_dict:dict):
             elif form_tag == "adjective":
                 form_dict["adjective_form"] = word_form
 
+def add_inflection_to_db(cur: Cursor, infl_str, base_word_pos, base_word_id, infl_tags):
+    infl_str = remove_accent_if_only_one_syllable(infl_str)
+    unaccentified = unaccentify(infl_str)
+    lowercase = unaccentified.lower()
+    without_yo = remove_yo(lowercase)
+    #TODO: Add check for already existing base form relation to base word id or so. If not, then create new entry 
+    # (This would be very important if I wanted to decline words myself with the application) because there are some different
+    # words that have same pos and canonical form
+    already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE canonical_form = ? AND pos = ?", 
+        (infl_str, base_word_pos)).fetchone()
+    
+    if already_existing_word_id == None:
+        cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
+            VALUES (?, ?, ?, ?, ?)", (unaccentified, infl_str, base_word_pos, lowercase, without_yo))
+        word_id = cur.lastrowid
+    else:
+        word_id = already_existing_word_id[0]
+    cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
+    fow_id = cur.lastrowid
+    for tag in infl_tags:
+        if unaccentified == "руки":
+            print(tag)
+        cur.execute("INSERT INTO case_tags (form_of_word_id, tag_text) VALUES (?, ?)", (fow_id, tag))
+    
 def create_database_russian(database_path: str, wiktextract_json_path: str):
     try:
         os.remove(database_path)
@@ -78,7 +111,7 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         #tuple structure: word_id, base_word_string, grammar case
         form_of_words_to_add_later: "list[tuple(int, str, str)]" = []
         #inflection_table_forms: set[tuple(str, str)] = {}
-        inflections = dict()
+        inflections = []
         for line in f:
 
             obj = json.loads(line)
@@ -150,11 +183,12 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
             word_id = cur.lastrowid
             #word_id, base_word_string
-            if "forms" in obj:
+            if "forms" in obj and has_at_least_one_not_form_of_sense(obj):
                 for infl_form in obj["forms"]:
                     if has_cyrillic_letters(infl_form["form"]):
-                        inflections[word_id] = (infl_form["form"], infl_form["tags"], word_pos)
-
+                        inflections.append((word_id, infl_form["form"], infl_form["tags"], word_pos))
+                    if word_word == "рука":
+                        print(infl_form)
 
             for sense in obj["senses"]:
                 try:
@@ -206,39 +240,54 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         cur.execute("CREATE INDEX gloss_sense_id_index ON gloss(sense_id);")
         cur.execute("CREATE INDEX word_id_index ON form_of_word(word_id);")
         cur.execute("CREATE INDEX base_word_id_index ON form_of_word(base_word_id);")
+        cur.execute("CREATE INDEX case_tags_fow_id_index ON case_tags(form_of_word_id);")
 
         con.commit()
 
-        #Add inflections that do not exist, as of now unlinked
-        #infl:str
-        for base_word_id, infl in inflections.items():
-            infl_str, infl_tags, base_word_pos = infl
+        old_base_word_id = -99999
+        already_added_tagged_infls: dict[str, set] = {}
+        for base_word_id, infl_str, infl_tags, base_word_pos in inflections:
+            if old_base_word_id != base_word_id:
+                old_base_word_id = base_word_id
+                already_added_tagged_infls = {}
             if "(" in infl_str and ")" in infl_str:
                 split_word = infl_str.replace(")", "(").split("(")
                 word1 = split_word[1] + split_word[2]
                 word2 = split_word[2]
-            
-            unaccentified = unaccentify(infl_str)
-            lowercase = unaccentified.lower()
-            without_yo = remove_yo(lowercase)
-
-            #TODO: Add check for already existing base form relation to base word id or so. If not, then create new entry 
-            # (This would be very important if I wanted to decline words myself with the application) because there are some different
-            # words that have same pos and canonical form
-            already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE canonical_form = ? AND pos = ?", 
-                (infl_str, base_word_pos)).fetchone()
-            
-            if already_existing_word_id == None:
-                cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
-                    VALUES (?, ?, ?, ?, ?)", (unaccentified, infl_str, base_word_pos, lowercase, without_yo))
-                word_id = cur.lastrowid
+                add_inflection_to_db(cur, word1, base_word_pos, base_word_id, infl_tags)
+                add_inflection_to_db(cur, word2, base_word_pos, base_word_id, infl_tags)
+            elif already_added_tagged_infls.get(unaccentify(infl_str)) == set(infl_tags):
+                #print(infl_str)
+                pass
             else:
-                word_id = already_existing_word_id[0]
-            cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
-            fow_id = cur.lastrowid
-            for tag in infl_tags:
-                cur.execute("INSERT INTO case_tags (form_of_word_id, tag_text) VALUES (?, ?)", (fow_id, tag))
+                add_inflection_to_db(cur, infl_str, base_word_pos, base_word_id, infl_tags)
+                already_added_tagged_infls[unaccentify(infl_str)] = set(infl_tags)
 
+            #infl_str = remove_accent_if_only_one_syllable(infl_str)
+            #unaccentified = unaccentify(infl_str)
+#
+            #lowercase = unaccentified.lower()
+            #without_yo = remove_yo(lowercase)
+#
+            ##TODO: Add check for already existing base form relation to base word id or so. If not, then create new entry 
+            ## (This would be very important if I wanted to decline words myself with the application) because there are some different
+            ## words that have same pos and canonical form
+            #already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE canonical_form = ? AND pos = ?", 
+            #    (infl_str, base_word_pos)).fetchone()
+            #
+            #if already_existing_word_id == None:
+            #    cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
+            #        VALUES (?, ?, ?, ?, ?)", (unaccentified, infl_str, base_word_pos, lowercase, without_yo))
+            #    word_id = cur.lastrowid
+            #else:
+            #    word_id = already_existing_word_id[0]
+            #cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
+            #fow_id = cur.lastrowid
+            #for tag in infl_tags:
+            #    if unaccentified == "руки":
+            #        print(tag)
+            #    cur.execute("INSERT INTO case_tags (form_of_word_id, tag_text) VALUES (?, ?)", (fow_id, tag))
+#
             #    add_word_if_does_not_exist(cur, word1)
             #    add_word_if_does_not_exist(cur, word2)
             #add_word_if_does_not_exist(cur, infl)
@@ -246,20 +295,20 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
 
         t0 = time.time()
-
-#        for index in range(0, len(form_of_words_to_add_later), 1000):
+#TODO: INSERT words if they are not already inserted this way - or do nothing
+   #     for index in range(0, len(form_of_words_to_add_later), 1000):
 #
-#            for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:
-#                unaccented_word = unaccentify(base_word)
+   #         for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:
+   #             unaccented_word = unaccentify(base_word)
 #
-#                cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
-#    SELECT ?, COALESCE ( \
-#    (SELECT w.word_id FROM word w WHERE w.word = ?), \
-#    (SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
-#    (SELECT w.word_id FROM word w WHERE w.word = ?) \
-#    )", (word_id, base_word, base_word, unaccented_word))
-#                form_of_word_id = cur.lastrowid
-#                cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
+   #             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+   # SELECT ?, COALESCE ( \
+   # (SELECT w.word_id FROM word w WHERE w.word = ?), \
+   # (SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
+   # (SELECT w.word_id FROM word w WHERE w.word = ?) \
+   # )", (word_id, base_word, base_word, unaccented_word))
+   #             #form_of_word_id = cur.lastrowid
+   #             #cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
 
 
         t1 = time.time()

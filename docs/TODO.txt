@@ -28,8 +28,6 @@ Maybe fix the double linkage that occurs when base_form links to a word that is 
 
 Recommend dont_append source in pyglossary
 
-Find way to output Dictionary in tabfile
-
 A hurtadillas is currently not recognized -> Change this
 
 Check for German if the Kindle algorithm really changes ä to a
@@ -37,3 +35,15 @@ Check for German if the Kindle algorithm really changes ä to a
 This term needs a translation to english -> Remove entries that have this
 
 Latin generation doesn't work -> for example aspiciō 
+
+Release Tabfiles
+
+Fix Russian future forms
+
+Fix upper-lowercase-cases in ambiguity resolver (russian stress)
+
+Add кубарем
+
+Fix cases where the word type gets incorrectly detected, but this could be detected if the cases don't match up
+
+Add comparative for осторожно

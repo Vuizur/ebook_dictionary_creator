@@ -45,6 +45,16 @@ def has_at_least_one_not_form_of_sense(obj: dict):
             return True
     return False
 
+def forms_should_be_taken_from_word(obj: dict):
+    if has_at_least_one_not_form_of_sense(obj):
+        return True
+    else:
+        for form in obj["forms"]:
+            if form != "canonical" and form != "romanization":
+                return True
+        return False
+
+
 def append_form_to_record(form: dict, form_dict:dict):
     form_tags = form["tags"]
     word_form = form["form"]
@@ -87,8 +97,6 @@ def add_inflection_to_db(cur: Cursor, infl_str, base_word_pos, base_word_id, inf
     cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
     fow_id = cur.lastrowid
     for tag in infl_tags:
-        if unaccentified == "руки":
-            print(tag)
         cur.execute("INSERT INTO case_tags (form_of_word_id, tag_text) VALUES (?, ?)", (fow_id, tag))
     
 def create_database_russian(database_path: str, wiktextract_json_path: str):
@@ -183,12 +191,10 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
             word_id = cur.lastrowid
             #word_id, base_word_string
-            if "forms" in obj and has_at_least_one_not_form_of_sense(obj):
+            if "forms" in obj and forms_should_be_taken_from_word(obj):
                 for infl_form in obj["forms"]:
                     if has_cyrillic_letters(infl_form["form"]):
                         inflections.append((word_id, infl_form["form"], infl_form["tags"], word_pos))
-                    if word_word == "рука":
-                        print(infl_form)
 
             for sense in obj["senses"]:
                 try:

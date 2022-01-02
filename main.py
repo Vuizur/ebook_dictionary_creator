@@ -54,7 +54,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
     print("Dictionary created in " + str((time2 - time1) % 60) + " minutes.")
 
 if __name__ == "__main__":
-    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", False, False)
+    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 

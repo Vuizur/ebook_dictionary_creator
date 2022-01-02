@@ -1,6 +1,5 @@
 import unicodedata
 import re
-from unidecode import unidecode
 
 ACCENT_MAPPING = {
         '́': '',

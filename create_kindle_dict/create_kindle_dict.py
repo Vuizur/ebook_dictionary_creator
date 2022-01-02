@@ -26,16 +26,14 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
     #this serves to check overlappings with base forms
     base_forms_unidecoded = []
     for base_form in base_forms:
-        base_forms_unidecoded.append(unidecode(base_form[1]))
+        base_forms_unidecoded.append(unidecode(base_form[1]).lower())
     
     inflection_num = 0
     counter = 0
     print("Iterating through base forms:")
 
     if try_to_fix_kindle_lookup_stupidity:
-        #This is needed to detect collisions between inflections ->
-        #I don't yet know if the existence of one inflection stops the other from being found (but probably?)
-        #TODO: Test with fui or fue
+        #This is needed to detect collisions between inflections
 
         all_inflections = []
         for word_id, canonical_form in base_forms:
@@ -67,7 +65,7 @@ WHERE w.word = ?""", (canonical_form,)).fetchall()
             if gloss[0] == None: #This appears to happen for some reason
                 continue
             glosses_list.append(gloss[0].strip())
-        glosses_list = list(set(glosses_list))
+        glosses_list = list(dict.fromkeys(glosses_list))
         glosshtml = ""
         #gloss_count = 1
         #TODO: add gloss count

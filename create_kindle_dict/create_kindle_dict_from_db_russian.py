@@ -198,7 +198,7 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     cur.close()
     con.close()
 
-def create_py_glossary_and_export(database_path):
+def create_py_glossary_and_export(database_path, format="MOBI"):
     Glossary.init()
     glos = Glossary()
 
@@ -207,22 +207,25 @@ def create_py_glossary_and_export(database_path):
     con = sqlite3.connect(database_path)
     cur = con.cursor()
     
-    base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
-    base_forms_no_dupes = []
-    #TODO: This removes meanings of words!
-    already_used_forms = []
-
-    for word_id, canonical_form in base_forms:
-        if canonical_form in already_used_forms:
-            continue
-        else:
-            base_forms_no_dupes.append((word_id, canonical_form))
-            already_used_forms.append(canonical_form)
+    #base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
+    base_forms = cur.execute("""SELECT w.word_id, w.canonical_form FROM word w
+WHERE w.word_id IN (SELECT sense.word_id FROM sense) GROUP BY w.canonical_form
+""").fetchall()
+    #base_forms_no_dupes = []
+    ##TODO: This removes meanings of words!- Maybe?
+    #already_used_forms = []
+#
+    #for word_id, canonical_form in base_forms:
+    #    if canonical_form in already_used_forms:
+    #        continue
+    #    else:
+    #        base_forms_no_dupes.append((word_id, canonical_form))
+    #        already_used_forms.append(canonical_form)
 
     print(str(len(base_forms)) + " base forms")
 
 
-    base_forms = base_forms_no_dupes
+    #base_forms = base_forms_no_dupes
     counter = 0
     for word_id, canonical_form in base_forms:
         counter = counter + 1
@@ -265,5 +268,8 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     glos.sourceLangName = "Russian"
     glos.targetLangName = "English"
     #Spellcheck set to false because not supported for Russian
-    glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
-    #I don't know why the result does not work
+    if format == "MOBI":
+        glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
+    elif format == "STARDICT":
+        glos.write("russian.ifo", format="Stardict")
+    #I don't know why the result does not work, I guess it is because of the combining accent symbol

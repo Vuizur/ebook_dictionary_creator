@@ -5,7 +5,7 @@ from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
 from create_databases.add_openrussian_to_database import add_openrussian_to_db
 from create_kindle_dict.create_kindle_dict import create_kindle_dict
-from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db
+from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db, create_py_glossary_and_export
 import os
 
 from create_kindle_dict.create_tab_file import create_tabfile
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     #delete_inconsistent_canonical_forms("russian_dict.db")
 
     #### From Zero
-    create_dictionary_from_zero("Spanish", "English", "Vuizur", "Spanish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Spanish.json")
+    #create_dictionary_from_zero("Spanish", "English", "Vuizur", "Spanish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Spanish.json")
     #create_dictionary_from_zero("Catalan", "English", "Vuizur", "Catalan-English Dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Catalan.json")
     #create_dictionary_from_zero("Arabic", "English", "Vuizur", "Arabic-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Arabic.json")
     #create_dictionary_from_zero("Polish", "English", "Vuizur", "Polish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Polish.json")
@@ -80,3 +80,5 @@ if __name__ == "__main__":
     #create_dictionary_from_zero("Swedish", "English", "Vuizur", "Swedish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Swedish.json")
     #create_tabfile("compiled_databases/Spanish_dict.db", "spanish.txt")
     #convert_file_to_utf8("kaikki/kaikki.org-dictionary-Russian.json", )
+
+    create_py_glossary_and_export("russian_dict.db", "STARDICT")

@@ -62,6 +62,5 @@ CREATE TABLE gloss
     gloss_id INTEGER NOT NULL PRIMARY KEY,
     sense_id INTEGER,
     gloss_string VARCHAR,
-    word_case VARCHAR,
     FOREIGN KEY(sense_id) REFERENCES sense(sense_id)    
 );

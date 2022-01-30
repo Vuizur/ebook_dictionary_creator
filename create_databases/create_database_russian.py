@@ -7,7 +7,7 @@ from create_databases.add_openrussian_to_database import add_openrussian_to_db, 
 from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, unaccentify, remove_accent_if_only_one_syllable
 import re
 
-DO_NOT_ADD_GRAMMAR_INFO = True #Set true to reduce size of DB
+DO_NOT_ADD_TRANSLATIONS = False #Set true to reduce size of DB
 
 def add_word_if_does_not_exist(cur, canon_form):
     unaccentified = unaccentify(canon_form)
@@ -215,10 +215,10 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                     sense_id = cur.lastrowid
                     try:
                         for gloss in sense["glosses"]:
-                            if DO_NOT_ADD_GRAMMAR_INFO:
+                            if DO_NOT_ADD_TRANSLATIONS:
                                 gloss = None
 
-                            cur.execute("INSERT INTO gloss (sense_id, word_case) VALUES(?, ?)", (sense_id, gloss))
+                            cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
                     except:
                         pass
                     #todo: fix for glosses that aren't the base word (pretty rare case)
@@ -227,9 +227,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                     sense_id = cur.lastrowid
                     try:
                         for gloss in sense["glosses"]:
-                            if DO_NOT_ADD_GRAMMAR_INFO:
+                            if DO_NOT_ADD_TRANSLATIONS:
                                 gloss = None
-                            cur.execute("INSERT INTO gloss (sense_id, gloss_string, word_case) VALUES(?, ?, \"nominative\")", (sense_id, gloss))
+                            cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
                     except:
                         pass
                     

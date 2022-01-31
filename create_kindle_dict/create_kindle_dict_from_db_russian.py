@@ -2,6 +2,7 @@ from os import path
 import sqlite3
 from pyglossary.glossary import Glossary
 
+
 STARTING_XHTML = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 
@@ -229,6 +230,7 @@ WHERE w.word_id IN (SELECT sense.word_id FROM sense) GROUP BY w.canonical_form
     counter = 0
     for word_id, canonical_form in base_forms:
         counter = counter + 1
+        
         #get inflections
         #TODO: get alternative canonical form as inflection as well
         #and add all unaccented versions as inflection as well
@@ -270,6 +272,9 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
     #Spellcheck set to false because not supported for Russian
     if format == "MOBI":
         glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
+        #I don't know why the result does not work, I guess it is because of the combining accent symbol
+
     elif format == "STARDICT":
         glos.write("russian.ifo", format="Stardict")
-    #I don't know why the result does not work, I guess it is because of the combining accent symbol
+    elif format == "TABFILE":
+        glos.write("russian.txt", format="Tabfile")

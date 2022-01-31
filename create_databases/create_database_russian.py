@@ -211,16 +211,18 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                             tag_string += tag + " "
 
                         form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
-                    cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
-                    sense_id = cur.lastrowid
-                    try:
-                        for gloss in sense["glosses"]:
-                            if DO_NOT_ADD_TRANSLATIONS:
-                                gloss = None
+                    #cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
+                    #sense_id = cur.lastrowid
+                    #todo: fix for glosses that aren't the base word (pretty rare case)
+                    #try:
+                    #    for gloss in sense["glosses"]:
+                    #        if DO_NOT_ADD_TRANSLATIONS:
+                    #            gloss = None
+#
+                    #        cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
+                    #except:
+                    #    pass
 
-                            cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
-                    except:
-                        pass
                     #todo: fix for glosses that aren't the base word (pretty rare case)
                 else:
                     cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))

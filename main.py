@@ -81,4 +81,4 @@ if __name__ == "__main__":
     #create_tabfile("compiled_databases/Spanish_dict.db", "spanish.txt")
     #convert_file_to_utf8("kaikki/kaikki.org-dictionary-Russian.json", )
     #create_database_russian("russian.db", "russian-dict.json")
-    create_py_glossary_and_export("russian.db", "STARDICT")
+    create_py_glossary_and_export("russian.db", "TABFILE")

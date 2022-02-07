@@ -38,8 +38,6 @@ Latin generation doesn't work -> for example aspiciō
 
 Release Tabfiles
 
-Fix Russian future forms
-
 Fix upper-lowercase-cases in ambiguity resolver (russian stress)
 
 Add кубарем
@@ -47,3 +45,7 @@ Add кубарем
 Fix cases where the word type gets incorrectly detected, but this could be detected if the cases don't match up
 
 Add comparative for осторожно
+
+начав still has reference
+
+Add unaccented version (also without ё) as inflection

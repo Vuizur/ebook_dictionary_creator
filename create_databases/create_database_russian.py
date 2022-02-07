@@ -193,7 +193,7 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
             #word_id, base_word_string
             if "forms" in obj and forms_should_be_taken_from_word(obj):
                 for infl_form in obj["forms"]:
-                    if has_cyrillic_letters(infl_form["form"]):
+                    if has_cyrillic_letters(infl_form["form"]) and "tags" in infl_form:
                         inflections.append((word_id, infl_form["form"], infl_form["tags"], word_pos))
 
             for sense in obj["senses"]:

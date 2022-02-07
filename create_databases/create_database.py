@@ -437,13 +437,14 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
                 (word_pos, word_word))
             word_id = cur.lastrowid
 
+            #TODO: Now insert all inflected forms from inflection table
 
             for sense in obj["senses"]:
                 if "form_of" in sense:
                     for base_word in sense["form_of"]:
-                        #TODO: This introduces some errors, but fixes more important ones
-                        if base_word["word"][-1] == "." and base_word["word"][-2].islower():
-                            base_word["word"] = base_word["word"][:-1]
+                        #TODO: Should have been fixed in data
+                        #if base_word["word"][-1] == "." and base_word["word"][-2].islower():
+                        #    base_word["word"] = base_word["word"][:-1]
                         form_of_words_to_add_later.append((word_id, base_word["word"]))
                     #todo: fix for glosses that aren't the base word (pretty rare case)
                 else:

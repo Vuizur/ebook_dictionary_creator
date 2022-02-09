@@ -3,7 +3,6 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
-from enum import Enum
 
 #TODO: This should be cleaned up/almost entirely removed
 def append_form_to_record(form: dict, form_dict:dict):
@@ -409,6 +408,72 @@ JOIN word w3 ON fow2.base_word_id = w3.word_id
 WHERE word.word_id NOT IN (SELECT sense.word_id FROM sense) AND word.word_id NOT IN (SELECT form_of_word.word_id FROM form_of_word)
 """)
 
+def insert_infl_str(cur: Cursor, infl_str: str, base_word_id):
+    cur.execute("INSERT INTO word (word) VALUES (?)", (infl_str,))
+    infl_id = cur.lastrowid
+    cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (infl_id, base_word_id))
+
+def insert_inflections(cur: Cursor, inflections: list):
+    #Get all the data first because this is hopefully faster than lots of selects and inserts (+ recalculated indices)
+    all_words_with_ids = cur.execute("SELECT word, word_id from word").fetchall()
+    word_words = []
+    word_word_ids = []
+    all_form_of_objects = cur.execute("SELECT word_id, base_word_id from form_of_word").fetchall()
+    fow_word_ids = []
+    fow_base_word_ids = []
+    for word, word_id in all_words_with_ids:
+        word_words.append(word)
+        word_word_ids.append(word_id)
+    for word_id, base_word_id in all_form_of_objects:
+        fow_word_ids.append(word_id)
+        fow_base_word_ids.append(base_word_id)
+
+    counter = 1
+    for infl_str, base_word_id, word_pos in inflections:
+        
+        if base_word_id not in fow_base_word_ids or infl_str not in word_words: # Inflection not yet existing
+            insert_infl_str(cur, infl_str, base_word_id)
+        else:
+            already_done_inflections = cur.execute("""SELECT * FROM word w1
+JOIN form_of_word fow ON fow.word_id = w1.word_id 
+WHERE fow.base_word_id = ?
+AND w1.word = ?
+""", (base_word_id, infl_str)).fetchall()
+            if len(already_done_inflections) == 0:
+                insert_infl_str(cur, infl_str, base_word_id)
+        counter += 1
+        if (counter % 10000) == 0:
+            print(counter)
+           
+def remove_spanish_pronouns_from_inflection(inflection: str) -> str:
+    if " " not in inflection:
+        return inflection
+    else:
+        words = inflection.split(" ")
+        return words[-1]
+
+def insert_inflections_faster_inaccurate(cur: Cursor, inflections: list):
+    """This will insert an inflections if a word does not already exist"""
+    num_inflections = len(inflections)
+    print(str(num_inflections) + " inflections to add manually")
+    t0 = time.time()
+    counter = 0
+    for infl_str, base_word_id, pos in inflections:
+        if pos == "verb": # This follows the idea that no verbs with spaces in them exist -> I hope that this holds for all cases
+            infl_str = remove_spanish_pronouns_from_inflection(infl_str)
+        counter += 1 
+        already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE word = ? AND pos = ?", 
+        (infl_str, pos)).fetchone()
+        if already_existing_word_id == None:
+            cur.execute("""INSERT INTO word (word, pos) VALUES (?, ?)""", (infl_str, pos))
+            word_id = cur.lastrowid
+        else:
+            word_id = already_existing_word_id[0]
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
+        #if (counter % 10000) == 0:
+        #    elapsed = (time.time() - t0)
+        #    print(counter)
+        #    print(str(counter / elapsed) + "Insertions per second")
 def create_database(output_db_path: str, wiktextract_json_file: str, language: str):
     try:
         os.remove(output_db_path)
@@ -418,7 +483,7 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         sql_script = sql_file.read()
 
     con = sqlite3.connect(output_db_path)
-
+    inflections = []
     cur = con.cursor()
     cur.executescript(sql_script)
     con.commit()
@@ -438,6 +503,10 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
             word_id = cur.lastrowid
 
             #TODO: Now insert all inflected forms from inflection table
+            if "forms" in obj:
+                for infl_form in obj["forms"]:
+                    if any(c.isalpha() for c in infl_form["form"]) and infl_form["tags"] != ["table-tags"]:
+                        inflections.append((infl_form["form"], word_id, word_pos))
 
             for sense in obj["senses"]:
                 if "form_of" in sense:
@@ -466,9 +535,14 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         con.commit()
 
         t0 = time.time()
+        #Remove duplicates created by the double technique
+        #form_of_words_to_add_later = [i for n, i in enumerate(d) if i not in d[n + 1:]]
+        #form_of_words_to_add_later.sort()
+        #form_of_words_to_add_later = list(form_of_words_to_add_later for form_of_words_to_add_later,_ in itertools.groupby(form_of_words_to_add_later))
 
         insert_base_linkages(form_of_words_to_add_later, cur)
-
+        #insert_inflections(cur, inflections)
+        insert_inflections_faster_inaccurate(cur, inflections)
         t1 = time.time()
         print(t1 - t0)
 

@@ -3,7 +3,7 @@ import sqlite3
 from unidecode import unidecode
 import collections
 
-def create_tabfile(source_database_path: str, out_path: str):
+def create_nonkindle_dict(source_database_path: str, out_path: str, output_format: str):
     Glossary.init()
     glos = Glossary()
 
@@ -39,7 +39,7 @@ WHERE w.word = ?""", (canonical_form,)).fetchall()
             if gloss[0] == None: #This appears to happen for some reason
                 continue
             glosses_list.append(gloss[0].strip())
-        glosses_list = list(set(glosses_list))
+        glosses_list = list(dict.fromkeys(glosses_list))
         glosshtml = ""
         #gloss_count = 1
         #TODO: add gloss count
@@ -73,7 +73,8 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
     print("Writing dictionary")
     #glos.write(output_path, format="Mobi", keep=True, exact=True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
     #glos.write("spanish_dictionary.kobo", format="Kobo")
-    glos.write(out_path, format="Tabfile")
+    if output_format == "Tabfile":
+        glos.write(out_path, format="Tabfile")
     print(str(len(base_forms)) + " base forms")
     print(str(inflection_num) + " inflections")
     cur.close()

@@ -1,6 +1,6 @@
 from time import time
 from create_databases.create_database_russian import create_database_russian, delete_inconsistent_canonical_forms
-from create_databases.create_database import create_database
+from create_databases.create_database import create_database, remove_spanish_pronouns_from_inflection
 from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
 from create_databases.add_openrussian_to_database import add_openrussian_to_db
@@ -8,7 +8,7 @@ from create_kindle_dict.create_kindle_dict import create_kindle_dict
 from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db, create_py_glossary_and_export
 import os
 
-from create_kindle_dict.create_tab_file import create_tabfile
+from create_kindle_dict.create_tab_file import create_nonkindle_dict
 
 def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, convert_utf8 = True,
      openrussian_db_path = "openrussian.db", output_database_path = "russian_dict.db", intermediate_utf8_json_path="russian-dict.json"):
@@ -84,3 +84,4 @@ if __name__ == "__main__":
     #create_database_russian("russian.db", "russian-dict.json")
     #create_py_glossary_and_export("russian_dict.db", "STARDICT")
     
+    #print(remove_spanish_pronouns_from_inflection("no te vayas"))

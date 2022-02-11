@@ -450,7 +450,14 @@ def remove_spanish_pronouns_from_inflection(inflection: str) -> str:
         return inflection
     else:
         words = inflection.split(" ")
-        return words[-1]
+        words_complete = []
+        for word in words[:-1]:
+            if word in ["no", "me", "te", "se", "nos", "os"]:
+                continue
+            else:
+                words_complete.append(word)
+        words_complete.append(words[-1])
+        return " ".join(words_complete)
 
 def insert_inflections_faster_inaccurate(cur: Cursor, inflections: list):
     """This will insert an inflections if a word does not already exist"""
@@ -502,7 +509,6 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
                 (word_pos, word_word))
             word_id = cur.lastrowid
 
-            #TODO: Now insert all inflected forms from inflection table
             if "forms" in obj:
                 for infl_form in obj["forms"]:
                     if any(c.isalpha() for c in infl_form["form"]) and infl_form["tags"] != ["table-tags"]:
@@ -511,9 +517,6 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
             for sense in obj["senses"]:
                 if "form_of" in sense:
                     for base_word in sense["form_of"]:
-                        #TODO: Should have been fixed in data
-                        #if base_word["word"][-1] == "." and base_word["word"][-2].islower():
-                        #    base_word["word"] = base_word["word"][:-1]
                         form_of_words_to_add_later.append((word_id, base_word["word"]))
                     #todo: fix for glosses that aren't the base word (pretty rare case)
                 else:
@@ -535,13 +538,9 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         con.commit()
 
         t0 = time.time()
-        #Remove duplicates created by the double technique
-        #form_of_words_to_add_later = [i for n, i in enumerate(d) if i not in d[n + 1:]]
-        #form_of_words_to_add_later.sort()
-        #form_of_words_to_add_later = list(form_of_words_to_add_later for form_of_words_to_add_later,_ in itertools.groupby(form_of_words_to_add_later))
-
+        
         insert_base_linkages(form_of_words_to_add_later, cur)
-        #insert_inflections(cur, inflections)
+
         insert_inflections_faster_inaccurate(cur, inflections)
         t1 = time.time()
         print(t1 - t0)

@@ -53,7 +53,7 @@ def find_words_not_in_ebook(input_file_path, language: str):
                                     #This has the problem that abbreviations like FBI don't get found! 
                                     res = cur.execute("SELECT word FROM word WHERE word = ?", (token,)).fetchone()
                                     if res == None:
-                                        res = cur.execute("SELECT word FROM word WHERE word = ?", (token.capitalize,)).fetchone()
+                                        res = cur.execute("SELECT word FROM word WHERE word = ?", (token.capitalize(),)).fetchone()
                                 if res == None:
                                     if token not in word_histogram:
                                         word_histogram[token] = 1
@@ -68,6 +68,7 @@ def find_words_not_in_ebook(input_file_path, language: str):
             f.write(word + "\t" + str(count) + "\n")
         
 
-                                    
+
 if __name__ == "__main__":
-    find_words_not_in_ebook("Noch' v bashnie uzhasa - Robiert Louriens Stain.epub", "Russian")
+    #find_words_not_in_ebook("Noch' v bashnie uzhasa - Robiert Louriens Stain.epub", "Russian")
+    find_words_not_in_ebook("Thomas Ligotti - Teatro Grottesco.epub", "Spanish")

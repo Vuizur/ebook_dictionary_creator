@@ -59,6 +59,9 @@ def output_difference_of_word_list(openrussian_wordlist: list[str], database_pat
         for wrd in stuff_not_in_OpenRussian:    
             output.write(wrd + "\n")
     
+def add_translations(cur: sqlite3.Cursor, word_id):
+    return NotImplementedError
+
 def add_openrussian_to_db(database_path, openrussian_database_path):
 
     con = sqlite3.connect(database_path)

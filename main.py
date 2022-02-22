@@ -9,6 +9,8 @@ from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_
 import os
 
 from create_kindle_dict.create_tab_file import create_nonkindle_dict
+from various_tools.find_words_in_RAE_not_in_wiktionary import find_RAE_words_not_in_Wiktionary, order_RAE_words_not_in_Wiktionary
+from various_tools.generate_most_common_words import add_most_common_words_to_db, get_most_common_words_from_DeReKo
 
 def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, convert_utf8 = True,
      openrussian_db_path = "openrussian.db", output_database_path = "russian_dict.db", intermediate_utf8_json_path="russian-dict.json"):
@@ -53,6 +55,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
     time2 = time()
     print("Dictionary created in " + str((time2 - time1) % 60) + " minutes.")
 
+
 if __name__ == "__main__":
     #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     #delete_inconsistent_canonical_forms("russian_dict.db")
 
     #### From Zero
-    create_dictionary_from_zero("Spanish", "English", "Vuizur", "Spanish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Spanish.json")
+    #create_dictionary_from_zero("Spanish", "English", "Vuizur", "Spanish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Spanish.json")
     #create_dictionary_from_zero("Catalan", "English", "Vuizur", "Catalan-English Dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Catalan.json")
     #create_dictionary_from_zero("Arabic", "English", "Vuizur", "Arabic-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Arabic.json")
     #create_dictionary_from_zero("Polish", "English", "Vuizur", "Polish-English dictionary", wiktextract_json_input_path="kaikki/kaikki.org-dictionary-Polish.json")
@@ -85,3 +88,8 @@ if __name__ == "__main__":
     #create_py_glossary_and_export("russian_dict.db", "STARDICT")
     
     #print(remove_spanish_pronouns_from_inflection("no te vayas"))
+
+    find_RAE_words_not_in_Wiktionary()
+    #add_most_common_words_to_db("compiled_databases/German_dict.db", "german_frequency_wordlist.txt")
+    #get_most_common_words_from_DeReKo()
+    order_RAE_words_not_in_Wiktionary()

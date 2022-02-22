@@ -459,14 +459,14 @@ def remove_spanish_pronouns_from_inflection(inflection: str) -> str:
         words_complete.append(words[-1])
         return " ".join(words_complete)
 
-def insert_inflections_faster_inaccurate(cur: Cursor, inflections: list):
+def insert_inflections_faster_inaccurate(cur: Cursor, inflections: list, language: str):
     """This will insert an inflections if a word does not already exist"""
     num_inflections = len(inflections)
     print(str(num_inflections) + " inflections to add manually")
     t0 = time.time()
     counter = 0
     for infl_str, base_word_id, pos in inflections:
-        if pos == "verb": # This follows the idea that no verbs with spaces in them exist -> I hope that this holds for all cases
+        if pos == "verb" and language == "Spanish": # This follows the idea that no verbs with spaces in them exist -> I hope that this holds for all cases
             infl_str = remove_spanish_pronouns_from_inflection(infl_str)
         counter += 1 
         already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE word = ? AND pos = ?", 
@@ -541,7 +541,7 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         
         insert_base_linkages(form_of_words_to_add_later, cur)
 
-        insert_inflections_faster_inaccurate(cur, inflections)
+        insert_inflections_faster_inaccurate(cur, inflections, language)
         t1 = time.time()
         print(t1 - t0)
 
@@ -553,6 +553,7 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
             delete_unneeded_entries(cur, delete_words_without_chars=False)
         else:
             delete_unneeded_entries(cur)
+            #print("DELETING UNNEDED ENTRIES SHUT DOWN")
 
         if language == "Spanish":
             add_linkages_to_spanish_compound_words(cur)

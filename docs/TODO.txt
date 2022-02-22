@@ -44,8 +44,5 @@ Add кубарем
 
 Fix cases where the word type gets incorrectly detected, but this could be detected if the cases don't match up
 
-Add comparative for осторожно
-
-начав still has reference
-
 Add unaccented version (also without ё) as inflection
+

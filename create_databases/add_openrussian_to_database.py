@@ -1,3 +1,4 @@
+from email.mime import base
 import sqlite3
 
 from helper_functions import remove_accent_if_only_one_syllable
@@ -13,6 +14,10 @@ class BaseWord():
     def __init__(self) -> None:
         self.inflections = []
         self.definitions = []
+
+    def process_all_data(self) -> None:
+        """This removes commas and strange symbols"""
+
 
 
 def convert_ap_accent_to_real(word: str) -> str:
@@ -72,6 +77,17 @@ def output_difference_of_word_list(openrussian_wordlist: list[str], database_pat
         for wrd in stuff_not_in_OpenRussian:    
             output.write(wrd + "\n")
 
+
+def add_base_word_objs_to_database(cur: sqlite3.Cursor, baseword_list: list[BaseWord]):
+    return NotImplementedError()
+
+def get_definitions(cur: sqlite3.Cursor, word_id) -> list[tuple[str, str]]:
+    translations_list = []
+    translations = cur.execute("SELECT lang, tl FROM translations WHERE word_id = ?", (word_id,)).fetchall()
+    for lang, tl in translations:
+        translations_list.append((lang, tl))
+    return translations_list
+
 def add_openrussian_to_db_with_linkages(database_path, openrussian_database_path):
     con = sqlite3.connect(database_path)
     openrussian = sqlite3.connect(openrussian_database_path)
@@ -93,23 +109,48 @@ JOIN declensions d ON d.word_id = w.id
             base_word = BaseWord()
             base_word.pos = "adj"
             base_word.base_word = accented
-            translations = openrussian.execute("SELECT lang, tl FROM translations WHERE word_id = ?", (w_id,)).fetchall()
-            for lang, tl in translations:
-                base_word.definitions.append((lang, tl))
+            base_word.definitions = get_definitions(openrussian, w_id)
             base_word.inflections.update([comparative, superlative, short_n, short_f, short_pl])
             current_w_id = w_id
         base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
 
-    #Add nouns
-    nouns = openrussian.execute(""""
-    SELECT w.id, w.accented, d.nom, d.gen, d.dat, d.acc, d.inst, d.prep FROM words w
-JOIN declensions d ON d.word_id = w.id WHERE w.type = "noun"
+    #Add verbs
+    verbs = openrussian.execute("""
+    SELECT w.id, w.accented, v.imperative_sg, v.imperative_pl, v.past_m, v.past_f, v.past_n, v.past_pl, c.sg1, c.sg1, c.sg3, c.pl1, c.pl2, c.pl3 FROM words w
+    JOIN verbs v ON w.id = v.word_id    
+    JOIN conjugations c ON c.word_id = w.id 
+    """)
+    for w_id, accented, imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl, sg1, sg2, sg3, pl1, pl2, pl3 in verbs:
+        base_word = BaseWord()
+        base_word.pos = "verb"
+        base_word.base_word = accented
+        base_word.definitions = get_definitions(openrussian, w_id)
+        base_word.inflections.update([imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl, sg1, sg2, sg3, pl1, pl2, pl3])
+        base_words.append(base_word)
+
+    #Add nouns and rest
+    rest = openrussian.execute("""
+    SELECT w.id, w.type, w.accented, d.nom, d.gen, d.dat, d.acc, d.inst, d.prep FROM words w
+JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adjective"
 """).fetchall()
 
     current_w_id = None
     base_word = None
-    for w_id, accented, comparative, superlative, short_n, short_f, short_pl, d_nom, d_gen, d_dat, d_acc, d_inst, d_prep in words:
-        pass
+    for w_id, w_type, accented, d_nom, d_gen, d_dat, d_acc, d_inst, d_prep in rest:
+        if w_type == "adverb":
+            w_type = "adv"
+        if current_w_id != w_id:
+            if base_word != None:
+                base_words.append(base_word)
+            base_word = BaseWord()
+            base_word.pos = w_type
+            base_word.base_word = accented
+            base_word.definitions = get_definitions(openrussian, w_id)
+            current_w_id = w_id
+        base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
+
+    add_base_word_objs_to_database(database_path, base_words)
+
 
 
 def add_openrussian_to_db(database_path, openrussian_database_path):

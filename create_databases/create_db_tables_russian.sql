@@ -63,6 +63,6 @@ CREATE TABLE gloss
     sense_id INTEGER,
     gloss_string VARCHAR,
     gloss_lang VARCHAR,
-    gloss_source VARCHAR
+    gloss_source VARCHAR,
     FOREIGN KEY(sense_id) REFERENCES sense(sense_id)    
 );

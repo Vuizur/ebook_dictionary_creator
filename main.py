@@ -57,7 +57,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 
 if __name__ == "__main__":
-    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_openrussian_db=False, convert_utf8=False)
+    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_openrussian_db=True, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     
     #print(remove_spanish_pronouns_from_inflection("no te vayas"))
 
-    find_RAE_words_not_in_Wiktionary()
+    #find_RAE_words_not_in_Wiktionary()
     #add_most_common_words_to_db("compiled_databases/German_dict.db", "german_frequency_wordlist.txt")
     #get_most_common_words_from_DeReKo()
-    order_RAE_words_not_in_Wiktionary()
+    #order_RAE_words_not_in_Wiktionary()

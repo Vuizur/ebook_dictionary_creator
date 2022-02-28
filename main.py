@@ -3,7 +3,7 @@ from create_databases.create_database_russian import create_database_russian, de
 from create_databases.create_database import create_database, remove_spanish_pronouns_from_inflection
 from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
-from create_databases.add_openrussian_to_database import add_openrussian_to_db
+from create_databases.add_openrussian_to_database import add_openrussian_to_db, add_openrussian_to_db_with_linkages
 from create_kindle_dict.create_kindle_dict import create_kindle_dict
 from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db, create_py_glossary_and_export
 import os
@@ -12,7 +12,7 @@ from create_kindle_dict.create_tab_file import create_nonkindle_dict
 from various_tools.find_words_in_RAE_not_in_wiktionary import find_RAE_words_not_in_Wiktionary, order_RAE_words_not_in_Wiktionary
 from various_tools.generate_most_common_words import add_most_common_words_to_db, get_most_common_words_from_DeReKo
 
-def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, convert_utf8 = True,
+def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, create_wiktionary_db = True, convert_utf8 = True,
      openrussian_db_path = "openrussian.db", output_database_path = "russian_dict.db", intermediate_utf8_json_path="russian-dict.json"):
     """Creates an SQLite database containing the data from Wiktextract combined with data by OpenRussian\n
     The Wiktextract data can be downloaded from kaikki.org"""
@@ -20,11 +20,12 @@ def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, 
         convert_file_to_utf8(wiktextract_json_input_path, intermediate_utf8_json_path)
         print("Wiktextract file has been converted to UTF-8")
     #This creates the Wiktextract portion of the database
-    create_database_russian(output_database_path, intermediate_utf8_json_path)
-    print("Wiktextract data has been added to database")
+    if create_wiktionary_db:
+        create_database_russian(output_database_path, intermediate_utf8_json_path)
+        print("Wiktextract data has been added to database")
     if create_openrussian_db:
         create_openrussian_database(openrussian_db_path)
-    add_openrussian_to_db(output_database_path, openrussian_db_path)
+    add_openrussian_to_db_with_linkages(output_database_path, openrussian_db_path)
     print("OpenRussian data has been added to database")
 
 def create_db_full(wiktextract_json_input_path: str, language: str, output_database_path: str, intermediate_utf8_json_path: str):
@@ -57,7 +58,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 
 if __name__ == "__main__":
-    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_openrussian_db=True, convert_utf8=False)
+    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=False, create_openrussian_db=True, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 

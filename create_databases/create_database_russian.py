@@ -3,8 +3,7 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
-from create_databases.add_openrussian_to_database import add_openrussian_to_db, remove_yo
-from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, unaccentify, remove_accent_if_only_one_syllable
+from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, remove_yo, unaccentify, remove_accent_if_only_one_syllable
 import re
 
 DO_NOT_ADD_TRANSLATIONS = False #Set true to reduce size of DB
@@ -114,7 +113,7 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
     con.commit()
 
     alternative_yo_pattern = re.compile(".*Alternative spelling.*ё")
-
+    print("Adding words from Wiktextract JSON")
     with open(wiktextract_json_path, "r", encoding="utf-8") as f:
         #tuple structure: word_id, base_word_string, grammar case
         form_of_words_to_add_later: "list[tuple(int, str, str)]" = []
@@ -211,18 +210,6 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                             tag_string += tag + " "
 
                         form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
-                    #cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
-                    #sense_id = cur.lastrowid
-                    #todo: fix for glosses that aren't the base word (pretty rare case)
-                    #try:
-                    #    for gloss in sense["glosses"]:
-                    #        if DO_NOT_ADD_TRANSLATIONS:
-                    #            gloss = None
-#
-                    #        cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
-                    #except:
-                    #    pass
-
                     #todo: fix for glosses that aren't the base word (pretty rare case)
                 else:
                     cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
@@ -230,28 +217,31 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                     try:
                         for gloss in sense["glosses"]:
                             if DO_NOT_ADD_TRANSLATIONS:
-                                gloss = None
-                            cur.execute("INSERT INTO gloss (sense_id, gloss_string) VALUES(?, ?)", (sense_id, gloss))
+                                continue
+                            cur.execute("INSERT INTO gloss (sense_id, gloss_string, gloss_lang, gloss_source) VALUES(?, ?, ?, ?)", (sense_id, gloss, "en", "wi"))
                     except:
                         pass
                     
         con.commit()
             #add form of words after all data has been inserted
-
+        print("Creating indices")
         cur.execute("CREATE INDEX word_word_index ON word(word);")
         cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
         cur.execute("CREATE INDEX alternative_word_canonical_form_index ON word(alternative_canonical_form);")
+        #cur.execute("CREATE INDEX word_pos_index ON word(pos);") # does this speed things up or not??
 
         cur.execute("CREATE INDEX word_lowercase_index ON word(word_lowercase);")
         cur.execute("CREATE INDEX word_lower_and_without_yo_index ON word(word_lower_and_without_yo);")
         cur.execute("CREATE INDEX sense_word_id_index ON sense(word_id);")
         cur.execute("CREATE INDEX gloss_sense_id_index ON gloss(sense_id);")
+        cur.execute("CREATE INDEX gloss_lang_index ON gloss(gloss_lang);")
+        cur.execute("CREATE INDEX gloss_source_index ON gloss(gloss_source);") #No idea about this too
         cur.execute("CREATE INDEX word_id_index ON form_of_word(word_id);")
         cur.execute("CREATE INDEX base_word_id_index ON form_of_word(base_word_id);")
         cur.execute("CREATE INDEX case_tags_fow_id_index ON case_tags(form_of_word_id);")
 
         con.commit()
-
+        print("Adding inflections to database")
         old_base_word_id = -99999
         already_added_tagged_infls: dict[str, set] = {}
         for base_word_id, infl_str, infl_tags, base_word_pos in inflections:
@@ -270,37 +260,6 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
             else:
                 add_inflection_to_db(cur, infl_str, base_word_pos, base_word_id, infl_tags)
                 already_added_tagged_infls[unaccentify(infl_str)] = set(infl_tags)
-
-            #infl_str = remove_accent_if_only_one_syllable(infl_str)
-            #unaccentified = unaccentify(infl_str)
-#
-            #lowercase = unaccentified.lower()
-            #without_yo = remove_yo(lowercase)
-#
-            ##TODO: Add check for already existing base form relation to base word id or so. If not, then create new entry 
-            ## (This would be very important if I wanted to decline words myself with the application) because there are some different
-            ## words that have same pos and canonical form
-            #already_existing_word_id = cur.execute("SELECT word_id FROM word WHERE canonical_form = ? AND pos = ?", 
-            #    (infl_str, base_word_pos)).fetchone()
-            #
-            #if already_existing_word_id == None:
-            #    cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
-            #        VALUES (?, ?, ?, ?, ?)", (unaccentified, infl_str, base_word_pos, lowercase, without_yo))
-            #    word_id = cur.lastrowid
-            #else:
-            #    word_id = already_existing_word_id[0]
-            #cur.execute("INSERT INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word_id, base_word_id))
-            #fow_id = cur.lastrowid
-            #for tag in infl_tags:
-            #    if unaccentified == "руки":
-            #        print(tag)
-            #    cur.execute("INSERT INTO case_tags (form_of_word_id, tag_text) VALUES (?, ?)", (fow_id, tag))
-#
-            #    add_word_if_does_not_exist(cur, word1)
-            #    add_word_if_does_not_exist(cur, word2)
-            #add_word_if_does_not_exist(cur, infl)
-            
-
 
         t0 = time.time()
 #TODO: INSERT words if they are not already inserted this way - or do nothing

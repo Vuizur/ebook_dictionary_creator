@@ -4,6 +4,8 @@ import csv, sqlite3, time
 def create_openrussian_database(openrussian_database_path):
 
     t = time.time()
+    
+
 
     conn = sqlite3.connect(openrussian_database_path)
     cur = conn.cursor()
@@ -20,7 +22,7 @@ def create_openrussian_database(openrussian_database_path):
     words_rels_path = "create_databases/openrussian-csvs/russian3 - words_rels.csv"
     words_path = "create_databases/openrussian-csvs/russian3 - words.csv"
 
-    cur.execute("CREATE TABLE IF NOT EXISTS adjectives (word_id INTEGER,incomparable INTEGER,comparative VARCHAR,superlative VARCHAR,short_m VARCHAR,short_f VARCHAR,short_n VARCHAR,short_pl VARCHAR,decl_m_id INTEGER,decl_f_id INTEGER,decl_n_id INTEGER,decl_pl_id INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS adjectives (word_id INTEGER NOT NULL PRIMARY KEY,incomparable INTEGER,comparative VARCHAR,superlative VARCHAR,short_m VARCHAR,short_f VARCHAR,short_n VARCHAR,short_pl VARCHAR,decl_m_id INTEGER,decl_f_id INTEGER,decl_n_id INTEGER,decl_pl_id INTEGER)")
 
     with open(adj_path, encoding="utf-8") as adjectives:
         csvData = csv.reader(adjectives, delimiter=",")
@@ -34,7 +36,7 @@ def create_openrussian_database(openrussian_database_path):
         cur.execute('COMMIT')
         
 
-    cur.execute("CREATE TABLE IF NOT EXISTS conjugations (id INTEGER,word_id INTEGER,sg1 VARCHAR,sg2 VARCHAR, sg3 VARCHAR, pl1 VARCHAR, pl2 VARCAR, pl3 VARCHAR)")
+    cur.execute("CREATE TABLE IF NOT EXISTS conjugations (id INTEGER NOT NULL PRIMARY KEY,word_id INTEGER,sg1 VARCHAR,sg2 VARCHAR, sg3 VARCHAR, pl1 VARCHAR, pl2 VARCAR, pl3 VARCHAR)")
     with open(conj_path, encoding="utf-8") as conjugations:
         csvData = csv.reader(conjugations, delimiter=",")
         cur.execute('BEGIN TRANSACTION')
@@ -46,7 +48,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS declensions (id INTEGER,word_id INTEGER,nom VARCHAR,gen VARCHAR, dat VARCHAR, acc VARCHAR, inst VARCAR, prep VARCHAR)")
+    cur.execute("CREATE TABLE IF NOT EXISTS declensions (id INTEGER NOR NULL PRIMARY KEY,word_id INTEGER,nom VARCHAR,gen VARCHAR, dat VARCHAR, acc VARCHAR, inst VARCAR, prep VARCHAR)")
 
     with open(decl_path, encoding="utf-8") as declensions:
         csvData = csv.reader(declensions, delimiter=",")
@@ -59,7 +61,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
     
-    cur.execute("CREATE TABLE IF NOT EXISTS expression_words (id INTEGER,expression_id INTEGER,referenced_word_id INTEGER, start INTEGER, length INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS expression_words (id INTEGER NOT NULL PRIMARY KEY,expression_id INTEGER,referenced_word_id INTEGER, start INTEGER, length INTEGER)")
 
     with open(exp_w_path, encoding="utf-8") as expression_words:
         csvData = csv.reader(expression_words, delimiter=",")
@@ -72,7 +74,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS nouns (word_id INTEGER,gender TEXT,partner VARCHAR, animate INTEGER, indeclinable INTEGER, sg_only INTEGER, pl_only INTEGER, decl_sg_id INTEGER, decl_pl_id INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS nouns (word_id INTEGER NOT NULL PRIMARY KEY,gender TEXT,partner VARCHAR, animate INTEGER, indeclinable INTEGER, sg_only INTEGER, pl_only INTEGER, decl_sg_id INTEGER, decl_pl_id INTEGER)")
 
     with open(noun_path, encoding="utf-8") as nouns:
         csvData = csv.reader(nouns, delimiter=",")
@@ -85,7 +87,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS sentences_words (id INTEGER,sentence_id INTEGER,word_id INTEGER, start INTEGER, length INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS sentences_words (id INTEGER NOT NULL PRIMARY KEY,sentence_id INTEGER,word_id INTEGER, start INTEGER, length INTEGER)")
 
     with open(sent_w_path, encoding="utf-8") as sentences_words:
         csvData = csv.reader(sentences_words, delimiter=",")
@@ -98,7 +100,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS sentences (id INTEGER,ru VARCHAR,lang VARCHAR, tl VARCHAR, tatobae_key INTEGER, source_url VARCHAR, disabled INTEGER, locked INTEGER, level TEXT, audio_url VARCHAR, audio_attribution_url VARCHAR, audio_attribution_name VARCHAR)")
+    cur.execute("CREATE TABLE IF NOT EXISTS sentences (id INTEGER NOT NULL PRIMARY KEY,ru VARCHAR,lang VARCHAR, tl VARCHAR, tatobae_key INTEGER, source_url VARCHAR, disabled INTEGER, locked INTEGER, level TEXT, audio_url VARCHAR, audio_attribution_url VARCHAR, audio_attribution_name VARCHAR)")
 
     with open(sent_path, encoding="utf-8") as sentences:
         csvData = csv.reader(sentences, delimiter=",")
@@ -111,7 +113,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS translations (id INTEGER,lang TEXT,word_id INTEGER, position INTEGER, tl VARCHAR, example_ru VARCHAR, example_tl VARCHAR, info VARCHAR)")
+    cur.execute("CREATE TABLE IF NOT EXISTS translations (id INTEGER NOT NULL PRIMARY KEY,lang TEXT,word_id INTEGER, position INTEGER, tl VARCHAR, example_ru VARCHAR, example_tl VARCHAR, info VARCHAR)")
 
     with open(transl_path, encoding="utf-8") as translations:
         csvData = csv.reader(translations, delimiter=",")
@@ -124,7 +126,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS verbs (word_id INTEGER, aspect TEXT, partner VARCHAR, imperative_sg VARCHAR, imperative_pl VARCHAR, past_m VARCHAR, past_f VARCHAR, past_n VARCHAR, past_pl VARCHAR, presfut_conj_id INTEGER, participle_active_present_id INTEGER,participle_active_past_id INTEGER,participle_passive_present_id INTEGER,participle_passive_past_id INTEGER)")
+    cur.execute("CREATE TABLE IF NOT EXISTS verbs (word_id INTEGER NOT NULL PRIMARY KEY, aspect TEXT, partner VARCHAR, imperative_sg VARCHAR, imperative_pl VARCHAR, past_m VARCHAR, past_f VARCHAR, past_n VARCHAR, past_pl VARCHAR, presfut_conj_id INTEGER, participle_active_present_id INTEGER,participle_active_past_id INTEGER,participle_passive_present_id INTEGER,participle_passive_past_id INTEGER)")
 
     with open(verb_path, encoding="utf-8") as verbs:
         csvData = csv.reader(verbs, delimiter=",")
@@ -139,7 +141,7 @@ def create_openrussian_database(openrussian_database_path):
 
     #TODO: words_forms left out because not in old database -> should be fixed
 
-    cur.execute("CREATE TABLE IF NOT EXISTS words (id INTEGER, position INTEGER, bare VARCHAR, accented VARCHAR, derived_from_word_id INTEGER, rank INTEGER, disabled INTEGER, audio VARCHAR, usage_en TEXT, usage_de TEXT, number_value INTEGER, type TEXT, level TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS words (id INTEGER NOT NULL PRIMARY KEY, position INTEGER, bare VARCHAR, accented VARCHAR, derived_from_word_id INTEGER, rank INTEGER, disabled INTEGER, audio VARCHAR, usage_en TEXT, usage_de TEXT, number_value INTEGER, type TEXT, level TEXT)")
 
     with open(words_path, encoding="utf-8") as words:
         csvData = csv.reader(words, delimiter=",")
@@ -152,7 +154,7 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    cur.execute("CREATE TABLE IF NOT EXISTS words_rels (id INTEGER, word_id INTEGER, rel_word_id INTEGER, relation TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS words_rels (id INTEGER NOT NULL PRIMARY KEY, word_id INTEGER, rel_word_id INTEGER, relation TEXT)")
 
     with open(words_rels_path, encoding="utf-8") as words_rels:
         csvData = csv.reader(words_rels, delimiter=",")
@@ -166,7 +168,15 @@ def create_openrussian_database(openrussian_database_path):
 
         cur.execute('COMMIT')
 
-    #TODO: INSERT INDICES
     #TODO: CHECK IF FIRST LINE IS INSERTED
 
+    cur.execute("CREATE INDEX translation_word_id_idx ON translations(word_id);")
+    cur.execute("CREATE INDEX adjectives_word_id_idx ON adjectives(word_id);")
+    cur.execute("CREATE INDEX declensions_word_id_idx ON declensions(word_id);")
+    cur.execute("CREATE INDEX verbs_word_id_idx ON verbs(word_id);")
+    cur.execute("CREATE INDEX conjugations_word_id_idx ON conjugations(word_id);")
+
+    conn.commit()
+    cur.close()
+    conn.close()
     print("\n Time Taken: %.3f sec" % (time.time()-t))

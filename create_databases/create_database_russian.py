@@ -3,6 +3,7 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
+from create_databases.create_database import directly_link_transitive_base_form_relations
 from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, remove_yo, unaccentify, remove_accent_if_only_one_syllable
 import re
 
@@ -45,6 +46,12 @@ def has_at_least_one_not_form_of_sense(obj: dict):
     return False
 
 def forms_should_be_taken_from_word(obj: dict):
+    try:
+        if obj["head_templates"][0]["args"]["cat2"] == "personal pronouns" and obj["word"] != "нечего" and obj["word"] != "некого" and obj["word"] != "аз":
+            print(obj["word"]) #
+            return False
+    except:
+        pass
     if has_at_least_one_not_form_of_sense(obj):
         return True
     else:
@@ -77,6 +84,10 @@ def append_form_to_record(form: dict, form_dict:dict):
                 form_dict["adjective_form"] = word_form
 
 def add_inflection_to_db(cur: Cursor, infl_str, base_word_pos, base_word_id, infl_tags):
+    if infl_tags == ["perfective"] or infl_tags == ["imperfective"]:
+        return # These should have an entry on their own and might have different meanings
+               # Inserting them fucks up some linkages I think
+
     infl_str = remove_accent_if_only_one_syllable(infl_str)
     unaccentified = unaccentify(infl_str)
     lowercase = unaccentified.lower()
@@ -228,7 +239,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         cur.execute("CREATE INDEX word_word_index ON word(word);")
         cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
         cur.execute("CREATE INDEX alternative_word_canonical_form_index ON word(alternative_canonical_form);")
-        #cur.execute("CREATE INDEX word_pos_index ON word(pos);") # does this speed things up or not??
+        cur.execute("CREATE INDEX canfor_pos_index ON word(canonical_form, pos);")
+        cur.execute("CREATE INDEX wordlo_pos_index ON word(word_lowercase, pos);")
+        cur.execute("CREATE INDEX wordlo_noyo_index ON word(word_lower_and_without_yo, pos);")
 
         cur.execute("CREATE INDEX word_lowercase_index ON word(word_lowercase);")
         cur.execute("CREATE INDEX word_lower_and_without_yo_index ON word(word_lower_and_without_yo);")
@@ -261,25 +274,24 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                 add_inflection_to_db(cur, infl_str, base_word_pos, base_word_id, infl_tags)
                 already_added_tagged_infls[unaccentify(infl_str)] = set(infl_tags)
 
-        t0 = time.time()
+    t0 = time.time()
 #TODO: INSERT words if they are not already inserted this way - or do nothing
-   #     for index in range(0, len(form_of_words_to_add_later), 1000):
-#
-   #         for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:
-   #             unaccented_word = unaccentify(base_word)
-#
-   #             cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
-   # SELECT ?, COALESCE ( \
-   # (SELECT w.word_id FROM word w WHERE w.word = ?), \
-   # (SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
-   # (SELECT w.word_id FROM word w WHERE w.word = ?) \
-   # )", (word_id, base_word, base_word, unaccented_word))
-   #             #form_of_word_id = cur.lastrowid
-   #             #cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
-
-
-        t1 = time.time()
-        print(t1 - t0)
+    for index in range(0, len(form_of_words_to_add_later), 1000):
+        for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:
+            unaccented_word = unaccentify(base_word)
+            cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) \
+    SELECT ?, COALESCE ( \
+    (SELECT w.word_id FROM word w WHERE w.word = ?), \
+    (SELECT w.word_id FROM word w WHERE w.canonical_form = ?), \
+    (SELECT w.word_id FROM word w WHERE w.word = ?) \
+    )", (word_id, base_word, base_word, unaccented_word))
+                #form_of_word_id = cur.lastrowid
+                #cur.execute("INSERT OR IGNORE INTO gramm_case (form_of_word_id, case_text) VALUES (?,?)", (form_of_word_id, case_text))
+    con.commit()
+    print("Link transitive relations")
+    directly_link_transitive_base_form_relations(cur)
+    t1 = time.time()
+    print(t1 - t0)
 
 
     con.commit()

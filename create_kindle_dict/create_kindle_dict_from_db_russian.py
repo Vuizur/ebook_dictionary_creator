@@ -2,6 +2,8 @@ from os import path
 import sqlite3
 from pyglossary.glossary import Glossary
 
+from helper_functions import remove_yo, unaccentify
+
 
 STARTING_XHTML = """<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
@@ -244,18 +246,21 @@ WHERE w2.canonical_form = ?""", (canonical_form,)).fetchall()
 
         for inflection in inflections:
             infl_list.append(inflection[0])
+            infl_list.append(remove_yo(inflection[0]))
+            infl_list.append(unaccentify(remove_yo(inflection[0])))
+
         infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
-        glosses = cur.execute("""SELECT g.gloss_string
+        glosses = cur.execute("""SELECT g.gloss_string, g.gloss_lang
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
 
         glosses_list = []
-        for gloss in glosses:
-            if gloss[0] == None: #This appears to happen for some reason
+        for gloss, gloss_lang in glosses:
+            if gloss == None or gloss_lang != "en": 
                 continue
-            glosses_list.append(gloss[0])
+            glosses_list.append(gloss)
 
         glosshtml = ""
         for gloss in glosses_list:

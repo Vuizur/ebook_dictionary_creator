@@ -354,9 +354,8 @@ def directly_link_transitive_base_form_relations(cur: Cursor):
     cur.execute("""DELETE FROM form_of_word
 WHERE form_of_word.word_id = form_of_word.base_word_id""")
     #TODO: Maybe we do not want to delete the intermediate links -> commented out
-
+    chunk_size = 200
     #Yeah, this is bugged for "noviecitas"
-
     transitive_base_of_relation_5 = cur.execute("""
     SELECT w1.word_id, w2.word_id, w3.word_id, w4.word_id, w5.word_id FROM word w1
     JOIN form_of_word fow ON fow.word_id = w1.word_id 
@@ -369,41 +368,56 @@ WHERE form_of_word.word_id = form_of_word.base_word_id""")
     JOIN word w5 ON fow4.base_word_id = w5.word_id 
     WHERE w1.word_id != w3.word_id AND w2.word_id != w4.word_id 
     AND w1.word != "noviecitas"
+    GROUP BY w1.word_id, w2.word_id, w3.word_id, w4.word_id, w5.word_id
     """).fetchall()
-
+   
     for word1_id, word2_id, word3_id, word4_id, word5_id in transitive_base_of_relation_5:
         cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word5_id))
-        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+                #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+   
 #This is slow, but whatever
     transitive_base_of_relation_4 = cur.execute("""
-SELECT w1.word_id, w2.word_id, w3.word_id, w4.word_id FROM word w1
-JOIN form_of_word fow ON fow.word_id = w1.word_id 
-JOIN word w2 ON fow.base_word_id = w2.word_id 
-JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
-JOIN word w3 ON fow2.base_word_id = w3.word_id 
-JOIN form_of_word fow3 ON fow3.word_id = w3.word_id 
-JOIN word w4 ON fow3.base_word_id = w4.word_id 
-WHERE w1.word_id != w3.word_id
-    """).fetchall()
+    SELECT w1.word_id, w2.word_id, w3.word_id, w4.word_id FROM word w1
+    JOIN form_of_word fow ON fow.word_id = w1.word_id 
+    JOIN word w2 ON fow.base_word_id = w2.word_id 
+    JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
+    JOIN word w3 ON fow2.base_word_id = w3.word_id 
+    JOIN form_of_word fow3 ON fow3.word_id = w3.word_id 
+    JOIN word w4 ON fow3.base_word_id = w4.word_id 
+    WHERE w1.word_id != w3.word_id
+    GROUP BY w1.word_id, w2.word_id, w3.word_id, w4.word_id
+        """).fetchall()
+    
+    
+
 
     for word1_id, word2_id, word3_id, word4_id in transitive_base_of_relation_4:
         cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word4_id))
-        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
-    #Now break up base_of relations that go like word1 -> word2 -> word3
+                #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+            #Now break up base_of relations that go like word1 -> word2 -> word3
+    
     transitive_base_of_relation_3 = cur.execute("""
-    SELECT w1.word_id, w2.word_id, w3.word_id FROM word w1
-JOIN form_of_word fow ON fow.word_id = w1.word_id 
-JOIN word w2 ON fow.base_word_id = w2.word_id 
-JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
-JOIN word w3 ON fow2.base_word_id = w3.word_id 
-    """).fetchall()
-
+        SELECT w1.word_id, w2.word_id, w3.word_id FROM word w1
+    JOIN form_of_word fow ON fow.word_id = w1.word_id 
+    JOIN word w2 ON fow.base_word_id = w2.word_id 
+    JOIN form_of_word fow2 ON fow2.word_id = w2.word_id 
+    JOIN word w3 ON fow2.base_word_id = w3.word_id 
+    WHERE w1.word_id != w3.word_id
+    GROUP BY w1.word_id, w2.word_id, w3.word_id
+        """).fetchall()
+    count= 0
+    #transitive_base_of_3 = transitive_base_of_relation_3.fetchone()
+    #if not transitive_base_of_3:
+    #    break
+    #else:
+        
     for word1_id, word2_id, word3_id in transitive_base_of_relation_3:
-        if word1_id != word3_id:
-            cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word3_id))
-        #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
-    #Now delete entries that don't have senses -> There would be currently many basic words like fue vieses or visto in this that 
-    #are caused by a bug in Wiktextract if I hadn't implemented a workaround
+        count += 1
+        cur.execute("INSERT OR IGNORE INTO form_of_word (word_id, base_word_id) VALUES (?, ?)", (word1_id, word3_id))
+            #cur.execute("DELETE FROM form_of_word WHERE form_of_word.word_id = ? AND form_of_word.base_word_id = ?", (word1_id, word2_id))
+
+    print(str(count) + " relations with 3 elements")       
+    
     cur.execute("""DELETE FROM word 
 WHERE word.word_id NOT IN (SELECT sense.word_id FROM sense) AND word.word_id NOT IN (SELECT form_of_word.word_id FROM form_of_word)
 """)

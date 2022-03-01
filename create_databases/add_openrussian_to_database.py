@@ -141,14 +141,15 @@ JOIN declensions d ON d.word_id = w.id
 """)#.fetchall()
     current_w_id = None
     base_word = None
-    chunk_size = 100
+    chunk_size = 200
+    count = 0
     while True:
         words_fetched = words.fetchmany(chunk_size) 
         if not words_fetched:
             break
         else:
             for w_id, accented, comparative, superlative, short_n, short_f, short_pl, d_nom, d_gen, d_dat, d_acc, d_inst, d_prep in words_fetched:
-
+                count += 1
                 if current_w_id != w_id:
                     if base_word != None:
                         base_words.append(base_word)
@@ -160,7 +161,7 @@ JOIN declensions d ON d.word_id = w.id
                     current_w_id = w_id
                 base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
             base_words.append(base_word)
-
+    print(str(count) + " adjectives inserted")
     print("Transform verbs")
 
     #Add verbs

@@ -15,8 +15,6 @@ Alternative_canonical_forms is sometimes wrongly filled
 
 Report to Wiktextract that accusative would be nice if it had animate/inanimate tags
 
-Add new inflections from Wiktextract
-
 Refactor create_db_tables_spanish into functions and reuse for english version
 
 Add a custom collation to the Spanish SQLITE file so that it can be searched properly with a nocase version
@@ -28,7 +26,7 @@ Maybe fix the double linkage that occurs when base_form links to a word that is 
 
 Recommend dont_append source in pyglossary
 
-A hurtadillas is currently not recognized -> Change this
+A hurtadillas is currently not recognized -> Change this with an algorithm to detect words occuring only in phrases
 
 Check for German if the Kindle algorithm really changes ä to a
 
@@ -43,6 +41,4 @@ Fix upper-lowercase-cases in ambiguity resolver (russian stress)
 Add кубарем
 
 Fix cases where the word type gets incorrectly detected, but this could be detected if the cases don't match up
-
-Add unaccented version (also without ё) as inflection
 

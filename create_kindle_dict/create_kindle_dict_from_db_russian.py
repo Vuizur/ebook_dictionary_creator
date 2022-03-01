@@ -258,9 +258,12 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
 
         glosses_list = []
         for gloss, gloss_lang in glosses:
-            if gloss == None or gloss_lang != "en": 
+            if gloss.strip() == "" or gloss == None or gloss_lang != "en": 
                 continue
             glosses_list.append(gloss)
+        
+        if glosses_list == []:
+            continue
 
         glosshtml = ""
         for gloss in glosses_list:

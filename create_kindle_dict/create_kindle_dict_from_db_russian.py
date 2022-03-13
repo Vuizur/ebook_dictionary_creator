@@ -226,7 +226,9 @@ WHERE w.word_id IN (SELECT sense.word_id FROM sense) GROUP BY w.canonical_form
     #        already_used_forms.append(canonical_form)
 
     print(str(len(base_forms)) + " base forms")
+    f =  open("removed_glosses.txt", "w", encoding="utf-8")
 
+    phrases_mistaken = set()
 
     #base_forms = base_forms_no_dupes
     counter = 0
@@ -243,25 +245,45 @@ JOIN word w2 ON w2.word_id = fow.base_word_id
 WHERE w2.canonical_form = ?""", (canonical_form,)).fetchall()
 
         infl_list = []
-
+        infl_list.append(remove_yo(canonical_form))
+        infl_list.append(unaccentify(remove_yo(canonical_form)))
+        
         for inflection in inflections:
             infl_list.append(inflection[0])
             infl_list.append(remove_yo(inflection[0]))
             infl_list.append(unaccentify(remove_yo(inflection[0])))
 
         infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
+        if canonical_form in infl_list:
+            infl_list.remove(canonical_form)
         glosses = cur.execute("""SELECT g.gloss_string, g.gloss_lang
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
 
-        glosses_list = []
+        glosses_list: list[str] = []
         for gloss, gloss_lang in glosses:
+            if "/" in gloss and ("dative" in gloss or "partitive" in gloss or "neuter singular" in gloss or "imperfective" in gloss or "vocative" in gloss \
+            or "genitive" in gloss or "instrumental" in gloss or "locative" in gloss or "genitive" in gloss or "prepositional" in gloss):
+                continue
+
             if gloss.strip() == "" or gloss == None or gloss_lang != "en": 
                 continue
             glosses_list.append(gloss)
         
+        fixed_glosses = []
+        #TODO: Remove this
+        for gloss in glosses_list:
+            words = gloss.split()
+            if "/" in gloss and "of" in words:
+                phrases_mistaken.add(gloss.split(" of ")[0])
+                #f.write(gloss + "\n")
+                continue
+            else:
+                fixed_glosses.append(gloss)
+
+        glosses_list = fixed_glosses
         if glosses_list == []:
             continue
 
@@ -286,3 +308,8 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
         glos.write("russian.ifo", format="Stardict")
     elif format == "TABFILE":
         glos.write("russian.txt", format="Tabfile")
+
+
+    for phrase in phrases_mistaken:
+        f.write(phrase + "\n")
+    f.close()

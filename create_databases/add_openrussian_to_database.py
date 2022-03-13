@@ -1,8 +1,7 @@
-from email.mime import base
 import sqlite3
 #import create_database
 from create_databases.create_database_russian import add_inflection_to_db
-
+import jsonpickle
 from helper_functions import begins_with_star, contains_apostrophes_or_yo, convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_parantheses, remove_yo, unaccentify
 
 
@@ -110,6 +109,16 @@ class BaseWord():
         if not unclear_pos:
             sql_str += " AND w.pos = ?"
         already_there_id = cur.execute(sql_str, (self.base_word, self.base_word, self.pos)).fetchone()
+
+        if already_there_id != None:
+            #Check if all inflections are there. This might be slow, but otherwise cases such as надзирательница are not being added:
+            for inflection in self.inflections:
+                res = cur.execute("SELECT w.word_id FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?", (inflection, inflection)).fetchone()
+                if res == None:
+                    already_there_id = None
+                    break
+
+
         if already_there_id == None:
             cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
             VALUES (?, ?, ?, ?, ?)", (unaccentified_base_word, self.base_word, self.pos, lowercase, without_yo))
@@ -127,6 +136,24 @@ def get_definitions(cur: sqlite3.Cursor, word_id) -> list[tuple[str, str]]:
     translations = cur.execute("SELECT lang, tl FROM translations WHERE word_id = ?", (word_id,)).fetchall()
     for lang, tl in translations:
         translations_list.append((lang, tl))
+
+    check_for_participles = False
+    if len(translations) == 0:
+        check_for_participles = True
+    transl: str
+    for _, transl in translations_list:
+        if len(transl.strip()) == 0:
+            check_for_participles = True
+    if check_for_participles:
+        participle_verbs = cur.execute("SELECT v.word_id from verbs v WHERE v.participle_active_present_id = ? OR v.participle_active_past_id  = ? OR v.participle_passive_present_id = ? OR v.participle_passive_past_id = ?", (word_id, word_id, word_id, word_id)).fetchall()
+        for (part_v_id) in participle_verbs:
+            base_verb = convert_ap_accent_to_real(cur.execute("SELECT accented from words WHERE words.id = ?", part_v_id).fetchone()[0])
+            translations = cur.execute("SELECT lang, tl FROM translations WHERE word_id = ?", part_v_id).fetchall()
+            for lang, tl in translations:
+                translations_list.append((lang, "participle of " + base_verb + ": " + tl))
+
+    #Try to find translation for partner (male form)
+    #
     return translations_list
 
 def add_openrussian_to_db_with_linkages(database_path, openrussian_database_path):
@@ -201,6 +228,14 @@ JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adj
         base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
     base_words.append(base_word)
 
+    with open("base_words.json", "w", encoding="utf-8") as out:
+        #json.dump(base_words, out, ensure_ascii=False, indent=4)
+        #json.dumps(base_words.__dict__, out, ensure_ascii=False, indent=4)
+        #jsonpickle.set_encoder_options('simplejson', indent=4, ensure_ascii = False)
+        jsonpickle.set_encoder_options('json', indent=4, ensure_ascii = False)
+        out.write(jsonpickle.encode(base_words))
+
+    #quit()
     print("Add everything to database")
 
     wikt_db = sqlite3.connect(database_path)

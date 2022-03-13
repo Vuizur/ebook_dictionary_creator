@@ -175,6 +175,7 @@ def create_openrussian_database(openrussian_database_path):
     cur.execute("CREATE INDEX declensions_word_id_idx ON declensions(word_id);")
     cur.execute("CREATE INDEX verbs_word_id_idx ON verbs(word_id);")
     cur.execute("CREATE INDEX conjugations_word_id_idx ON conjugations(word_id);")
+    cur.execute("CREATE INDEX participle_index ON verbs(participle_active_present_id, participle_active_past_id, participle_passive_present_id, participle_passive_past_id);")
 
     conn.commit()
     cur.close()

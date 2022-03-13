@@ -58,7 +58,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 
 if __name__ == "__main__":
-    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=True, convert_utf8=False)
+    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     #create_kindle_dict("italian_dict.db", "Italian", "English", "italian_dict", "Vuizur", "Italian-English Dictionary")
     
     #create_kindle_dict("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
-    #create_database("compiled_databases/spanish_dict.db", "utf8_json/Spanish-dict.json", language="Spanish")
+    #create_database("compiled_databases/Spanish_dict.db", "utf8_json/Spanish-dict.json", language="Spanish")
    
     #create_kindle_dict("spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)
 

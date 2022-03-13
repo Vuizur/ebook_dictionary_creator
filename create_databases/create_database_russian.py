@@ -219,8 +219,11 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                         tag_string: str = ""
                         for tag in sense["tags"]:
                             tag_string += tag + " "
-
-                        form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
+                        if sense["tags"] == ["form-of","passive"] and has_at_least_one_not_form_of_sense(obj):
+                            #print(word_word)
+                            pass
+                        else:
+                            form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
                     #todo: fix for glosses that aren't the base word (pretty rare case)
                 else:
                     cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
@@ -238,7 +241,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         print("Creating indices")
         cur.execute("CREATE INDEX word_word_index ON word(word);")
         cur.execute("CREATE INDEX word_canonical_form_index ON word(canonical_form);")
+        #TODO: Don't know if this index maybe is not needed
         cur.execute("CREATE INDEX alternative_word_canonical_form_index ON word(alternative_canonical_form);")
+        cur.execute("CREATE INDEX canonical_alternative_canonical_index ON word(canonical_form, alternative_canonical_form);")
         cur.execute("CREATE INDEX canfor_pos_index ON word(canonical_form, pos);")
         cur.execute("CREATE INDEX wordlo_pos_index ON word(word_lowercase, pos);")
         cur.execute("CREATE INDEX wordlo_noyo_index ON word(word_lower_and_without_yo, pos);")
@@ -275,6 +280,10 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                 already_added_tagged_infls[unaccentify(infl_str)] = set(infl_tags)
 
     t0 = time.time()
+
+    #with open("form_of_words_later.json", "w", encoding="utf-8") as outfile:
+    #    json.dump(form_of_words_to_add_later, outfile, ensure_ascii=False, indent=4)
+
 #TODO: INSERT words if they are not already inserted this way - or do nothing
     for index in range(0, len(form_of_words_to_add_later), 1000):
         for word_id, base_word, case_text in form_of_words_to_add_later[index: index+1000]:

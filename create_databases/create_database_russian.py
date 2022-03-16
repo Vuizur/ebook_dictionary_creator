@@ -225,6 +225,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                         else:
                             form_of_words_to_add_later.append((word_id, base_word["word"], tag_string))
                     #todo: fix for glosses that aren't the base word (pretty rare case)
+                elif "alt_of" in sense:
+                    for base_word in sense["alt_of"]:
+                        form_of_words_to_add_later.append((word_id, base_word["word"], ""))
                 else:
                     cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
                     sense_id = cur.lastrowid

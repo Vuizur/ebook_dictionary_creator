@@ -9,7 +9,9 @@ from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_
 import os
 
 from create_kindle_dict.create_tab_file import create_nonkindle_dict
+from helper_functions import contains_stress
 from various_tools.find_words_in_RAE_not_in_wiktionary import find_RAE_words_not_in_Wiktionary, order_RAE_words_not_in_Wiktionary
+from various_tools.find_words_without_stress import find_words_without_stress
 from various_tools.generate_most_common_words import add_most_common_words_to_db, get_most_common_words_from_DeReKo
 
 def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, create_wiktionary_db = True, convert_utf8 = True,
@@ -23,6 +25,8 @@ def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, 
     if create_wiktionary_db:
         create_database_russian(output_database_path, intermediate_utf8_json_path)
         print("Wiktextract data has been added to database")
+    #find_words_without_stress("russian_dict.db")
+    
     if create_openrussian_db:
         create_openrussian_database(openrussian_db_path)
     add_openrussian_to_db_with_linkages(output_database_path, openrussian_db_path)
@@ -58,7 +62,8 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 
 if __name__ == "__main__":
-    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
+    #find_words_without_stress("russian_dict.db")
+    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     #create_tabfile("compiled_databases/Spanish_dict.db", "spanish.txt")
     #convert_file_to_utf8("kaikki/kaikki.org-dictionary-Russian.json", )
     #create_database_russian("russian.db", "russian-dict.json")
-    create_py_glossary_and_export("russian_dict.db", "STARDICT")
+    #create_py_glossary_and_export("russian_dict.db", "TABFILE")
     
     #print(remove_spanish_pronouns_from_inflection("no te vayas"))
 

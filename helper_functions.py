@@ -43,6 +43,15 @@ def remove_accent_if_only_one_syllable(s: str):
         return s_unaccented
     else:
         return s
+def has_at_most_one_syllable(s: str):
+    s_unaccented = unaccentify(s)
+    s_unaccented_lower = s_unaccented.lower()
+    vowels = 0
+    for char in s_unaccented_lower:
+        if char in "аоэуыяеюи":
+            vowels += 1
+    return vowels <= 1
+    
 
 def has_cyrillic_letters(s: str):
     m = re.findall(r'[А-я]+', s)
@@ -86,3 +95,9 @@ def begins_with_star(word: str) -> bool:
 
 def remove_parantheses(word: str) -> bool:
     return word.replace("(", "").replace(")", "")
+
+def contains_stress(word: str) -> bool:
+    for char in word.lower():
+        if char == "\u0301" or char == "ё":
+            return True
+    return False

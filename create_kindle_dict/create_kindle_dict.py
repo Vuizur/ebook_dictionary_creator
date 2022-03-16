@@ -3,6 +3,47 @@ import sqlite3
 from unidecode import unidecode
 import collections
 
+
+
+### To get the kindle dictionary creation to run, you need to replace following function in the pyglossary package 
+### (ebook-mobi.py)
+def format_group_content(self, word: "List[str]", defi: str) -> str:
+		hide_word_index = self._hide_word_index
+		html_headword = None
+		if word[0][:9] == "HTML_HEAD":
+			html_headword = word[0][9:]
+			word.pop(0)
+
+		if hide_word_index:
+			html_headword = ''
+		if len(word) == 1:
+			infl = ''
+			mainword = word[0]
+		else:
+			mainword, *variants = word
+			iforms_list = []
+			for variant in variants:
+				iforms_list.append(self.GROUP_XHTML_WORD_IFORM_TEMPLATE.format(
+					inflword=variant,
+					exact_str=' exact="yes"' if self._exact else '',
+				))
+			infl = '\n' + \
+				self.GROUP_XHTML_WORD_INFL_TEMPLATE.format(
+					iforms_str="\n".join(iforms_list))
+
+		headword = self.escape_if_needed(mainword)
+
+		defi = self.escape_if_needed(defi)
+
+		group_content = self.GROUP_XHTML_WORD_DEFINITION_TEMPLATE.format(
+			spellcheck_str=' spell="yes"' if self._spellcheck else '',
+			headword_html=f'\n{headword}' if html_headword == None else f'\n{html_headword}',
+			headword_hide=f' value="{headword}"' if not html_headword == None else '',
+			definition=defi,
+			infl=infl,
+		)
+		return group_content
+
 def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
     title: str, try_to_fix_kindle_lookup_stupidity=False):
     """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup

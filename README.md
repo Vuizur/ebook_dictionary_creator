@@ -1,9 +1,10 @@
 # Ebook dictionary creator
 
-This project has two goals:
-1. The first is to create a performant database containing words and their definitions, including all inflections and proper linkages between them. This allows you to get the definition of a word regardless of the word's case/tense. I will soon add an example explaining how you can use this as a fast dictionary with only one SQL query.
-2. Based on this data, it creates high-quality dictionaries compatible with recent ebook readers. It uses an algorithm to fix bugs in the Kindle lookup engine for this that prevent inflections from being found - even official dictionaries suffer from it. Look in the releases section for already available dictionaries.
-3. I will soon release the dictionaries as a Tabfile so that you can convert it to other formats as well
+This repo does two things:
+1. The first is creating a performant database containing words and their definitions, including all inflections and proper linkages, using English Wiktionary data (and for Russian OpenRussian as well).
+2. Based on this data, it creates high-quality dictionaries compatible with recent ebook readers. It uses an algorithm to fix bugs in the Kindle lookup engine for this that prevent inflections from being found - even official dictionaries suffer from it. So far I have only created a Spanish dictionary for Kindle and a Russian Stardict dictionary (and some other untested languages).
+
+If you want another language or format, you can open an issue and I will take a look if I have time.
 
 Contributions and feedback about words that are not displayed correctly or unhelpful definitions (I tried to remove them all/link them to parent definitions) are always welcome. Additionally, you can tell me if the dictionary for your language is missing essential information.
 
@@ -11,15 +12,7 @@ Contributions and feedback about words that are not displayed correctly or unhel
 * Spanish
 * German
 * Swedish
-
-### Languages to be released (I still have to fix some bugs):
-* Italian (missing linkages)
-* French (missing linkages)
-* Portuguese (missing linkages)
-* Catalan (will have to use inflection tables)
-* Polish (will have to use inflection tables)
-* Finnish (will have to use inflection tables)
-* Latin (for some reason buggy)
+* Russian (not for kindle, but for Stardict)
 
 ### Acknowledgements
 This project would not have been possible without the https://kaikki.org/ data provided by Tatu Ylonen, the OpenRussian data and the Pyglossary library for the creation of the Kindle dictionary

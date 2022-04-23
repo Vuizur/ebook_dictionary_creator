@@ -210,34 +210,21 @@ def create_py_glossary_and_export(database_path, format="MOBI"):
     con = sqlite3.connect(database_path)
     cur = con.cursor()
     
-    #base_forms = cur.execute("SELECT w.word_id, w.canonical_form FROM word w WHERE w.word_id NOT IN (SELECT fow.word_id FROM form_of_word fow)").fetchall()
     base_forms = cur.execute("""SELECT w.word_id, w.canonical_form FROM word w
 WHERE w.word_id IN (SELECT sense.word_id FROM sense) GROUP BY w.canonical_form
 """).fetchall()
-    #base_forms_no_dupes = []
-    ##TODO: This removes meanings of words!- Maybe?
-    #already_used_forms = []
-#
-    #for word_id, canonical_form in base_forms:
-    #    if canonical_form in already_used_forms:
-    #        continue
-    #    else:
-    #        base_forms_no_dupes.append((word_id, canonical_form))
-    #        already_used_forms.append(canonical_form)
 
     print(str(len(base_forms)) + " base forms")
     f =  open("removed_glosses.txt", "w", encoding="utf-8")
 
     phrases_mistaken = set()
 
-    #base_forms = base_forms_no_dupes
     counter = 0
     for word_id, canonical_form in base_forms:
         counter = counter + 1
         
         #get inflections
         #TODO: get alternative canonical form as inflection as well
-        #and add all unaccented versions as inflection as well
 
         inflections = cur.execute("""SELECT w1.canonical_form FROM word w1
 JOIN form_of_word fow ON fow.word_id = w1.word_id 
@@ -264,26 +251,27 @@ WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
 
         glosses_list: list[str] = []
         for gloss, gloss_lang in glosses:
-            if "/" in gloss and ("dative" in gloss or "partitive" in gloss or "neuter singular" in gloss or "imperfective" in gloss or "vocative" in gloss \
-            or "genitive" in gloss or "instrumental" in gloss or "locative" in gloss or "genitive" in gloss or "prepositional" in gloss):
-                continue
+            #if "/" in gloss and ("dative" in gloss or "partitive" in gloss or "neuter singular" in gloss or "imperfective" in gloss or "vocative" in gloss \
+            #or "genitive" in gloss or "instrumental" in gloss or "locative" in gloss or "genitive" in gloss or "prepositional" in gloss):
+            #    f.write(gloss + "\n")
+            #    continue
 
             if gloss.strip() == "" or gloss == None or gloss_lang != "en": 
                 continue
             glosses_list.append(gloss)
         
-        fixed_glosses = []
-        #TODO: Remove this
-        for gloss in glosses_list:
-            words = gloss.split()
-            if "/" in gloss and "of" in words:
-                phrases_mistaken.add(gloss.split(" of ")[0])
-                #f.write(gloss + "\n")
-                continue
-            else:
-                fixed_glosses.append(gloss)
+        #fixed_glosses = []
+        ##TODO: Remove this
+        #for gloss in glosses_list:
+        #    words = gloss.split()
+        #    if "/" in gloss and "of" in words:
+        #        phrases_mistaken.add(gloss.split(" of ")[0])
+        #        f.write(gloss + "\n")
+        #        continue
+        #    else:
+        #        fixed_glosses.append(gloss)
 
-        glosses_list = fixed_glosses
+        #glosses_list = fixed_glosses
         if glosses_list == []:
             continue
 

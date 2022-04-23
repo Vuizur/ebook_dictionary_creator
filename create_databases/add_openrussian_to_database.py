@@ -1,44 +1,7 @@
 import sqlite3
-#import create_database
 from create_databases.create_database_russian import add_inflection_to_db
 import jsonpickle
 from helper_functions import begins_with_star, contains_apostrophes_or_yo, convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_parantheses, remove_yo, unaccentify
-
-
-#def convert_ap_accent_to_real(word: str) -> str:
-#    res = ""
-#    for char in word:
-#        if char != "'":
-#            res += char
-#        else:
-#            res += u'\u0301'
-#    return res
-#
-#translation_table_ap = {ord("'"): None}
-#def remove_apostrophes(word: str) -> str:
-#    return word.translate(translation_table_ap)
-#
-#def remove_yo(word: str) -> str:
-#    res = ""
-#    for char in word:
-#        if char != "ё":
-#            res += char
-#        else:
-#            res += "е"
-#    return res
-#
-#def contains_apostrophes_or_yo(word: str) -> bool:
-#    for char in word:
-#        if char == "'" or char == "ё":
-#            return True
-#    return False
-#
-#def begins_with_star(word: str) -> bool:
-#    """Returns true if the word should be ignored"""
-#    return len(word) == 0 or word == None or word[0] == "*"
-#
-#def remove_parantheses(word: str) -> bool:
-#    return word.replace("(", "").replace(")", "")
 
 def output_difference_of_word_list(openrussian_wordlist: list[str], database_path):
     con = sqlite3.connect(database_path)

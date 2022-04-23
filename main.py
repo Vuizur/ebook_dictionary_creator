@@ -4,8 +4,9 @@ from create_databases.create_database import create_database, remove_spanish_pro
 from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
 from create_databases.add_openrussian_to_database import add_openrussian_to_db, add_openrussian_to_db_with_linkages
+from create_databases.download_kaikki_db import download_kaikki_db
 from create_kindle_dict.create_kindle_dict import create_kindle_dict
-from create_kindle_dict.create_kindle_dict_from_db_russian import create_kindle_dict_from_db, create_py_glossary_and_export
+from create_kindle_dict.create_kindle_dict_from_db_russian import create_py_glossary_and_export
 import os
 
 from create_kindle_dict.create_tab_file import create_nonkindle_dict
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     #create_tabfile("compiled_databases/Spanish_dict.db", "spanish.txt")
     #convert_file_to_utf8("kaikki/kaikki.org-dictionary-Russian.json", )
     #create_database_russian("russian.db", "russian-dict.json")
-    #create_py_glossary_and_export("russian_dict.db", "TABFILE")
+    create_py_glossary_and_export("russian_dict.db", "TABFILE")
     
     #print(remove_spanish_pronouns_from_inflection("no te vayas"))
 

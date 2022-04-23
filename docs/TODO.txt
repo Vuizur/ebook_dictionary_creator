@@ -42,3 +42,4 @@ Add кубарем
 
 Fix cases where the word type gets incorrectly detected, but this could be detected if the cases don't match up
 
+Create a version of the dictionary that includes declension tables

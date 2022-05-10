@@ -64,7 +64,13 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 if __name__ == "__main__":
     #find_words_without_stress("russian_dict.db")
-    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
+
+    #convert_file_to_utf8("kaikki.org-dictionary-Russian_02_05.json", "kaikki.org-dictionary-Russian_02_05_utf8.json")
+    create_database_russian("nonraw_dict.db", "kaikki.org-dictionary-Russian_02_05_utf8.json")
+    create_database_russian("raw_dict.db", "raw-wiktextract-data_russian_new.json")
+
+    #download_kaikki_db("Russian")
+    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
@@ -92,7 +98,8 @@ if __name__ == "__main__":
     #create_tabfile("compiled_databases/Spanish_dict.db", "spanish.txt")
     #convert_file_to_utf8("kaikki/kaikki.org-dictionary-Russian.json", )
     #create_database_russian("russian.db", "russian-dict.json")
-    create_py_glossary_and_export("russian_dict.db", "TABFILE")
+
+    #create_py_glossary_and_export("russian_dict.db", "TABFILE")
     
     #print(remove_spanish_pronouns_from_inflection("no te vayas"))
 

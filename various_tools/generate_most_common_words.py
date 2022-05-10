@@ -1,4 +1,3 @@
-from email.mime import base
 import sqlite3
 import csv
 

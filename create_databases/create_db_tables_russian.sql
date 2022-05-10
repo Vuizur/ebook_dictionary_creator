@@ -16,7 +16,7 @@ CREATE TABLE sense
 (
     sense_id INTEGER NOT NULL PRIMARY KEY,
     word_id INTEGER NOT NULL,
-    FOREIGN KEY(word_id) REFERENCES word(word_id)
+    FOREIGN KEY(word_id) REFERENCES word(word_id) ON DELETE CASCADE
 );
 
 CREATE TABLE form_of_word --There is exactly one entry for each case, so duplicates are possible (same word and base word)
@@ -24,8 +24,8 @@ CREATE TABLE form_of_word --There is exactly one entry for each case, so duplica
     form_of_word_id INTEGER NOT NULL PRIMARY KEY,
     word_id INTEGER NOT NULL,
     base_word_id INTEGER NOT NULL,
-    FOREIGN KEY(word_id) REFERENCES word(word_id),
-    FOREIGN KEY(base_word_id) REFERENCES word(word_id)
+    FOREIGN KEY(word_id) REFERENCES word(word_id) ON DELETE CASCADE,
+    FOREIGN KEY(base_word_id) REFERENCES word(word_id) ON DELETE CASCADE
 );
 
 --CREATE TABLE gramm_case
@@ -40,7 +40,7 @@ CREATE TABLE case_tags
 (
     form_of_word_id INTEGER NOT NULL,
     tag_text VARCHAR,
-    FOREIGN KEY(form_of_word_id) REFERENCES form_of_word(form_of_word_id)
+    FOREIGN KEY(form_of_word_id) REFERENCES form_of_word(form_of_word_id) ON DELETE CASCADE
 );
 
 
@@ -64,5 +64,5 @@ CREATE TABLE gloss
     gloss_string VARCHAR,
     gloss_lang VARCHAR,
     gloss_source VARCHAR,
-    FOREIGN KEY(sense_id) REFERENCES sense(sense_id)    
+    FOREIGN KEY(sense_id) REFERENCES sense(sense_id) ON DELETE CASCADE
 );

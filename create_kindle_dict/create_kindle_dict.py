@@ -65,9 +65,9 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
 """).fetchall()
 
     #this serves to check overlappings with base forms
-    base_forms_unidecoded = []
+    base_forms_unidecoded = set()
     for base_form in base_forms:
-        base_forms_unidecoded.append(unidecode(base_form[1]).lower())
+        base_forms_unidecoded.add(unidecode(base_form[1]).lower())
     
     inflection_num = 0
     counter = 0
@@ -126,7 +126,7 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
             if try_to_fix_kindle_lookup_stupidity and unidecode(canonical_form) != unidecode(inflection[0]):
                 infl_list.append(inflection[0])
         infl_list = list(set(infl_list)) #This has to do with a bug in the linkages that causes words to be doubly linked
-        already_separated_unidecoded_inflections = []
+        already_separated_unidecoded_inflections = set()
 
         rest_inflections = []
         for inflection in infl_list:
@@ -136,7 +136,7 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
                 #these forms will otherwise not be found by the stupid algorithm
                 pgl_list = ["HTML_HEAD<b>" + canonical_form + "</b>", inflection]
                 glos.addEntryObj(glos.newEntry(pgl_list, glosshtml, defiFormat))
-                already_separated_unidecoded_inflections.append(unidecoded_inflection)
+                already_separated_unidecoded_inflections.add(unidecoded_inflection)
             else:
                 rest_inflections.append(inflection)
         

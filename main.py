@@ -66,8 +66,8 @@ if __name__ == "__main__":
     #find_words_without_stress("russian_dict.db")
 
     #convert_file_to_utf8("kaikki.org-dictionary-Russian_02_05.json", "kaikki.org-dictionary-Russian_02_05_utf8.json")
-    create_database_russian("nonraw_dict.db", "kaikki.org-dictionary-Russian_02_05_utf8.json")
-    create_database_russian("raw_dict.db", "raw-wiktextract-data_russian_new.json")
+    #create_database_russian("nonraw_dict.db", "kaikki.org-dictionary-Russian_02_05_utf8.json")
+    #create_database_russian("raw_dict.db", "raw-wiktextract-data_russian_new.json")
 
     #download_kaikki_db("Russian")
     #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     #create_kindle_dict("english_dict.db", "English", "English", "english_dict", "Vuizur", "English Monolingual Dictionary")
     #create_database("compiled_databases/Spanish_dict.db", "utf8_json/Spanish-dict.json", language="Spanish")
    
-    #create_kindle_dict("spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)
+    create_kindle_dict("compiled_databases/Spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)
 
     #delete_inconsistent_canonical_forms("russian_dict.db")
 

@@ -75,6 +75,9 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
     #glos.write("spanish_dictionary.kobo", format="Kobo")
     if output_format == "Tabfile":
         glos.write(out_path, format="Tabfile")
+    elif output_format == "Json":
+        glos.write("json_test.json", format="Json")
+        glos.write("diktjson_test.json", format="DiktJson")
     print(str(len(base_forms)) + " base forms")
     print(str(inflection_num) + " inflections")
     cur.close()

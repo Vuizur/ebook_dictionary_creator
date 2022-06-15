@@ -132,6 +132,8 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
             # found both due to the stupid kindle algorithm
             if try_to_fix_kindle_lookup_stupidity and unidecode(canonical_form) != unidecode(inflection[0]):
                 infl_list.append(inflection[0])
+            else:
+                infl_list.append(inflection[0])
         # This has to do with a bug in the linkages that causes words to be doubly linked
         infl_list = list(set(infl_list))
         already_separated_unidecoded_inflections = set()

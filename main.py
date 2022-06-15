@@ -63,6 +63,8 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 
 if __name__ == "__main__":
+
+    create_dictionary_from_zero("Czech", "English", "Vuizur", "Czech-English Wiktionary dictionary", fix_kindle_stupidity = False, wiktextract_json_input_path = "kaikki/kaikki.org-dictionary-Czech.json")
     #find_words_without_stress("russian_dict.db")
 
     #convert_file_to_utf8("kaikki.org-dictionary-Russian_02_05.json", "kaikki.org-dictionary-Russian_02_05_utf8.json")
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     #create_kindle_dict("compiled_databases/Spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)
 
 
-    create_nonkindle_dict("compiled_databases/Spanish_dict.db", "test.json", "Json")
+    #create_nonkindle_dict("compiled_databases/Spanish_dict.db", "test.json", "Json")
     #delete_inconsistent_canonical_forms("russian_dict.db")
 
     #### From Zero

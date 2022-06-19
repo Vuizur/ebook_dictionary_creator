@@ -3,6 +3,8 @@ import sqlite3
 from unidecode import unidecode
 import collections
 
+from create_kindle_dict.tatoeba_augmentation import get_example_sentences_for_all_words_not_in_word_list, get_word_and_html_for_all_words_not_in_word_list
+
 
 
 
@@ -56,7 +58,7 @@ def format_group_content(self, word: "List[str]", defi: str) -> str:
 
 
 def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
-                       title: str, try_to_fix_kindle_lookup_stupidity=False):
+                       title: str, try_to_fix_kindle_lookup_stupidity=False, tatoeba_path=None,):
     """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup
     of words that are not recognized by default due to the buggy algorithm that does not look at inflections if a fitting
     base word exists
@@ -159,8 +161,19 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
         all_forms.extend(rest_inflections)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
 
+        # Augment with data froma Tatoeba:
+        
         if counter % 2000 == 0:
-            print(str(counter) + " words")
+         print(str(counter) + " words")
+    if tatoeba_path != None:
+        existing_words = cur.execute("""SELECT w.word FROM word w""").fetchall()
+        existing_words = [word[0] for word in existing_words]
+        tatoeba_words = get_word_and_html_for_all_words_not_in_word_list(existing_words, "Sentence pairs in Czech-English - 2022-06-15.tsv")
+        for word, html in tatoeba_words.items():
+            glos.addEntryObj(glos.newEntry(
+               ["HTML_HEAD<b>" + word + "</b>", word], html, defiFormat))
+
+ 
     print("Creating dictionary")
     glos.setInfo("title", title)
     glos.setInfo("author", author)

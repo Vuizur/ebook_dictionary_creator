@@ -3,7 +3,7 @@ from create_databases.create_database_russian import create_database_russian, de
 from create_databases.create_database import create_database, remove_spanish_pronouns_from_inflection
 from create_databases.convert_file_to_utf8 import convert_file_to_utf8
 from create_databases.create_openrussian_database_from_csv import create_openrussian_database
-from create_databases.add_openrussian_to_database import add_openrussian_to_db, add_openrussian_to_db_with_linkages
+from create_databases.add_openrussian_to_database import add_openrussian_to_db_with_linkages
 from create_databases.download_kaikki_db import download_kaikki_db
 from create_kindle_dict.create_kindle_dict import create_kindle_dict
 from create_kindle_dict.create_kindle_dict_from_db_russian import create_py_glossary_and_export
@@ -39,7 +39,7 @@ def create_db_full(wiktextract_json_input_path: str, language: str, output_datab
     create_database(output_database_path, intermediate_utf8_json_path, language)
 
 def create_dictionary_from_zero(input_lang, output_lang, author, dict_name, 
-    fix_kindle_stupidity = True, wiktextract_json_input_path = None):
+    fix_kindle_stupidity = True, wiktextract_json_input_path = None, tatoeba_path = None):
 
     time1 = time()
 
@@ -50,7 +50,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
         convert_file_to_utf8(wiktextract_json_input_path, intermediate_utf8_path)
         print("File has been converted to UTF-8")
     create_database(dict_database_path, intermediate_utf8_path, input_lang)
-    create_kindle_dict(dict_database_path, input_lang, output_lang, kindle_dict_out_path, author, dict_name, fix_kindle_stupidity)
+    create_kindle_dict(dict_database_path, input_lang, output_lang, kindle_dict_out_path, author, dict_name, fix_kindle_stupidity, tatoeba_path)
     
     output_path = "compiled_kindle_dictionaries/" + dict_name + ".mobi"
     while os.path.exists(output_path):
@@ -64,7 +64,8 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 if __name__ == "__main__":
 
-    create_dictionary_from_zero("Czech", "English", "Vuizur", "Czech-English Wiktionary dictionary", fix_kindle_stupidity = False, wiktextract_json_input_path = "kaikki/kaikki.org-dictionary-Czech.json")
+    #create_dictionary_from_zero("Czech", "English", "Vuizur", "Czech-English Wiktionary dictionary", fix_kindle_stupidity = False, wiktextract_json_input_path = "kaikki/kaikki.org-dictionary-Czech.json", tatoeba_path = "Sentence pairs in Czech-English - 2022-06-15.tsv")
+    
     #find_words_without_stress("russian_dict.db")
 
     #convert_file_to_utf8("kaikki.org-dictionary-Russian_02_05.json", "kaikki.org-dictionary-Russian_02_05_utf8.json")
@@ -72,7 +73,7 @@ if __name__ == "__main__":
     #create_database_russian("raw_dict.db", "raw-wiktextract-data_russian_new.json")
 
     #download_kaikki_db("Russian")
-    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
+    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 

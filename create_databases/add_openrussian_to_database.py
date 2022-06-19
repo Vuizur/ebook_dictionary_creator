@@ -70,8 +70,8 @@ class BaseWord():
         
         sql_str = "SELECT w.word_id FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?"
         if not unclear_pos:
-            sql_str += " AND w.pos = ?"
-        already_there_id = cur.execute(sql_str, (self.base_word, self.base_word, self.pos)).fetchone()
+            final_sql_str = sql_str + " AND w.pos = ?"
+        already_there_id = cur.execute(final_sql_str, (self.base_word, self.base_word, self.pos)).fetchone()
 
         if already_there_id != None:
             #Check if all inflections are there. This might be slow, but otherwise cases such as надзирательница are not being added:
@@ -213,6 +213,7 @@ JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adj
     wikt_db.close()
 
 def add_openrussian_to_db(database_path, openrussian_database_path):
+    """DEPRECATED"""
 
     con = sqlite3.connect(database_path)
     openrussian = sqlite3.connect(openrussian_database_path)

@@ -45,3 +45,11 @@ Fix cases where the word type gets incorrectly detected, but this could be detec
 Create a version of the dictionary that includes declension tables
 
 Fork pyglossary and depend on fork
+
+Check why приня́лся does not cause the OpenRussian words not to be added.
+
+Make a real effort to generate a dictionary for each language
+
+Fix the kindle lookup fixer for all languages
+
+Create a proper dictionary that includes POS like noun, verb, etc.

@@ -53,3 +53,5 @@ Make a real effort to generate a dictionary for each language
 Fix the kindle lookup fixer for all languages
 
 Create a proper dictionary that includes POS like noun, verb, etc.
+
+Find words without glosses in kaikki data

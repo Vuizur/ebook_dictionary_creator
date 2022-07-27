@@ -15,28 +15,7 @@ from various_tools.find_words_in_RAE_not_in_wiktionary import find_RAE_words_not
 from various_tools.find_words_without_stress import find_words_without_stress
 from various_tools.generate_most_common_words import add_most_common_words_to_db, get_most_common_words_from_DeReKo
 
-def create_ru_db_full(wiktextract_json_input_path, create_openrussian_db: bool, create_wiktionary_db = True, convert_utf8 = True,
-     openrussian_db_path = "openrussian.db", output_database_path = "russian_dict.db", intermediate_utf8_json_path="russian-dict.json"):
-    """Creates an SQLite database containing the data from Wiktextract combined with data by OpenRussian\n
-    The Wiktextract data can be downloaded from kaikki.org"""
-    if convert_utf8:
-        convert_file_to_utf8(wiktextract_json_input_path, intermediate_utf8_json_path)
-        print("Wiktextract file has been converted to UTF-8")
-    #This creates the Wiktextract portion of the database
-    if create_wiktionary_db:
-        create_database_russian(output_database_path, intermediate_utf8_json_path)
-        print("Wiktextract data has been added to database")
-    #find_words_without_stress("russian_dict.db")
-    
-    if create_openrussian_db:
-        create_openrussian_database(openrussian_db_path)
-    add_openrussian_to_db_with_linkages(output_database_path, openrussian_db_path)
-    print("OpenRussian data has been added to database")
 
-def create_db_full(wiktextract_json_input_path: str, language: str, output_database_path: str, intermediate_utf8_json_path: str):
-    convert_file_to_utf8(wiktextract_json_input_path, intermediate_utf8_json_path)
-    print("File has been converted to UTF-8")
-    create_database(output_database_path, intermediate_utf8_json_path, language)
 
 def create_dictionary_from_zero(input_lang, output_lang, author, dict_name, 
     fix_kindle_stupidity = True, wiktextract_json_input_path = None, tatoeba_path = None):
@@ -51,7 +30,6 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
         print("File has been converted to UTF-8")
     create_database(dict_database_path, intermediate_utf8_path, input_lang)
     create_kindle_dict(dict_database_path, input_lang, output_lang, kindle_dict_out_path, author, dict_name, fix_kindle_stupidity, tatoeba_path)
-    
     output_path = "compiled_kindle_dictionaries/" + dict_name + ".mobi"
     while os.path.exists(output_path):
         output_path = output_path + "_new"
@@ -64,7 +42,7 @@ def create_dictionary_from_zero(input_lang, output_lang, author, dict_name,
 
 if __name__ == "__main__":
 
-    #create_dictionary_from_zero("Czech", "English", "Vuizur", "Czech-English Wiktionary dictionary", fix_kindle_stupidity = False, wiktextract_json_input_path = "kaikki/kaikki.org-dictionary-Czech.json", tatoeba_path = "Sentence pairs in Czech-English - 2022-06-15.tsv")
+    create_dictionary_from_zero("Czech", "English", "Vuizur", "Czech-English Wiktionary dictionary", fix_kindle_stupidity = False, wiktextract_json_input_path = "kaikki/kaikki.org-dictionary-Czech.json", tatoeba_path = "Sentence pairs in Czech-English - 2022-06-15.tsv")
     
     #find_words_without_stress("russian_dict.db")
 
@@ -73,7 +51,7 @@ if __name__ == "__main__":
     #create_database_russian("raw_dict.db", "raw-wiktextract-data_russian_new.json")
 
     #download_kaikki_db("Russian")
-    create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
+    #create_ru_db_full("kaikki/kaikki.org-dictionary-Russian.json", create_wiktionary_db=True, create_openrussian_db=False, convert_utf8=False)
     #create_db_full("kaikki.org-dictionary-Spanish_new.json")
     #convert_file_to_utf8("kaikki.org-dictionary-English.json", "english_dict.json")
     #create_db_full("kaikki.org-dictionary-English.json", language=Language.ENGLISH, 
@@ -87,8 +65,7 @@ if __name__ == "__main__":
    
     #create_kindle_dict("compiled_databases/Spanish_dict.db", "Spanish", "English", "spanish_dict", "Vuizur", "Spanish-English Dictionary", try_to_fix_kindle_lookup_stupidity=True)
 
-
-    #create_nonkindle_dict("compiled_databases/Spanish_dict.db", "test.json", "Json")
+    create_nonkindle_dict("compiled_databases/Spanish_dict.db", "Es-En.txt", "Tabfile")
     #delete_inconsistent_canonical_forms("russian_dict.db")
 
     #### From Zero

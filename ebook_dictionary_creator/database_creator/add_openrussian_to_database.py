@@ -1,7 +1,8 @@
 import sqlite3
-from create_databases.create_database_russian import add_inflection_to_db
+from database_creator.create_database_russian import add_inflection_to_db
 import jsonpickle
-from helper_functions import begins_with_star, contains_apostrophes_or_yo, convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_parantheses, remove_yo, unaccentify
+from helper_functions import begins_with_star, remove_parantheses, contains_apostrophes_or_yo
+from stressed_cyrillic_tools import convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_yo, unaccentify
 
 def output_difference_of_word_list(openrussian_wordlist: list[str], database_path):
     con = sqlite3.connect(database_path)
@@ -68,15 +69,19 @@ class BaseWord():
         if self.pos == "other" or self.pos == None:
             unclear_pos = True
         
-        sql_str = "SELECT w.word_id FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?"
+        sql_str = "SELECT w.word_id FROM word w WHERE w.word = ?"
+        # TODO: Fix bug here (if pos is unclear)
         if not unclear_pos:
             final_sql_str = sql_str + " AND w.pos = ?"
-        already_there_id = cur.execute(final_sql_str, (self.base_word, self.base_word, self.pos)).fetchone()
+            already_there_id = cur.execute(final_sql_str, (unaccentified_base_word, self.pos)).fetchone()
+        else:
+            already_there_id = cur.execute(sql_str, (unaccentified_base_word,)).fetchone()
 
         if already_there_id != None:
             #Check if all inflections are there. This might be slow, but otherwise cases such as надзирательница are not being added:
             for inflection in self.inflections:
-                res = cur.execute("SELECT w.word_id FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?", (inflection, inflection)).fetchone()
+                infl_unacc = unaccentify(inflection)
+                res = cur.execute(sql_str, (infl_unacc,)).fetchone()
                 if res == None:
                     already_there_id = None
                     break

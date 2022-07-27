@@ -3,14 +3,16 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
-from create_databases.create_database import directly_link_transitive_base_form_relations
-from helper_functions import has_cyrillic_letters, remove_weird_characters_for_alternative_canonical, remove_yo, unaccentify, remove_accent_if_only_one_syllable
+#from create_databases.create_database import directly_link_transitive_base_form_relations
+from helper_functions import remove_weird_characters_for_alternative_canonical
+from stressed_cyrillic_tools import has_cyrillic_letters, remove_yo, unaccentify, remove_accent_if_only_one_syllable
+
+from database_creator.create_database import directly_link_transitive_base_form_relations
 import re
 
 DO_NOT_ADD_TRANSLATIONS = False  # Set true to reduce size of DB
 
-
-def add_word_if_does_not_exist(cur, canon_form):
+def add_word_if_does_not_exist(cur: Cursor, canon_form: str):
     unaccentified = unaccentify(canon_form)
     lowercase = unaccentified.lower()
     without_yo = remove_yo(lowercase)
@@ -189,7 +191,7 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
             word_word = obj["word"]
             word_lowercase = word_word.lower()
-            word_without_yo = word_lowercase.replace("ё", "е")
+            word_without_yo = remove_yo(word_lowercase)
 
             if form_dict["canonical_form"] != None:
                 form_dict["canonical_form"] = remove_accent_if_only_one_syllable(

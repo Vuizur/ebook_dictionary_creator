@@ -1,9 +1,8 @@
 from pyglossary import Glossary
 import sqlite3
 from unidecode import unidecode
-import collections
 
-def create_nonkindle_dict(source_database_path: str, out_path: str, output_format: str):
+def create_nonkindle_dict(source_database_path: str, out_path: str, output_format: str, input_language=None, output_language=None, author: str = None, title: str = None):
     Glossary.init()
     glos = Glossary()
 
@@ -66,18 +65,19 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
         if counter % 2000 == 0:
             print(str(counter) + " words")
     print("Creating dictionary")
-    #glos.setInfo("title", title)
-    #glos.setInfo("author", author)
-    #glos.sourceLangName = input_language
-    #glos.targetLangName = output_language
     print("Writing dictionary")
-    #glos.write(output_path, format="Mobi", keep=True, exact=True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
-    #glos.write("spanish_dictionary.kobo", format="Kobo")
+    glos.setInfo("title", title)
+    glos.setInfo("author", author)
+    glos.sourceLangName = input_language
+    glos.targetLangName = output_language
+
     if output_format == "Tabfile":
         glos.write(out_path, format="Tabfile")
     elif output_format == "Json":
         glos.write("json_test.json", format="Json")
         glos.write("diktjson_test.json", format="DiktJson")
+    elif output_format == "Stardict":
+        glos.write(out_path, format="Stardict")
     print(str(len(base_forms)) + " base forms")
     print(str(inflection_num) + " inflections")
     cur.close()

@@ -19,7 +19,7 @@ def load_sentences_from_tsv(tsv_file_path: str) -> pd.DataFrame:
     return df
 
 
-def create_word_occurence_dictionary(df: pd.DataFrame) -> dict[str, list[str]]:
+def create_word_occurence_dictionary(df: pd.DataFrame, tokenizer_lang = "cs") -> dict[str, list[str]]:
     """
     Creates a dictionary that contains a list of example sentence IDS for each word
     """
@@ -28,7 +28,7 @@ def create_word_occurence_dictionary(df: pd.DataFrame) -> dict[str, list[str]]:
     word_occurence_dictionary: dict[str, list[str]] = {}
     for index, row in df.iterrows():
         # Get the words using the wordfreq tokenizer
-        words = wordfreq.tokenize(row["sentence_source"], "cs")
+        words = wordfreq.tokenize(row["sentence_source"], tokenizer_lang)
         # words = row["sentence_source"].split(" ")
         # Add the sentence ID to the dictionary
         for word in words:

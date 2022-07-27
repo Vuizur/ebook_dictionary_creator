@@ -86,3 +86,14 @@ russianOld.txt
 words_without_canonical_form.txt
 Czech_dict/
 Sentence pairs in Czech-English - 2022-06-15.tsv
+poetry.lock
+z_garbage_data/
+Czech_English.tsv
+Czech-English-dict.dict.dz
+Czech-English-dict.idx
+Czech-English-dict.ifo
+Czech-English-dict.syn
+data/kaikki/dict_cc_es_de/cdogsncgno-1581817799-77877e.txt
+ebook_dictionary_creator/database_creator/__pycache__/
+ebook_dictionary_creator/e_dictionary_creator/__pycache__/
+output/

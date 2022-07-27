@@ -3,62 +3,10 @@ import sqlite3
 from unidecode import unidecode
 import collections
 
-from create_kindle_dict.tatoeba_augmentation import get_example_sentences_for_all_words_not_in_word_list, get_word_and_html_for_all_words_not_in_word_list
-
-
-
-
-
-# To get the kindle dictionary creation to run, you need to replace following function/constant in the pyglossary package
-# (ebook-mobi.py)
-GROUP_XHTML_WORD_DEFINITION_TEMPLATE = """<idx:entry \
-scriptable="yes"{spellcheck_str}>
-<idx:orth{headword_hide}>{headword_html}{infl}
-</idx:orth>
-<br/>{definition}
-</idx:entry>
-<hr/>"""
-
-def format_group_content(self, word: "List[str]", defi: str) -> str:
-    hide_word_index = self._hide_word_index
-    html_headword = None
-    if word[0][:9] == "HTML_HEAD":
-        html_headword = word[0][9:]
-        word.pop(0)
-
-    if hide_word_index:
-        html_headword = ''
-    if len(word) == 1:
-        infl = ''
-        mainword = word[0]
-    else:
-        mainword, *variants = word
-        iforms_list = []
-        for variant in variants:
-            iforms_list.append(self.GROUP_XHTML_WORD_IFORM_TEMPLATE.format(
-                inflword=variant,
-                exact_str=' exact="yes"' if self._exact else '',
-            ))
-        infl = '\n' + \
-            self.GROUP_XHTML_WORD_INFL_TEMPLATE.format(
-                iforms_str="\n".join(iforms_list))
-
-    headword = self.escape_if_needed(mainword)
-
-    defi = self.escape_if_needed(defi)
-
-    group_content = self.GROUP_XHTML_WORD_DEFINITION_TEMPLATE.format(
-        spellcheck_str=' spell="yes"' if self._spellcheck else '',
-        headword_html=f'\n{headword}' if html_headword == None else f'\n{html_headword}',
-        headword_hide=f' value="{headword}"' if not html_headword == None else '',
-        definition=defi,
-        infl=infl,
-    )
-    return group_content
-
+from ebook_dictionary_creator.e_dictionary_creator.tatoeba_augmentation import get_word_and_html_for_all_words_not_in_word_list
 
 def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
-                       title: str, try_to_fix_kindle_lookup_stupidity=False, tatoeba_path=None,):
+                       title: str, kindlegen_path, try_to_fix_kindle_lookup_stupidity=False, tatoeba_path=None):
     """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup
     of words that are not recognized by default due to the buggy algorithm that does not look at inflections if a fitting
     base word exists
@@ -132,8 +80,9 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
         for inflection in inflections:
             # This seeks to avoid double entries like aquella which links to aquélla and both have the same glosses and are
             # found both due to the stupid kindle algorithm
-            if try_to_fix_kindle_lookup_stupidity and unidecode(canonical_form) != unidecode(inflection[0]):
-                infl_list.append(inflection[0])
+            if try_to_fix_kindle_lookup_stupidity:
+                if unidecode(canonical_form) != unidecode(inflection[0]):
+                    infl_list.append(inflection[0])
             else:
                 infl_list.append(inflection[0])
         # This has to do with a bug in the linkages that causes words to be doubly linked
@@ -181,7 +130,7 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
     glos.targetLangName = output_language
     print("Writing dictionary")
     glos.write(output_path, format="Mobi", keep=True, exact=True, spellcheck=False,
-               kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
+               kindlegen_path=kindlegen_path)
     #glos.write("spanish_dictionary.kobo", format="Kobo")
     print(str(len(base_forms)) + " base forms")
     print(str(inflection_num) + " inflections")

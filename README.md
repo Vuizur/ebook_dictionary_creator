@@ -8,6 +8,24 @@ If you want another language or format, you can open an issue and I will take a 
 
 Contributions and feedback about words that are not displayed correctly or unhelpful definitions (I tried to remove them all/link them to parent definitions) are always welcome. Additionally, you can tell me if the dictionary for your language is missing essential information.
 
+### Example usage
+    dict_creator = DictionaryCreator("Czech", "English")
+    dict_creator.download_data_from_kaikki()
+    dict_creator.create_database()
+    dict_creator.export_to_tabfile()
+    dict_creator.export_to_kindle(
+        kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
+        try_to_fix_failed_inflections=False, # This tries to fix kindle's problems with inflections.
+        # For example, if oso is in the dictionary as a headword, it will only display this headword, 
+        # - if oso is the inflection of osar, osar will not be found. This tries to fix it. 
+        # Currently only works for latin scripts.
+        author="Vuizur",
+        title="Czech to English dictionary",
+        mobi_path="Czech-English-dict",
+    )
+    dict_creator.export_to_stardict("Vuizur", "Czech to English dictionary", "Czech-English-dict.ifo")  
+
+
 ### Available languages (see in releases):
 * Spanish
 * German
@@ -18,6 +36,8 @@ Contributions and feedback about words that are not displayed correctly or unhel
 This project would not have been possible without the https://kaikki.org/ data provided by Tatu Ylonen, the OpenRussian data and the Pyglossary library for the creation of the Kindle dictionary
 
 ### Similar projects
+
+This project looks very good, but focuses more on DBnary translations (and doesn't seem to have inflections): https://github.com/karlb/wikdict-gen
 
 https://github.com/nyg/wiktionary-to-kindle parses the Wiktionary itself. 
 

@@ -500,7 +500,7 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         os.remove(output_db_path)
     except:
         pass
-    with open('create_databases/create_db_tables_spanish.sql', 'r') as sql_file:
+    with open('ebook_dictionary_creator/database_creator/create_db_tables.sql', 'r') as sql_file:
         sql_script = sql_file.read()
 
     con = sqlite3.connect(output_db_path)
@@ -509,7 +509,8 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
     cur.executescript(sql_script)
     con.commit()
 
-    with open(wiktextract_json_file, "r", encoding="utf-8") as f:
+    #with open(wiktextract_json_file, "r", encoding="utf-8") as f:
+    with open(wiktextract_json_file, "r") as f:
                                     #word_id, base_word_string
         form_of_words_to_add_later: "list[tuple(int, str)]" = []
         for line in f:

@@ -1,0 +1,24 @@
+[tool.poetry]
+authors = ["Hannes Krumbiegel"]
+description = ""
+license = "GPLv3"
+name = "ebook_dictionary_creator"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+pyglossary = {git = "https://github.com/Vuizur/pyglossary"}
+python = "^3.8"
+stressed-cyrillic-tools = "*"
+unidecode = "*"
+pandas = "*"
+requests = "*"
+jsonpickle = "^2.2.0"
+wordfreq = "*"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+mypy = "*"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]

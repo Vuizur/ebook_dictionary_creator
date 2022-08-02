@@ -97,3 +97,5 @@ data/kaikki/dict_cc_es_de/cdogsncgno-1581817799-77877e.txt
 ebook_dictionary_creator/database_creator/__pycache__/
 ebook_dictionary_creator/e_dictionary_creator/__pycache__/
 output/
+Czech-English-dict/
+ebook_dictionary_creator/data/__pycache__/__init__.cpython-310.pyc

@@ -83,6 +83,7 @@ def get_word_and_html_for_all_words_not_in_word_list(word_list: list, sentence_p
                 break
     return word_and_html_dict
 
+
 if __name__ == "__main__":
     example_sentences = get_example_sentences_for_all_words_not_in_word_list([], "Sentence pairs in Czech-English - 2022-06-15.tsv")
     

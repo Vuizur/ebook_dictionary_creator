@@ -3,6 +3,10 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
+import importlib.resources as pkg_resources
+
+from ebook_dictionary_creator import data
+
 
 #TODO: This should be cleaned up/almost entirely removed
 def append_form_to_record(form: dict, form_dict:dict):
@@ -500,9 +504,10 @@ def create_database(output_db_path: str, wiktextract_json_file: str, language: s
         os.remove(output_db_path)
     except:
         pass
-    with open('ebook_dictionary_creator/database_creator/create_db_tables.sql', 'r') as sql_file:
-        sql_script = sql_file.read()
+    #with open('ebook_dictionary_creator/database_creator/create_db_tables.sql', 'r') as sql_file:
+    #    sql_script = sql_file.read()
 
+    sql_script = pkg_resources.read_text(data, "create_db_tables.sql")
     con = sqlite3.connect(output_db_path)
     inflections = []
     cur = con.cursor()

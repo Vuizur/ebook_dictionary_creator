@@ -9,6 +9,12 @@ If you want another language or format, you can open an issue and I will take a 
 Contributions and feedback about words that are not displayed correctly or unhelpful definitions (I tried to remove them all/link them to parent definitions) are always welcome. Additionally, you can tell me if the dictionary for your language is missing essential information.
 
 ### Example usage
+You can install the package with `pip install git+https://github.com/Vuizur/ebook_dictionary_creator`
+
+And then use it like this:
+
+    from ebook_dictionary_creator.e_dictionary_creator.dictionary_creator import DictionaryCreator
+
     dict_creator = DictionaryCreator("Czech", "English")
     dict_creator.download_data_from_kaikki()
     dict_creator.create_database()

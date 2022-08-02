@@ -17,7 +17,8 @@ class AllLanguageDictCreator():
         for language in self.languages:
             if language not in downloaded_languages:
                 print("Creating dictionary for " + language)
-                
+
+                #TODO: Finish
                 self.create_dictionary(language)
                 # Add language to progress file
                 with open(progress_file_path, "a", encoding="utf-8") as progress_file:

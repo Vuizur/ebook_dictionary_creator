@@ -3,6 +3,9 @@ import sqlite3
 from sqlite3.dbapi2 import Cursor
 import time
 import os
+
+import pkg_resources
+from ebook_dictionary_creator import data
 #from create_databases.create_database import directly_link_transitive_base_form_relations
 from helper_functions import remove_weird_characters_for_alternative_canonical
 from stressed_cyrillic_tools import has_cyrillic_letters, remove_yo, unaccentify, remove_accent_if_only_one_syllable
@@ -128,8 +131,9 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
         os.remove(database_path)
     except:
         pass
-    with open('create_databases/create_db_tables_russian.sql', 'r') as sql_file:
-        sql_script = sql_file.read()
+    #with open('create_databases/create_db_tables_russian.sql', 'r') as sql_file:
+    
+    sql_script = pkg_resources.read_text(data, "create_db_tables_russian.sql") #sql_file.read()
 
     con = sqlite3.connect(database_path)
     cur = con.cursor()

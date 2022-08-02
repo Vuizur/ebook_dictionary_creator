@@ -24,7 +24,9 @@ def create_czech_english_dictionary():
 
 
 if __name__ == "__main__":
-    # create_czech_english_dictionary()
+    create_czech_english_dictionary()
+
+    quit()
 
     dict_creator = DictionaryCreator(
         "Czech", "English", None, database_path="Czech_English.db"

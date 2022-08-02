@@ -32,12 +32,6 @@ And then use it like this:
     dict_creator.export_to_stardict("Vuizur", "Czech to English dictionary", "Czech-English-dict.ifo")  
 
 
-### Available languages (see in releases):
-* Spanish
-* German
-* Swedish
-* Russian (not for kindle, but for Stardict)
-
 ### Acknowledgements
 This project would not have been possible without the https://kaikki.org/ data provided by Tatu Ylonen, the OpenRussian data and the Pyglossary library for the creation of the Kindle dictionary
 

@@ -24,10 +24,11 @@ def create_czech_english_dictionary():
 
 
 if __name__ == "__main__":
-    #create_czech_english_dictionary()
+    # create_czech_english_dictionary()
 
-    dict_creator = DictionaryCreator("Polish", "English")
-    dict_creator.download_data_from_kaikki()
+    dict_creator = DictionaryCreator("Czech", "English")
+    # dict_creator.download_data_from_kaikki()
+    dict_creator.kaikki_file_path = "kaikki.org-dictionary-Czech.json"
     dict_creator.create_database()
     dict_creator.export_to_tabfile()
 

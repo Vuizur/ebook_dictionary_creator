@@ -15,7 +15,7 @@ class DictionaryCreator:
     def __init__(
         self,
         source_language: str,
-        target_language: str,
+        target_language: str = "English",
         kaikki_file_path=None,
         database_path=None,
     ):

@@ -51,5 +51,3 @@ class DictionaryCreator:
             mobi_path = self.source_language + "_" + self.target_language #+ ".mobi"
         create_kindle_dict(self.database_path, self.source_language, self.target_language, mobi_path, author, title, kindlegen_path, try_to_fix_kindle_lookup_stupidity=try_to_fix_failed_inflections)
         self.mobi_path = mobi_path
-
-    #def export_to_stardict(self, stardict_path: str = None, dictionary_name, dictionary_description, ):

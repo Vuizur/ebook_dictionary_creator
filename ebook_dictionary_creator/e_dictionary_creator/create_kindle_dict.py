@@ -5,6 +5,43 @@ import collections
 
 from ebook_dictionary_creator.e_dictionary_creator.tatoeba_augmentation import get_word_and_html_for_all_words_not_in_word_list
 
+
+def get_html(POS: str, definitions: list[str]):
+    """
+    Returns the html for the given definitions and POS.
+    """
+    # Write the pos in cursive to the html
+    html = "<i>" + POS + "</i><br>"
+    # Write the definitions to the html using an ordered list
+    html += "<ol>"
+    for definition in definitions:
+        html += "<li>" + definition + "</li>"
+    html += "</ol>"
+
+    return html
+
+Gloss = collections.namedtuple("Gloss", ["pos", "definition"])
+
+def get_html_from_gloss_list(gloss_list: list[Gloss]):
+    """
+    Returns the html for the given gloss list.
+    """
+    html = ""
+    # Group the glosses by pos
+    gloss_by_pos = {}
+    for gloss in gloss_list:
+        if gloss.pos not in gloss_by_pos:
+            gloss_by_pos[gloss.pos] = []
+        gloss_by_pos[gloss.pos].append(gloss.definition)
+    
+    html_parts: list[str] = []
+
+    for pos in gloss_by_pos:
+        html_parts.append(get_html(pos, gloss_by_pos[pos]))
+        
+    return "<br>".join(html_parts)
+   
+
 def create_kindle_dict(source_database_path: str, input_language: str, output_language: str, output_path: str, author: str,
                        title: str, kindlegen_path, try_to_fix_kindle_lookup_stupidity=False, tatoeba_path=None):
     """Creates a kindle dictionary. The try_to_fix_kindle_lookup_stupidity is much slower, but vastly improves the lookup
@@ -54,21 +91,30 @@ WHERE w2.word = ?""", (canonical_form,)).fetchall()
     for word_id, canonical_form in base_forms:
         counter = counter + 1
 
-        glosses = cur.execute("""SELECT g.gloss_string
+        glosses = cur.execute("""SELECT g.gloss_string, w.pos
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.word = ?""", (canonical_form,)).fetchall()
 
-        glosses_list = []
+        #glosses_list = []
+        #for gloss in glosses:
+        #    if gloss[0] == None:  # This appears to happen for some reason
+        #        continue
+        #    glosses_list.append(gloss[0].strip())
+        #glosses_list = list(dict.fromkeys(glosses_list))
+        #glosshtml = ""
+        #for gloss in glosses_list:
+        #    glosshtml += "<p>" + gloss + "</p>"
+        
+        # Cast glosses to a list of Gloss namedtuples
+        glosses_list: list[Gloss] = []
         for gloss in glosses:
-            if gloss[0] == None:  # This appears to happen for some reason
+            if gloss[0] == None:
                 continue
-            glosses_list.append(gloss[0].strip())
-        glosses_list = list(dict.fromkeys(glosses_list))
-        glosshtml = ""
-        for gloss in glosses_list:
-            glosshtml += "<p>" + gloss + "</p>"
+            glosses_list.append(Gloss(gloss[1], gloss[0].strip()))
+
+        glosshtml = get_html_from_gloss_list(glosses_list)
 
         # get inflections
         inflections = cur.execute("""SELECT w1.word FROM word w1

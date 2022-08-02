@@ -2,6 +2,8 @@ from pyglossary import Glossary
 import sqlite3
 from unidecode import unidecode
 
+from ebook_dictionary_creator.e_dictionary_creator.create_kindle_dict import Gloss, get_html_from_gloss_list
+
 def create_nonkindle_dict(source_database_path: str, out_path: str, output_format: str, input_language=None, output_language=None, author: str = None, title: str = None):
     Glossary.init()
     glos = Glossary()
@@ -27,23 +29,26 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
     for word_id, canonical_form in base_forms:
         counter = counter + 1
 
-        glosses = cur.execute("""SELECT g.gloss_string
+        glosses = cur.execute("""SELECT g.gloss_string, w.pos
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.word = ?""", (canonical_form,)).fetchall()
 
-        glosses_list = []
+        glosses_list: list[Gloss] = []
         for gloss in glosses:
-            if gloss[0] == None: #This appears to happen for some reason
+            if gloss[0] == None:
                 continue
-            glosses_list.append(gloss[0].strip())
-        glosses_list = list(dict.fromkeys(glosses_list))
-        glosshtml = ""
-        #gloss_count = 1
-        #TODO: add gloss count
-        for gloss in glosses_list:
-            glosshtml += "<p>" + gloss + "</p>"
+            glosses_list.append(Gloss(gloss[1], gloss[0].strip()))
+
+        glosshtml = get_html_from_gloss_list(glosses_list)
+        
+
+        #glosshtml = ""
+        ##gloss_count = 1
+        ##TODO: add gloss count
+        #for gloss in glosses_list:
+        #    glosshtml += "<p>" + gloss + "</p>"
 
         #get inflections
         inflections = cur.execute("""SELECT w1.word FROM word w1

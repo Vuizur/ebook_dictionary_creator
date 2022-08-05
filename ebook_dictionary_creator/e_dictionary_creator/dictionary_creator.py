@@ -1,3 +1,4 @@
+import sqlite3
 import requests
 
 from ebook_dictionary_creator.database_creator import create_database
@@ -7,8 +8,10 @@ from ebook_dictionary_creator.e_dictionary_creator.create_kindle_dict import (
 from ebook_dictionary_creator.e_dictionary_creator.create_tab_file import (
     create_nonkindle_dict,
 )
+from ebook_dictionary_creator.e_dictionary_creator.tatoeba_creator import TatoebaAugmenter
 
-
+LANGUAGES_WITH_STRESS_MARKED_IN_DICT = ["Russian", "Ukraininian", "Belarusian", "Bulgarian", "Rusyn"]
+"""Languages that have the stress marked in a dictionary, but not in general texts."""
 class DictionaryCreator:
 
     # Initialize the class with the source language and target language
@@ -46,6 +49,21 @@ class DictionaryCreator:
             database_path, self.kaikki_file_path, self.source_language, use_raw_glosses
         )
         self.database_path = database_path
+
+    def add_data_from_tatoeba(self):
+
+        # Get all the words from the database
+        conn = sqlite3.connect(self.database_path)
+        c = conn.cursor()
+        c.execute("SELECT word FROM word")
+        words = c.fetchall()
+        # Convert to a proper list
+        exception_word_list = {word[0] for word in words}      
+        self.tatoeba_creator = TatoebaAugmenter(self.source_language, self.target_language, exception_word_list)
+        test_output = self.tatoeba_creator.get_word_and_html_for_all_words_not_in_word_list()
+        # Print dictionary to file
+        with open("tatoeba_output.txt", "w", encoding="utf-8") as f:
+            f.write(str(test_output))
 
     def export_to_tabfile(self, tabfile_path: str = None):
         # This exports the database to a tabfile

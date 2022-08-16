@@ -36,7 +36,15 @@ def create_russian_dictionary():
 
 if __name__ == "__main__":
 
-    create_russian_dictionary()
+    #create_russian_dictionary()
+
+
+    dict_creator = RussianDictionaryCreator(kaikki_file_path="kaikki.org-dictionary-Russian.json")
+    dict_creator.create_database()
+    dict_creator.add_data_from_openrussian()
+    dict_creator.export_to_tabfile()
+
+
     quit()
     # create_czech_english_dictionary()
 

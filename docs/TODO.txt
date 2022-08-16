@@ -66,3 +66,4 @@ Add this component that automatically generates entries for derived forms that d
     -> Additionally ся handling
     
 
+Fix that adjectives for Russian are not added to the DB (?)

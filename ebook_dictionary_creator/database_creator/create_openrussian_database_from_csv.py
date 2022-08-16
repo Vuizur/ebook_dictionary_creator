@@ -141,16 +141,16 @@ def create_openrussian_database(openrussian_database_path):
 
     #TODO: words_forms left out because not in old database -> should be fixed
 
-    cur.execute("CREATE TABLE IF NOT EXISTS words (id INTEGER NOT NULL PRIMARY KEY, position INTEGER, bare VARCHAR, accented VARCHAR, derived_from_word_id INTEGER, rank INTEGER, disabled INTEGER, audio VARCHAR, usage_en TEXT, usage_de TEXT, number_value INTEGER, type TEXT, level TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS words (id INTEGER NOT NULL PRIMARY KEY, position INTEGER, bare VARCHAR, accented VARCHAR, derived_from_word_id INTEGER, rank INTEGER, disabled INTEGER, usage_en TEXT, usage_de TEXT, number_value INTEGER, type TEXT, level TEXT, created_at TEXT)")
 
     with open(words_path, encoding="utf-8") as words:
         csvData = csv.reader(words, delimiter=",")
         cur.execute('BEGIN TRANSACTION')
         print(next(csvData))
-
-        for id, position, bare, accented, derived_from_word_id, rank, disabled, audio, usage_en, usage_de, number_value, type, level in csvData:
-            cur.execute('INSERT OR IGNORE INTO words (id, position, bare, accented, derived_from_word_id, rank, disabled, audio, usage_en, usage_de, number_value, type, level) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', 
-            (id, position, bare, accented, derived_from_word_id, rank, disabled, audio, usage_en, usage_de, number_value, type, level))
+        #id,position,bare,accented,derived_from_word_id,rank,disabled,usage_en,usage_de,number_value,type,level,created_at
+        for id, position, bare, accented, derived_from_word_id, rank, disabled, usage_en, usage_de, number_value, type, level, created_at in csvData:
+            cur.execute('INSERT OR IGNORE INTO words (id, position, bare, accented, derived_from_word_id, rank, disabled, usage_en, usage_de, number_value, type, level, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', 
+            (id, position, bare, accented, derived_from_word_id, rank, disabled, usage_en, usage_de, number_value, type, level, created_at))
 
         cur.execute('COMMIT')
 

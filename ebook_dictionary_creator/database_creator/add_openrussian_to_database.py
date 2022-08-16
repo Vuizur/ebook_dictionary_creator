@@ -1,7 +1,7 @@
 import sqlite3
-from database_creator.create_database_russian import add_inflection_to_db
+from ebook_dictionary_creator.database_creator.create_database_russian import add_inflection_to_db
 import jsonpickle
-from helper_functions import begins_with_star, remove_parantheses, contains_apostrophes_or_yo
+from ebook_dictionary_creator.database_creator.helper_functions import begins_with_star, remove_parantheses, contains_apostrophes_or_yo
 from stressed_cyrillic_tools import convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_yo, unaccentify
 
 def output_difference_of_word_list(openrussian_wordlist: list[str], database_path):

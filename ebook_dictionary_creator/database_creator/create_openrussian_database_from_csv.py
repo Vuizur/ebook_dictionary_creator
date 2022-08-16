@@ -9,18 +9,18 @@ def create_openrussian_database(openrussian_database_path):
 
     conn = sqlite3.connect(openrussian_database_path)
     cur = conn.cursor()
-    adj_path = "create_databases/openrussian-csvs/russian3 - adjectives.csv"
-    conj_path = "create_databases/openrussian-csvs/russian3 - conjugations.csv"
-    decl_path = "create_databases/openrussian-csvs/russian3 - declensions.csv"
-    exp_w_path = "create_databases/openrussian-csvs/russian3 - expressions_words.csv"
-    noun_path = "create_databases/openrussian-csvs/russian3 - nouns.csv"
-    sent_w_path = "create_databases/openrussian-csvs/russian3 - sentences_words.csv"
-    sent_path = "create_databases/openrussian-csvs/russian3 - sentences.csv"
-    transl_path = "create_databases/openrussian-csvs/russian3 - translations.csv"
-    verb_path = "create_databases/openrussian-csvs/russian3 - verbs.csv"
-    word_f_path = "create_databases/openrussian-csvs/russian3 - words_forms.csv"
-    words_rels_path = "create_databases/openrussian-csvs/russian3 - words_rels.csv"
-    words_path = "create_databases/openrussian-csvs/russian3 - words.csv"
+    adj_path = "data/openrussian-csvs/russian3 - adjectives.csv"
+    conj_path = "data/openrussian-csvs/russian3 - conjugations.csv"
+    decl_path = "data/openrussian-csvs/russian3 - declensions.csv"
+    exp_w_path = "data/openrussian-csvs/russian3 - expressions_words.csv"
+    noun_path = "data/openrussian-csvs/russian3 - nouns.csv"
+    sent_w_path = "data/openrussian-csvs/russian3 - sentences_words.csv"
+    sent_path = "data/openrussian-csvs/russian3 - sentences.csv"
+    transl_path = "data/openrussian-csvs/russian3 - translations.csv"
+    verb_path = "data/openrussian-csvs/russian3 - verbs.csv"
+    word_f_path = "data/openrussian-csvs/russian3 - words_forms.csv"
+    words_rels_path = "data/openrussian-csvs/russian3 - words_rels.csv"
+    words_path = "data/openrussian-csvs/russian3 - words.csv"
 
     cur.execute("CREATE TABLE IF NOT EXISTS adjectives (word_id INTEGER NOT NULL PRIMARY KEY,incomparable INTEGER,comparative VARCHAR,superlative VARCHAR,short_m VARCHAR,short_f VARCHAR,short_n VARCHAR,short_pl VARCHAR,decl_m_id INTEGER,decl_f_id INTEGER,decl_n_id INTEGER,decl_pl_id INTEGER)")
 

@@ -44,14 +44,25 @@ Fix cases where the word type gets incorrectly detected, but this could be detec
 
 Create a version of the dictionary that includes declension tables
 
-Fork pyglossary and depend on fork
-
 Check why приня́лся does not cause the OpenRussian words not to be added.
 
 Make a real effort to generate a dictionary for each language
 
-Fix the kindle lookup fixer for all languages
-
-Create a proper dictionary that includes POS like noun, verb, etc. in cursive and the definitions in ordered lists
-
 Find words without glosses in kaikki data
+
+Fix generation of Russian dictionaries to include the better formatting similar to the other dictionaries
+
+Add generation of Russian dictionaries
+
+Add this component that automatically generates entries for derived forms that don't have their own entries
+(After creating the entire database) For each word, iterate through derived forms:
+    if the inflection exists, do nothing
+    if it doesn't, check the ending: does it end the same as the base word?
+    -> if no, do some extra handling for imperfect form or so
+        -> some form of imperfect form detection?
+    -> if yes, also check if the accent is captured by the identical ending
+        -> if so, the prefix can simply be added to all inflections
+        -> else the accented prefix can be added to the unaccented base word inflections
+    -> Additionally ся handling
+    
+

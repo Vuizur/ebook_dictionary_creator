@@ -10,6 +10,10 @@ def get_html(POS: str, definitions: list[str]):
     """
     Returns the html for the given definitions and POS.
     """
+
+    # Remove duplicates from the definitions, keep the order
+    definitions = list(dict.fromkeys(definitions))
+
     # Write the pos in cursive to the html
     html = "<i>" + POS + "</i><br>"
     # Write the definitions to the html using an ordered list

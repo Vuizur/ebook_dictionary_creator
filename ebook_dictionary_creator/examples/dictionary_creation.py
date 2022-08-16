@@ -1,5 +1,6 @@
 from ebook_dictionary_creator.e_dictionary_creator.dictionary_creator import (
     DictionaryCreator,
+    RussianDictionaryCreator,
 )
 
 
@@ -23,7 +24,20 @@ def create_czech_english_dictionary():
     )
 
 
+def create_russian_dictionary():
+    #dict_creator = RussianDictionaryCreator(kaikki_file_path="kaikki.org-dictionary-Russian.json")
+    dict_creator = RussianDictionaryCreator()
+    dict_creator.download_data_from_kaikki()
+    #dict_creator.export_kaikki_utf8()
+    dict_creator.create_database()
+    dict_creator.add_data_from_openrussian()
+    dict_creator.export_to_tabfile()
+    
+
 if __name__ == "__main__":
+
+    create_russian_dictionary()
+    quit()
     # create_czech_english_dictionary()
 
     #dict_creator = DictionaryCreator("Spanish")

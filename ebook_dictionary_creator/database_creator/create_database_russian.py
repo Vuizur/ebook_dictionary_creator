@@ -4,13 +4,13 @@ from sqlite3.dbapi2 import Cursor
 import time
 import os
 
-import pkg_resources
+import importlib.resources as pkg_resources
 from ebook_dictionary_creator import data
 #from create_databases.create_database import directly_link_transitive_base_form_relations
-from helper_functions import remove_weird_characters_for_alternative_canonical
+from ebook_dictionary_creator.database_creator.helper_functions import remove_weird_characters_for_alternative_canonical
 from stressed_cyrillic_tools import has_cyrillic_letters, remove_yo, unaccentify, remove_accent_if_only_one_syllable
 
-from database_creator.create_database import directly_link_transitive_base_form_relations
+from ebook_dictionary_creator.database_creator.create_database import directly_link_transitive_base_form_relations
 import re
 
 DO_NOT_ADD_TRANSLATIONS = False  # Set true to reduce size of DB

@@ -4,7 +4,9 @@ from pyglossary.glossary import Glossary
 
 from stressed_cyrillic_tools import remove_yo, unaccentify
 
-def create_py_glossary_and_export(database_path, format="MOBI"):
+from .create_kindle_dict import Gloss, get_html_from_gloss_list
+
+def create_py_glossary_and_export(database_path: str, output_path: str, format="MOBI", author= None, title=None, kindlegen_path= None):
     Glossary.init()
     glos = Glossary()
 
@@ -18,9 +20,6 @@ WHERE w.word_id IN (SELECT sense.word_id FROM sense) GROUP BY w.canonical_form
 """).fetchall()
 
     print(str(len(base_forms)) + " base forms")
-    f =  open("removed_glosses.txt", "w", encoding="utf-8")
-
-    phrases_mistaken = set()
 
     counter = 0
     for word_id, canonical_form in base_forms:
@@ -46,45 +45,41 @@ WHERE w2.canonical_form = ?""", (canonical_form,)).fetchall()
         infl_list = list(set(infl_list)) #TODO: Find out why there are duplicates here
         if canonical_form in infl_list:
             infl_list.remove(canonical_form)
-        glosses = cur.execute("""SELECT g.gloss_string, g.gloss_lang
+        glosses = cur.execute("""SELECT w.pos, g.gloss_string, g.gloss_lang
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.canonical_form = ?""", (canonical_form,)).fetchall()
 
-        glosses_list: list[str] = []
-        for gloss, gloss_lang in glosses:
+        glosses_list: list[Gloss] = []
+        for pos, gloss, gloss_lang in glosses:
 
             if gloss.strip() == "" or gloss == None or gloss_lang != "en": 
                 continue
-            glosses_list.append(gloss)
+            glosses_list.append(Gloss(pos, gloss))
 
         if glosses_list == []:
             continue
-
-        glosshtml = ""
-        for gloss in glosses_list:
-            glosshtml += "<p>" + gloss + "</p>"
+        
+        glosshtml = get_html_from_gloss_list(glosses_list)
+        #glosshtml = ""
+        #for gloss in glosses_list:
+        #    glosshtml += "<p>" + gloss + "</p>"
         all_forms = [canonical_form]
         all_forms.extend(infl_list)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
         if counter % 2000 == 0:
             print(str(counter) + " words")
-    glos.setInfo("title", "Russian-English Dictionary")
-    glos.setInfo("author", "Vuizur")
+    glos.setInfo("title", title)
+    glos.setInfo("author", author)
     glos.sourceLangName = "Russian"
     glos.targetLangName = "English"
     #Spellcheck set to false because not supported for Russian
-    if format == "MOBI":
-        glos.write("test.mobi", format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe")
+    if format == "Mobi":
+        glos.write(output_path, format="Mobi", keep=True, exact= True, spellcheck=False, kindlegen_path=kindlegen_path)
         #I don't know why the result does not work, I guess it is because of the combining accent symbol
 
-    elif format == "STARDICT":
-        glos.write("russian.ifo", format="Stardict")
-    elif format == "TABFILE":
-        glos.write("russian.txt", format="Tabfile")
-
-
-    for phrase in phrases_mistaken:
-        f.write(phrase + "\n")
-    f.close()
+    elif format == "Stardict":
+        glos.write(output_path, format="Stardict")
+    elif format == "Tabfile":
+        glos.write(output_path, format="Tabfile")

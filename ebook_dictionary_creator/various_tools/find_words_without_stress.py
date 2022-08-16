@@ -1,6 +1,6 @@
 import sqlite3
 
-from helper_functions import contains_stress, has_at_most_one_syllable, has_cyrillic_letters
+from ebook_dictionary_creator.database_creator.helper_functions import contains_stress, has_at_most_one_syllable, has_cyrillic_letters
 def has_numbers(inputString):
     return any(char.isdigit() for char in inputString)
     

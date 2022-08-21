@@ -43,14 +43,6 @@ WHERE w.word = ?""", (canonical_form,)).fetchall()
 
         glosshtml = get_html_from_gloss_list(glosses_list)
         
-
-        #glosshtml = ""
-        ##gloss_count = 1
-        ##TODO: add gloss count
-        #for gloss in glosses_list:
-        #    glosshtml += "<p>" + gloss + "</p>"
-
-        #get inflections
         inflections = cur.execute("""SELECT w1.word FROM word w1
 JOIN form_of_word fow ON fow.word_id = w1.word_id 
 JOIN word w2 ON w2.word_id = fow.base_word_id 

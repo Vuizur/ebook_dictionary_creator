@@ -100,17 +100,7 @@ FROM word w
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
 WHERE w.word = ?""", (canonical_form,)).fetchall()
-
-        #glosses_list = []
-        #for gloss in glosses:
-        #    if gloss[0] == None:  # This appears to happen for some reason
-        #        continue
-        #    glosses_list.append(gloss[0].strip())
-        #glosses_list = list(dict.fromkeys(glosses_list))
-        #glosshtml = ""
-        #for gloss in glosses_list:
-        #    glosshtml += "<p>" + gloss + "</p>"
-        
+      
         # Cast glosses to a list of Gloss namedtuples
         glosses_list: list[Gloss] = []
         for gloss in glosses:

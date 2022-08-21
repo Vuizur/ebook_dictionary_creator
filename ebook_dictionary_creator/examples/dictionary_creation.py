@@ -35,14 +35,37 @@ def create_russian_dictionary():
     
 
 if __name__ == "__main__":
+    dict_creator = DictionaryCreator("Latin", "English", database_path="Latin_English.db")
+    #dict_creator.download_data_from_kaikki()
+    #dict_creator.create_database()
+    #dict_creator.export_to_tabfile()
+    dict_creator.export_to_kindle(kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
+        try_to_fix_failed_inflections=False,
+        author="Vuizur",
+        title="Latin to English dictionary",
+        mobi_path="Latin-English-dict",)
 
+    quit()
+    create_czech_english_dictionary()
+    quit()
     #create_russian_dictionary()
 
-
-    dict_creator = RussianDictionaryCreator(kaikki_file_path="kaikki.org-dictionary-Russian.json")
+    dict_creator = DictionaryCreator("Czech", "English")
+    dict_creator.download_data_from_kaikki()
     dict_creator.create_database()
-    dict_creator.add_data_from_openrussian()
-    dict_creator.export_to_tabfile()
+    dict_creator.export_to_kindle(
+        kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
+        try_to_fix_failed_inflections=False,
+        author="Vuizur",
+        title="Polish to English dictionary",
+        mobi_path="Polish-English-dict",
+    )
+    dict_creator.delete_database()
+    dict_creator.delete_kaikki_file()
+    quit()
+    dict_creator = RussianDictionaryCreator(database_path="Russian_English.db")
+
+    dict_creator.export_to_stardict("Vuizur", "Russian to English dictionary", "Russian-English-dict.ifo")
 
 
     quit()

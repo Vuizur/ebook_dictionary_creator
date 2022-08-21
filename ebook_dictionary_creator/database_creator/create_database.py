@@ -239,7 +239,7 @@ SELECT ?, (SELECT w.word_id FROM word w WHERE w.word = ?)",
 
 def delete_unneeded_entries(
     cur: Cursor,
-    delete_words_without_chars=True,
+    delete_words_without_chars=False,
     delete_words_beginning_or_ending_with_minus=True,
     delete_sur_given_names=True,
     delete_entries_with_space=False,

@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import sqlite3
 import requests
 
@@ -17,6 +18,15 @@ from ebook_dictionary_creator.e_dictionary_creator.tatoeba_creator import Tatoeb
 
 LANGUAGES_WITH_STRESS_MARKED_IN_DICT = ["Russian", "Ukraininian", "Belarusian", "Bulgarian", "Rusyn"]
 """Languages that have the stress marked in a dictionary, but not in general texts."""
+
+def convert_line_endings(file_path: str):
+    """Converts line endings in the given file to Unix style"""
+    with open(file_path, "rb") as file:
+        data = file.read()
+
+    with open(file_path, "wb") as file:
+        file.write(data.replace(b"\r\n", b"\n"))
+
 class DictionaryCreator:
 
     # Initialize the class with the source language and target language
@@ -78,19 +88,33 @@ class DictionaryCreator:
         self.tabfile_path = tabfile_path
 
     def export_to_stardict(self, author: str, title: str, stardict_path: str = None):
+        """Exports the dictionary to a folder specified by stardict_path."""
         # This exports the database to a stardict file
+        if stardict_path.lower().endswith(".ifo"):
+            stardict_path = stardict_path[:-4]
         if stardict_path == None:
-            stardict_path = self.source_language + "_" + self.target_language + ".ifo"
+            stardict_path = self.source_language + "_" + self.target_language #+ ".ifo"
+
+        #Create folder if it doesn't exist
+        if not os.path.exists(stardict_path):
+            os.makedirs(stardict_path)
+        ifo_path = stardict_path + "/" + title + ".ifo"
+
         create_nonkindle_dict(
             self.database_path,
-            stardict_path,
+            ifo_path,
             "Stardict",
             self.source_language,
             self.target_language,
             author,
             title,
         )
-        self.stardict_path = stardict_path
+
+        # Windows line endings are not supported by sdcv/KOReader, so convert to Unix style
+        if os.name == "nt":
+            convert_line_endings(ifo_path)
+
+        self.stardict_path = ifo_path
 
     def export_to_kindle(
         self,
@@ -100,7 +124,9 @@ class DictionaryCreator:
         title: str,
         mobi_path: str = None,
     ):
-        # This exports the database to a kindle file
+        # if mobi path ends on .mobi, remove the ending
+        if mobi_path.lower().endswith(".mobi"):
+            mobi_path = mobi_path[:-4]
         if mobi_path == None:
             mobi_path = self.source_language + "_" + self.target_language  # + ".mobi"
         create_kindle_dict(
@@ -113,7 +139,12 @@ class DictionaryCreator:
             kindlegen_path,
             try_to_fix_kindle_lookup_stupidity=try_to_fix_failed_inflections,
         )
-        self.mobi_path = mobi_path
+        os.replace(mobi_path + "/OEBPS/content.mobi", mobi_path + ".mobi")
+
+        shutil.rmtree(mobi_path)
+
+        self.mobi_path = mobi_path + ".mobi"
+
 
     def export_kaikki_utf8(self, kaikki_utf8_path: str = None):
         if kaikki_utf8_path == None:
@@ -126,7 +157,13 @@ class DictionaryCreator:
                 json.dump(data, out, ensure_ascii=False)
                 out.write("\n")
 
+    def delete_database(self):
+        # This deletes the database
+        os.remove(self.database_path)
 
+    def delete_kaikki_file(self):
+        # This deletes the kaikki.org file
+        os.remove(self.kaikki_file_path)
 class RussianDictionaryCreator(DictionaryCreator):
     def __init__(self, database_path: str =None, kaikki_file_path: str=None):
         super().__init__("Russian", "English", kaikki_file_path, database_path)

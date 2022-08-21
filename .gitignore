@@ -102,3 +102,12 @@ ebook_dictionary_creator/data/__pycache__/__init__.cpython-310.pyc
 Czech-English-dict-unfixed/
 *.tsv
 tatoeba_output.txt
+Russian-English-dict.dict.dz
+Russian-English-dict.idx
+Russian-English-dict.ifo
+Russian-English-dict.syn
+dist/
+Czech-English-dict.mobi
+Polish-English-dict.mobi
+progress.txt
+Latin-English-dict.mobi

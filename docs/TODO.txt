@@ -67,3 +67,16 @@ Add this component that automatically generates entries for derived forms that d
     
 
 Fix that adjectives for Russian are not added to the DB (?)
+
+Test installation
+
+Test Stardict Metadata
+
+Create all dictionaries
+
+Value auxiliary verb field not as inflection for Italian
+
+if a word has no space and inflections with space, split by space and choose the one more similar to the word
+-> This fixes problems with German
+
+Algorithm that creates reverse dictionaries (English to other language)

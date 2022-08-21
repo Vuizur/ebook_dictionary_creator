@@ -12,8 +12,11 @@ class AllLanguageDictCreator():
         # Create dictionary folder if it does not exist
         if not os.path.exists(self.dictionary_folder):
             os.makedirs(self.dictionary_folder)
-        # As of now this doesn't work
-        self.DONT_EXPORT_TO_KINDLE_LANGUAGES = ["Finnish"]
+        # As of now Finnish doesn't work, probably because there are too many inflections
+        # Kindlegen doesn't know Esperanto
+        self.DONT_EXPORT_TO_KINDLE_LANGUAGES = ["Finnish", "Esperanto", "Serbo-Croatian", "Translingual", "Middle English"]
+        # This has probably too many relations that lead to a memory overflow when creating a database
+        self.SKIP_LANGUAGES = ["Catalan", "Dutch", "Swedish"]
 
     def create_dictionary_for_language(self, language: str):
         print("Creating dictionary for " + language)
@@ -34,7 +37,8 @@ class AllLanguageDictCreator():
                 try_to_fix_failed_inflections=False, 
                 author=self.author,
                 title=dictionary_name,
-                mobi_path=f"{self.dictionary_folder}/{dictionary_name}",
+                mobi_temp_folder_path=dictionary_name,
+                mobi_output_file_path=f"{self.dictionary_folder}/{dictionary_name}.mobi"
             )             
         dict_creator.delete_database()
         dict_creator.delete_kaikki_file()
@@ -49,7 +53,7 @@ class AllLanguageDictCreator():
         # Create all dictionaries
         # Iterate over all languages that have not been downloaded yet
         for language in self.languages:
-            if language not in downloaded_languages:
+            if language not in downloaded_languages and language not in self.SKIP_LANGUAGES:
                 
                 self.create_dictionary_for_language(language)
                 # Add language to progress file

@@ -10,7 +10,7 @@ from ebook_dictionary_creator.database_creator.add_openrussian_to_database impor
 from ebook_dictionary_creator.e_dictionary_creator.create_kindle_dict import (
     create_kindle_dict,
 )
-from .create_kindle_dict_from_db_russian import create_py_glossary_and_export
+from ebook_dictionary_creator.e_dictionary_creator.create_kindle_dict_from_db_russian import create_py_glossary_and_export
 from ebook_dictionary_creator.e_dictionary_creator.create_tab_file import (
     create_nonkindle_dict,
 )
@@ -49,9 +49,10 @@ class DictionaryCreator:
             kaikki_file_path = "kaikki.org-dictionary-" + self.source_language + ".json"
 
         with open(kaikki_file_path, "w") as f:
+            lang_nospaces = self.source_language.replace(" ", "").replace("-", "")
             f.write(
                 requests.get(
-                    f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{self.source_language}.json"
+                    f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.json"
                 ).text
             )
         self.kaikki_file_path = kaikki_file_path
@@ -122,28 +123,32 @@ class DictionaryCreator:
         try_to_fix_failed_inflections: str,
         author: str,
         title: str,
-        mobi_path: str = None,
+        mobi_temp_folder_path: str = None,
+        mobi_output_file_path: str = None,
     ):
         # if mobi path ends on .mobi, remove the ending
-        if mobi_path.lower().endswith(".mobi"):
-            mobi_path = mobi_path[:-4]
-        if mobi_path == None:
-            mobi_path = self.source_language + "_" + self.target_language  # + ".mobi"
+        if mobi_temp_folder_path.lower().endswith(".mobi"):
+            mobi_temp_folder_path = mobi_temp_folder_path[:-4]
+        if mobi_temp_folder_path == None:
+            mobi_temp_folder_path = self.source_language + "_" + self.target_language  # + ".mobi"
+        
+        if mobi_output_file_path == None:
+            mobi_output_file_path = mobi_temp_folder_path + ".mobi"
         create_kindle_dict(
             self.database_path,
             self.source_language,
             self.target_language,
-            mobi_path,
+            mobi_temp_folder_path,
             author,
             title,
             kindlegen_path,
             try_to_fix_kindle_lookup_stupidity=try_to_fix_failed_inflections,
         )
-        os.replace(mobi_path + "/OEBPS/content.mobi", mobi_path + ".mobi")
+        shutil.move(mobi_temp_folder_path + "/OEBPS/content.mobi", mobi_output_file_path)
 
-        shutil.rmtree(mobi_path)
+        shutil.rmtree(mobi_temp_folder_path)
 
-        self.mobi_path = mobi_path + ".mobi"
+        self.mobi_path = mobi_output_file_path
 
 
     def export_kaikki_utf8(self, kaikki_utf8_path: str = None):

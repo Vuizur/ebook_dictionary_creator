@@ -80,3 +80,7 @@ if a word has no space and inflections with space, split by space and choose the
 -> This fixes problems with German
 
 Algorithm that creates reverse dictionaries (English to other language)
+
+Arabic repeat
+
+Polish generate Kindle dictionary

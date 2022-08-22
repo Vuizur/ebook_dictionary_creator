@@ -1,5 +1,9 @@
 # Ebook dictionary creator
 
+You probably don't need to execute this code. If you are only looking for the dictionaries, download them [here](https://github.com/Vuizur/Wiktionary-Dictionaries)
+
+<hr/>
+
 This repo does two things:
 1. The first is creating a performant database containing words and their definitions, including all inflections and proper linkages, using English Wiktionary data (and for Russian OpenRussian as well).
 2. Based on this data, it creates high-quality dictionaries compatible with recent ebook readers. It uses an algorithm to fix bugs in the Kindle lookup engine for this that prevent inflections from being found - even official dictionaries suffer from it.

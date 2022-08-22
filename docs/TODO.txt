@@ -81,6 +81,26 @@ if a word has no space and inflections with space, split by space and choose the
 
 Algorithm that creates reverse dictionaries (English to other language)
 
-Arabic repeat
+Korean Kindle error:
+Info:I9021:Option: (verborgen) erstellt mobi für ältere Geräte.
+Info(prcgen):I1047: Metadaten hinzugefügt dc:Title        "Korean-English Wiktionary dictionary"
+Info(prcgen):I1047: Metadaten hinzugefügt dc:Creator      "Vuizur"
+Info(prcgen):I1047: Metadaten hinzugefügt BASICCode       "REF008000"
+Info(prcgen):I1047: Metadaten hinzugefügt dc:Subject      "Dictionaries"
+Warnung(inputpreprocessor):W29004: Gewaltsam geschlossenes offenes Tag: <idx:iform value="ryeon">
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\g000002.xhtml     Zeile: 0004372
+Warnung(inputpreprocessor):W29004: Gewaltsam geschlossenes offenes Tag: <idx:iform value="ryŏn">
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\g000002.xhtml     Zeile: 0004372
+Warnung(inputpreprocessor):W29004: Gewaltsam geschlossenes offenes Tag: <idx:iform value="련">
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\g000002.xhtml     Zeile: 0004372
+Warnung(inputpreprocessor):W29004: Gewaltsam geschlossenes offenes Tag: <idx:iform value="lyen">
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\g000002.xhtml     Zeile: 0004372
+Warnung(inputpreprocessor):W29004: Gewaltsam geschlossenes offenes Tag: <idx:iform value="료">
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\g000002.xhtml     Zeile: 0008956
+Fehler(core):E1005: Zugriff auf Datei nicht möglich.
+      In Datei: C:\Users\hanne\Documents\Programme\wiktionary_extract_test\Korean-English Wiktionary dictionary\OEBPS\style.css
+Info(prcgen):I1002: Parsing von Dateien  0000093
 
-Polish generate Kindle dictionary
+Fix dictionary creation so that glossary does not have to be created 3 times -> Performance improvement
+
+Pull request to pyglossary with language codes

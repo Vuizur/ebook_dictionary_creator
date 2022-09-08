@@ -1,5 +1,10 @@
 import csv, sqlite3, time
 
+import importlib.resources as pkg_resources
+from ebook_dictionary_creator import data
+
+
+
 
 def create_openrussian_database(openrussian_database_path):
 
@@ -10,21 +15,24 @@ def create_openrussian_database(openrussian_database_path):
     conn = sqlite3.connect(openrussian_database_path)
     cur = conn.cursor()
     adj_path = "data/openrussian-csvs/russian3 - adjectives.csv"
-    conj_path = "data/openrussian-csvs/russian3 - conjugations.csv"
-    decl_path = "data/openrussian-csvs/russian3 - declensions.csv"
-    exp_w_path = "data/openrussian-csvs/russian3 - expressions_words.csv"
-    noun_path = "data/openrussian-csvs/russian3 - nouns.csv"
-    sent_w_path = "data/openrussian-csvs/russian3 - sentences_words.csv"
-    sent_path = "data/openrussian-csvs/russian3 - sentences.csv"
-    transl_path = "data/openrussian-csvs/russian3 - translations.csv"
-    verb_path = "data/openrussian-csvs/russian3 - verbs.csv"
-    word_f_path = "data/openrussian-csvs/russian3 - words_forms.csv"
-    words_rels_path = "data/openrussian-csvs/russian3 - words_rels.csv"
-    words_path = "data/openrussian-csvs/russian3 - words.csv"
+    # Load with pkg_resources
+
+    conj_path = "openrussian-csvs/russian3 - conjugations.csv"
+    decl_path = "openrussian-csvs/russian3 - declensions.csv"
+    exp_w_path = "openrussian-csvs/russian3 - expressions_words.csv"
+    noun_path = "openrussian-csvs/russian3 - nouns.csv"
+    sent_w_path = "openrussian-csvs/russian3 - sentences_words.csv"
+    sent_path = "openrussian-csvs/russian3 - sentences.csv"
+    transl_path = "openrussian-csvs/russian3 - translations.csv"
+    verb_path = "openrussian-csvs/russian3 - verbs.csv"
+    word_f_path = "openrussian-csvs/russian3 - words_forms.csv"
+    words_rels_path = "openrussian-csvs/russian3 - words_rels.csv"
+    words_path = "openrussian-csvs/russian3 - words.csv"
 
     cur.execute("CREATE TABLE IF NOT EXISTS adjectives (word_id INTEGER NOT NULL PRIMARY KEY,incomparable INTEGER,comparative VARCHAR,superlative VARCHAR,short_m VARCHAR,short_f VARCHAR,short_n VARCHAR,short_pl VARCHAR,decl_m_id INTEGER,decl_f_id INTEGER,decl_n_id INTEGER,decl_pl_id INTEGER)")
 
-    with open(adj_path, encoding="utf-8") as adjectives:
+    #with open(adj_path, encoding="utf-8") as adjectives:
+    with pkg_resources.open_text(data, adj_path) as adjectives:
         csvData = csv.reader(adjectives, delimiter=",")
         cur.execute('BEGIN TRANSACTION')
         print(next(csvData))

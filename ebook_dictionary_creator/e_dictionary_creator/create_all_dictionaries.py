@@ -39,6 +39,16 @@ class AllLanguageDictCreator:
             "Old Armenian",  # Not in pyglossary
             "Norman",  # Not in pyglossary
             "Cantonese",  # Not in pyglossary
+            "Khmer",
+            "Old French", # Not in pyglossary
+            "Yiddish",
+            "Pali",
+            "Ladin", # Not in pyglossary
+            "Navajo",
+            "Burmese",
+            "Northern Kurdish", # Not in 
+            "Adyghe", # Not in pyglossary
+            "Occitan", # Not in pyglossary
         ]
         # This has probably too many relations that lead to a memory overflow when creating a database
         self.SKIP_LANGUAGES = ["Catalan", "Dutch", "Swedish"]

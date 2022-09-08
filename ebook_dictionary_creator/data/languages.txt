@@ -86,7 +86,6 @@ Bengali
 Burmese
 Northern Kurdish
 Slovene
-Proto-Germanic
 Adyghe
 Occitan
 Northern Sami
@@ -102,13 +101,11 @@ Assamese
 Venetian
 Cimbrian
 Old Church Slavonic
-Proto-Slavic
 Zulu
 Middle French
 Bashkir
 Belarusian
 Classical Nahuatl
-Proto-West Germanic
 Gujarati
 Lower Sorbian
 Westrobothnian
@@ -168,10 +165,8 @@ Uyghur
 Tajik
 Marshallese
 Tok Pisin
-Proto-Finnic
 Hunsrik
 Norwegian
-Proto-Indo-European
 Kashmiri
 Swazi
 Ojibwe
@@ -184,7 +179,6 @@ Kumyk
 Assyrian Neo-Aramaic
 Vilamovian
 Central Nahuatl
-Proto-Samic
 Hijazi Arabic
 Sardinian
 German Low German
@@ -239,7 +233,6 @@ Chuukese
 Somali
 Bambara
 Central Franconian
-Proto-Celtic
 Balinese
 Makasar
 Tuvan
@@ -260,7 +253,6 @@ Middle Korean
 Amis
 Gulf Arabic
 Inupiaq
-Proto-Indo-Iranian
 Erzya
 Lushootseed
 Central Atlas Tamazight
@@ -271,7 +263,6 @@ Gamilaraay
 Unami
 Old Georgian
 Upper Sorbian
-Proto-Brythonic
 Aghwan
 Võro
 Tigrinya
@@ -291,10 +282,8 @@ Southern Ndebele
 Sotho
 Lindu
 Ge&#x27;ez
-Proto-Malayo-Polynesian
 Old Occitan
 Tarantino
-Proto-Turkic
 Eastern Huasteca Nahuatl
 Limburgish
 Nanai
@@ -321,7 +310,6 @@ Tetum
 Kalasha
 Mirandese
 Fijian
-Proto-Italic
 Cahuilla
 Baluchi
 Pite Sami

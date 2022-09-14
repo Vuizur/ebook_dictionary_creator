@@ -3,7 +3,7 @@ authors = ["Hannes Krumbiegel"]
 description = ""
 license = "GPLv3"
 name = "ebook_dictionary_creator"
-version = "0.4.2"
+version = "0.4.3"
 
 [tool.poetry.dependencies]
 pyglossary = {git = "https://github.com/Vuizur/pyglossary"}

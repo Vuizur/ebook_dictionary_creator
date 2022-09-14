@@ -299,12 +299,12 @@ JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adj
         base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
     base_words.append(base_word)
 
-    with open("base_words.json", "w", encoding="utf-8") as out:
-        # json.dump(base_words, out, ensure_ascii=False, indent=4)
-        # json.dumps(base_words.__dict__, out, ensure_ascii=False, indent=4)
-        # jsonpickle.set_encoder_options('simplejson', indent=4, ensure_ascii = False)
-        jsonpickle.set_encoder_options("json", indent=4, ensure_ascii=False)
-        out.write(jsonpickle.encode(base_words))
+    #with open("base_words.json", "w", encoding="utf-8") as out:
+    #    # json.dump(base_words, out, ensure_ascii=False, indent=4)
+    #    # json.dumps(base_words.__dict__, out, ensure_ascii=False, indent=4)
+    #    # jsonpickle.set_encoder_options('simplejson', indent=4, ensure_ascii = False)
+    #    jsonpickle.set_encoder_options("json", indent=4, ensure_ascii=False)
+    #    out.write(jsonpickle.encode(base_words))
 
     # quit()
     print("Add everything to database")

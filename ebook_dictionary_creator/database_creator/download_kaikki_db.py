@@ -2,19 +2,21 @@ from os import remove
 import urllib.request
 import os
 import requests
+
 # https://stackoverflow.com/questions/56950987/download-file-from-url-and-save-it-in-a-folder-python
+
 
 def download(url: str, dest_folder: str):
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)  # create folder if it does not exist
 
-    filename = url.split('/')[-1].replace(" ", "_")  # be careful with file names
+    filename = url.split("/")[-1].replace(" ", "_")  # be careful with file names
     file_path = os.path.join(dest_folder, filename)
 
     r = requests.get(url, stream=True)
     if r.ok:
         print("saving to", os.path.abspath(file_path))
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             for chunk in r.iter_content(chunk_size=1024 * 8):
                 if chunk:
                     f.write(chunk)
@@ -22,6 +24,7 @@ def download(url: str, dest_folder: str):
                     os.fsync(f.fileno())
     else:  # HTTP status code 4XX/5XX
         print("Download failed: status code {}\n{}".format(r.status_code, r.text))
+
 
 def download_kaikki_db(lang: str):
     lang = lang.capitalize()
@@ -34,5 +37,5 @@ def download_kaikki_db(lang: str):
         pass
     download(url_path, folder_path)
     print("Download finished!")
-    #ret = urllib.request.urlretrieve(url_path, file_path)
-    #print(ret)
+    # ret = urllib.request.urlretrieve(url_path, file_path)
+    # print(ret)

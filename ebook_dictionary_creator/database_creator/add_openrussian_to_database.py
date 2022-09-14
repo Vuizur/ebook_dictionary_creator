@@ -1,8 +1,21 @@
 import sqlite3
-from ebook_dictionary_creator.database_creator.create_database_russian import add_inflection_to_db
+from ebook_dictionary_creator.database_creator.create_database_russian import (
+    add_inflection_to_db,
+)
 import jsonpickle
-from ebook_dictionary_creator.database_creator.helper_functions import begins_with_star, remove_parantheses, contains_apostrophes_or_yo
-from stressed_cyrillic_tools import convert_ap_accent_to_real, remove_accent_if_only_one_syllable, remove_apostrophes, remove_yo, unaccentify
+from ebook_dictionary_creator.database_creator.helper_functions import (
+    begins_with_star,
+    remove_parantheses,
+    contains_apostrophes_or_yo,
+)
+from stressed_cyrillic_tools import (
+    convert_ap_accent_to_real,
+    remove_accent_if_only_one_syllable,
+    remove_apostrophes,
+    remove_yo,
+    unaccentify,
+)
+
 
 def output_difference_of_word_list(openrussian_wordlist: list[str], database_path):
     con = sqlite3.connect(database_path)
@@ -23,10 +36,11 @@ def output_difference_of_word_list(openrussian_wordlist: list[str], database_pat
         for wrd in stuff_not_in_wiktionary:
             output.write(wrd + "\n")
         output.write("\n\n\n####### VOCABULARY NOT IN OpenRUSSIAN ###########\n\n")
-        for wrd in stuff_not_in_OpenRussian:    
+        for wrd in stuff_not_in_OpenRussian:
             output.write(wrd + "\n")
 
-class BaseWord():
+
+class BaseWord:
     base_word: str
     word_id: str
     pos: str
@@ -40,10 +54,12 @@ class BaseWord():
 
     def process_all_data(self) -> None:
         """This removes commas and strange symbols"""
-        
+
         inflections_fixed = set()
-        self.base_word = remove_accent_if_only_one_syllable(convert_ap_accent_to_real(remove_parantheses(self.base_word)))
-        #Split up words
+        self.base_word = remove_accent_if_only_one_syllable(
+            convert_ap_accent_to_real(remove_parantheses(self.base_word))
+        )
+        # Split up words
         for inflection in self.inflections:
             if ";" in inflection or "," in inflection:
                 split_words = inflection.replace(",", ";").split(";")
@@ -56,29 +72,37 @@ class BaseWord():
             if begins_with_star(inflection):
                 continue
             else:
-                inflections_final.add(remove_accent_if_only_one_syllable(convert_ap_accent_to_real(remove_parantheses(inflection))))
+                inflections_final.add(
+                    remove_accent_if_only_one_syllable(
+                        convert_ap_accent_to_real(remove_parantheses(inflection))
+                    )
+                )
         self.inflections = inflections_final
 
     def add_to_database(self, cur: sqlite3.Cursor):
 
-        #Add base word if not exists
+        # Add base word if not exists
         unaccentified_base_word = unaccentify(self.base_word)
         lowercase = unaccentified_base_word.lower()
         without_yo = remove_yo(lowercase)
         unclear_pos = False
         if self.pos == "other" or self.pos == None:
             unclear_pos = True
-        
+
         sql_str = "SELECT w.word_id FROM word w WHERE w.word = ?"
         # TODO: Fix bug here (if pos is unclear)
         if not unclear_pos:
             final_sql_str = sql_str + " AND w.pos = ?"
-            already_there_id = cur.execute(final_sql_str, (unaccentified_base_word, self.pos)).fetchone()
+            already_there_id = cur.execute(
+                final_sql_str, (unaccentified_base_word, self.pos)
+            ).fetchone()
         else:
-            already_there_id = cur.execute(sql_str, (unaccentified_base_word,)).fetchone()
+            already_there_id = cur.execute(
+                sql_str, (unaccentified_base_word,)
+            ).fetchone()
 
         if already_there_id != None:
-            #Check if all inflections are there. This might be slow, but otherwise cases such as надзирательница are not being added:
+            # Check if all inflections are there. This might be slow, but otherwise cases such as надзирательница are not being added:
             for inflection in self.inflections:
                 infl_unacc = unaccentify(inflection)
                 res = cur.execute(sql_str, (infl_unacc,)).fetchone()
@@ -86,22 +110,35 @@ class BaseWord():
                     already_there_id = None
                     break
 
-
         if already_there_id == None:
-            cur.execute("INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
-            VALUES (?, ?, ?, ?, ?)", (unaccentified_base_word, self.base_word, self.pos, lowercase, without_yo))
+            cur.execute(
+                "INSERT INTO word (word, canonical_form, pos, word_lowercase, word_lower_and_without_yo) \
+            VALUES (?, ?, ?, ?, ?)",
+                (
+                    unaccentified_base_word,
+                    self.base_word,
+                    self.pos,
+                    lowercase,
+                    without_yo,
+                ),
+            )
             word_id = cur.lastrowid
             cur.execute("INSERT INTO sense (word_id) VALUES (?)", (word_id,))
             sense_id = cur.lastrowid
             for lang, def_str in self.definitions:
-                cur.execute("INSERT INTO gloss (sense_id, gloss_string, gloss_lang, gloss_source) VALUES(?, ?, ?, ?)", (sense_id, def_str, lang, "op"))
+                cur.execute(
+                    "INSERT INTO gloss (sense_id, gloss_string, gloss_lang, gloss_source) VALUES(?, ?, ?, ?)",
+                    (sense_id, def_str, lang, "op"),
+                )
             for inflection in self.inflections:
-                add_inflection_to_db(cur, inflection, self.pos, word_id, [])   
-       
+                add_inflection_to_db(cur, inflection, self.pos, word_id, [])
+
 
 def get_definitions(cur: sqlite3.Cursor, word_id) -> list[tuple[str, str]]:
     translations_list = []
-    translations = cur.execute("SELECT lang, tl FROM translations WHERE word_id = ?", (word_id,)).fetchall()
+    translations = cur.execute(
+        "SELECT lang, tl FROM translations WHERE word_id = ?", (word_id,)
+    ).fetchall()
     for lang, tl in translations:
         translations_list.append((lang, tl))
 
@@ -113,37 +150,65 @@ def get_definitions(cur: sqlite3.Cursor, word_id) -> list[tuple[str, str]]:
         if len(transl.strip()) == 0:
             check_for_participles = True
     if check_for_participles:
-        participle_verbs = cur.execute("SELECT v.word_id from verbs v WHERE v.participle_active_present_id = ? OR v.participle_active_past_id  = ? OR v.participle_passive_present_id = ? OR v.participle_passive_past_id = ?", (word_id, word_id, word_id, word_id)).fetchall()
-        for (part_v_id) in participle_verbs:
-            base_verb = convert_ap_accent_to_real(cur.execute("SELECT accented from words WHERE words.id = ?", part_v_id).fetchone()[0])
-            translations = cur.execute("SELECT lang, tl FROM translations WHERE word_id = ?", part_v_id).fetchall()
+        participle_verbs = cur.execute(
+            "SELECT v.word_id from verbs v WHERE v.participle_active_present_id = ? OR v.participle_active_past_id  = ? OR v.participle_passive_present_id = ? OR v.participle_passive_past_id = ?",
+            (word_id, word_id, word_id, word_id),
+        ).fetchall()
+        for part_v_id in participle_verbs:
+            base_verb = convert_ap_accent_to_real(
+                cur.execute(
+                    "SELECT accented from words WHERE words.id = ?", part_v_id
+                ).fetchone()[0]
+            )
+            translations = cur.execute(
+                "SELECT lang, tl FROM translations WHERE word_id = ?", part_v_id
+            ).fetchall()
             for lang, tl in translations:
-                translations_list.append((lang, "participle of " + base_verb + ": " + tl))
+                translations_list.append(
+                    (lang, "participle of " + base_verb + ": " + tl)
+                )
 
-    #Try to find translation for partner (male form)
+    # Try to find translation for partner (male form)
     #
     return translations_list
+
 
 def add_openrussian_to_db_with_linkages(database_path, openrussian_database_path):
     openrussian = sqlite3.connect(openrussian_database_path)
     base_words: list[BaseWord] = []
     print("Transform adjectives")
-    #Add adjectives
-    words = openrussian.execute("""
+    # Add adjectives
+    words = openrussian.execute(
+        """
 SELECT w.id, w.accented, a.comparative, a.superlative, a.short_n, a.short_f, a.short_pl, d.nom, d.gen, d.dat, d.acc, d.inst, d.prep FROM words w
 JOIN adjectives a ON w.id = a.word_id
 JOIN declensions d ON d.word_id = w.id
-""")#.fetchall()
+"""
+    )  # .fetchall()
     current_w_id = None
     base_word = None
     chunk_size = 200
     count = 0
     while True:
-        words_fetched = words.fetchmany(chunk_size) 
+        words_fetched = words.fetchmany(chunk_size)
         if not words_fetched:
             break
         else:
-            for w_id, accented, comparative, superlative, short_n, short_f, short_pl, d_nom, d_gen, d_dat, d_acc, d_inst, d_prep in words_fetched:
+            for (
+                w_id,
+                accented,
+                comparative,
+                superlative,
+                short_n,
+                short_f,
+                short_pl,
+                d_nom,
+                d_gen,
+                d_dat,
+                d_acc,
+                d_inst,
+                d_prep,
+            ) in words_fetched:
                 count += 1
                 if current_w_id != w_id:
                     if base_word != None:
@@ -152,33 +217,71 @@ JOIN declensions d ON d.word_id = w.id
                     base_word.pos = "adj"
                     base_word.base_word = accented
                     base_word.definitions = get_definitions(openrussian, w_id)
-                    base_word.inflections.update([comparative, superlative, short_n, short_f, short_pl])
+                    base_word.inflections.update(
+                        [comparative, superlative, short_n, short_f, short_pl]
+                    )
                     current_w_id = w_id
-                base_word.inflections.update([d_nom, d_gen, d_dat, d_acc, d_inst, d_prep])
+                base_word.inflections.update(
+                    [d_nom, d_gen, d_dat, d_acc, d_inst, d_prep]
+                )
             base_words.append(base_word)
     print(str(count) + " adjectives inserted")
     print("Transform verbs")
 
-    #Add verbs
-    verbs = openrussian.execute("""
+    # Add verbs
+    verbs = openrussian.execute(
+        """
     SELECT w.id, w.accented, v.imperative_sg, v.imperative_pl, v.past_m, v.past_f, v.past_n, v.past_pl, c.sg1, c.sg1, c.sg3, c.pl1, c.pl2, c.pl3 FROM words w
     JOIN verbs v ON w.id = v.word_id    
     JOIN conjugations c ON c.word_id = w.id 
-    """).fetchall()
-    for w_id, accented, imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl, sg1, sg2, sg3, pl1, pl2, pl3 in verbs:
+    """
+    ).fetchall()
+    for (
+        w_id,
+        accented,
+        imperative_sg,
+        imperative_pl,
+        past_m,
+        past_f,
+        past_n,
+        past_pl,
+        sg1,
+        sg2,
+        sg3,
+        pl1,
+        pl2,
+        pl3,
+    ) in verbs:
         base_word = BaseWord()
         base_word.pos = "verb"
         base_word.base_word = accented
         base_word.definitions = get_definitions(openrussian, w_id)
-        base_word.inflections.update([imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl, sg1, sg2, sg3, pl1, pl2, pl3])
+        base_word.inflections.update(
+            [
+                imperative_sg,
+                imperative_pl,
+                past_m,
+                past_f,
+                past_n,
+                past_pl,
+                sg1,
+                sg2,
+                sg3,
+                pl1,
+                pl2,
+                pl3,
+            ]
+        )
         base_words.append(base_word)
 
     print("Transform nouns and rest")
-    #Add nouns and rest
-    rest = openrussian.execute("""
+    # Add nouns and rest
+    rest = openrussian.execute(
+        """
     SELECT w.id, w.type, w.accented, d.nom, d.gen, d.dat, d.acc, d.inst, d.prep FROM words w
 JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adjective"
-""").fetchall()
+"""
+    ).fetchall()
 
     current_w_id = None
     base_word = None
@@ -197,49 +300,66 @@ JOIN declensions d ON d.word_id = w.id WHERE w.type != "verb" AND w.type != "adj
     base_words.append(base_word)
 
     with open("base_words.json", "w", encoding="utf-8") as out:
-        #json.dump(base_words, out, ensure_ascii=False, indent=4)
-        #json.dumps(base_words.__dict__, out, ensure_ascii=False, indent=4)
-        #jsonpickle.set_encoder_options('simplejson', indent=4, ensure_ascii = False)
-        jsonpickle.set_encoder_options('json', indent=4, ensure_ascii = False)
+        # json.dump(base_words, out, ensure_ascii=False, indent=4)
+        # json.dumps(base_words.__dict__, out, ensure_ascii=False, indent=4)
+        # jsonpickle.set_encoder_options('simplejson', indent=4, ensure_ascii = False)
+        jsonpickle.set_encoder_options("json", indent=4, ensure_ascii=False)
         out.write(jsonpickle.encode(base_words))
 
-    #quit()
+    # quit()
     print("Add everything to database")
 
     wikt_db = sqlite3.connect(database_path)
     wikt_cur = wikt_db.cursor()
 
-    #Add to database
+    # Add to database
     for base_word in base_words:
-            base_word.process_all_data()
-            base_word.add_to_database(wikt_cur)
+        base_word.process_all_data()
+        base_word.add_to_database(wikt_cur)
     wikt_db.commit()
     wikt_cur.close()
     wikt_db.close()
+
 
 def add_openrussian_to_db(database_path, openrussian_database_path):
     """DEPRECATED"""
 
     con = sqlite3.connect(database_path)
     openrussian = sqlite3.connect(openrussian_database_path)
-    
+
     words_to_add: list[str] = []
-    adjectives = openrussian.execute("SELECT comparative, superlative, short_m, short_f, short_n, short_pl from adjectives").fetchall()
+    adjectives = openrussian.execute(
+        "SELECT comparative, superlative, short_m, short_f, short_n, short_pl from adjectives"
+    ).fetchall()
     for comparative, superlative, short_m, short_f, short_n, short_pl in adjectives:
-        words_to_add.extend([comparative, superlative, short_m, short_f, short_n, short_pl])
-    conjugations = openrussian.execute("SELECT sg1, sg1, sg3, pl1, pl2, pl3 FROM conjugations").fetchall()
+        words_to_add.extend(
+            [comparative, superlative, short_m, short_f, short_n, short_pl]
+        )
+    conjugations = openrussian.execute(
+        "SELECT sg1, sg1, sg3, pl1, pl2, pl3 FROM conjugations"
+    ).fetchall()
     for sg1, sg2, sg3, pl1, pl2, pl3 in conjugations:
         words_to_add.extend([sg1, sg2, sg3, pl1, pl2, pl3])
-    declensions = openrussian.execute("SELECT nom, gen, dat, acc, inst, prep FROM declensions").fetchall()
+    declensions = openrussian.execute(
+        "SELECT nom, gen, dat, acc, inst, prep FROM declensions"
+    ).fetchall()
     for nom, gen, dat, acc, inst, prep in declensions:
         words_to_add.extend([nom, gen, dat, acc, inst, prep])
-    verbs = openrussian.execute("SELECT imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl FROM verbs").fetchall()
+    verbs = openrussian.execute(
+        "SELECT imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl FROM verbs"
+    ).fetchall()
     for imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl in verbs:
-        words_to_add.extend([imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl])
+        words_to_add.extend(
+            [imperative_sg, imperative_pl, past_m, past_f, past_n, past_pl]
+        )
     words = openrussian.execute("SELECT accented from words").fetchall()
     for accented in words:
-        words_to_add.extend([accented[0]])    
-    words_to_add = [word for word in words_to_add if (word != None) and contains_apostrophes_or_yo(word) and "[" not in word]
+        words_to_add.extend([accented[0]])
+    words_to_add = [
+        word
+        for word in words_to_add
+        if (word != None) and contains_apostrophes_or_yo(word) and "[" not in word
+    ]
 
     words_split_up = []
     for word in words_to_add:
@@ -252,25 +372,33 @@ def add_openrussian_to_db(database_path, openrussian_database_path):
     words_split_up = [word for word in words_split_up if " " not in word]
     words_split_up = list(dict.fromkeys(words_split_up))
 
-    #output_difference_of_word_list(words_split_up)
-    #quit()
+    # output_difference_of_word_list(words_split_up)
+    # quit()
 
     for w in words_split_up:
         if begins_with_star(w):
-            continue #this means that the word is unused -> we don't need it
+            continue  # this means that the word is unused -> we don't need it
         w = remove_parantheses(w)
         word_without_apostrophes = remove_apostrophes(w)
         word_accented = remove_accent_if_only_one_syllable(convert_ap_accent_to_real(w))
         word_lowercase = word_without_apostrophes.lower()
         word_lower_and_without_yo = remove_yo(word_lowercase)
-        
-        already_there = con.execute("SELECT word FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?",
-            (word_accented, word_accented)).fetchone()
+
+        already_there = con.execute(
+            "SELECT word FROM word w WHERE w.canonical_form = ? OR w.alternative_canonical_form = ?",
+            (word_accented, word_accented),
+        ).fetchone()
 
         if already_there == None:
-            con.execute("INSERT INTO word (word, canonical_form, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?)",
-                (word_without_apostrophes, word_accented, word_lowercase, word_lower_and_without_yo)
+            con.execute(
+                "INSERT INTO word (word, canonical_form, word_lowercase, word_lower_and_without_yo) VALUES (?, ?, ?, ?)",
+                (
+                    word_without_apostrophes,
+                    word_accented,
+                    word_lowercase,
+                    word_lower_and_without_yo,
+                ),
             )
-            #print(w)
+            # print(w)
     con.commit()
     con.close()

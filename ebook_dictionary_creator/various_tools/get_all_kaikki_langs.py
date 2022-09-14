@@ -1,7 +1,7 @@
 # A function to extract the languages out of following HTML:
-#<li><a href="English/index.html">English (1367202 senses)</a></li>
-#<li><a href="Latin/index.html">Latin (968851 senses)</a></li>
-#<li><a href="Spanish/index.html">Spanish (829631 senses)</a></li>
+# <li><a href="English/index.html">English (1367202 senses)</a></li>
+# <li><a href="Latin/index.html">Latin (968851 senses)</a></li>
+# <li><a href="Spanish/index.html">Spanish (829631 senses)</a></li>
 
 ALL_LANGUAGES_HTML = """<li><a href="English/index.html">English (1367202 senses)</a></li>
 <li><a href="Latin/index.html">Latin (968851 senses)</a></li>
@@ -342,6 +342,7 @@ ALL_LANGUAGES_HTML = """<li><a href="English/index.html">English (1367202 senses
 <li><a href="Tocharian A/index.html">Tocharian A (503 senses)</a></li>
 <li><a href="Old Japanese/index.html">Old Japanese (502 senses)</a></li>"""
 
+
 def get_languages_from_html(html: str) -> list:
     """
     Gets the languages from the HTML.
@@ -351,6 +352,7 @@ def get_languages_from_html(html: str) -> list:
         if "<li><a href=" in line:
             languages.append(line.split('"')[1].split("/")[0])
     return languages
+
 
 if __name__ == "__main__":
     # Print all languages to a txt file

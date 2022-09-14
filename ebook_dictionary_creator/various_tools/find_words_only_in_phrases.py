@@ -1,13 +1,12 @@
-
-
-
 import sqlite3
 
 
 def find_words_only_in_phrases():
     con = sqlite3.connect("compiled_databases/Spanish_dict.db")
     cur = con.cursor()
-    all_words = cur.execute("SELECT word from word WHERE pos != 'name' GROUP BY word").fetchall()
+    all_words = cur.execute(
+        "SELECT word from word WHERE pos != 'name' GROUP BY word"
+    ).fetchall()
 
     words_without_spaces = set()
     words_contained_in_phrases = set()
@@ -31,6 +30,7 @@ def find_words_only_in_phrases():
 
     cur.close()
     con.close()
+
 
 if __name__ == "__main__":
     find_words_only_in_phrases()

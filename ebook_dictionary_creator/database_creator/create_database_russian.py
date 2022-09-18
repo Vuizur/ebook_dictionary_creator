@@ -187,7 +187,6 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
 
     con.commit()
 
-    alternative_yo_pattern = re.compile(".*Alternative spelling.*ё")
     print("Adding words from Wiktextract JSON")
     with open(wiktextract_json_path, "r", encoding="utf-8") as f:
         # tuple structure: word_id, base_word_string, grammar case
@@ -221,15 +220,6 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
             except:
                 pass
 
-            # skip all words where canonical_form does not have cyrillic letters because most likely it is something wrong like "n inan f"
-            # and
-            # check if Alternative spelling is in canonical form and then if a ё follows. If this is true, ignore word
-            if form_dict["canonical_form"] != None and (
-                alternative_yo_pattern.match(form_dict["canonical_form"]) != None
-                or not has_cyrillic_letters(form_dict["canonical_form"])
-            ):
-                continue
-
             # remove everything after the first word because canonical forms are currently bugged in the wiktionary data
             # this creates inconsistent data, but for looking up the stress only words without space matter
             # TODO: fix and hope it gets solved upstream
@@ -256,9 +246,14 @@ def create_database_russian(database_path: str, wiktextract_json_path: str):
                 # this could theoretically remove valid words from the library if there is a ё-version of them, but I am not
                 # convinced that this is a problem -- Update: This is a problem if you look at the base category, but this version with
                 # the senses might be safe. I should probably remove this entire block of code TODO: fix
+
+                all_categories_for_first_sense = []
+                for cat in obj["senses"][0]["categories"]:
+                    all_categories_for_first_sense.append(cat["name"])
+
                 if (
                     "Russian spellings with е instead of ё"
-                    in obj["senses"][0]["categories"]
+                    in all_categories_for_first_sense
                 ):
                     continue
             except:

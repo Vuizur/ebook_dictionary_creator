@@ -1,4 +1,5 @@
 import importlib.resources as pkg_resources
+import tarfile
 import os
 from ebook_dictionary_creator import data
 from ebook_dictionary_creator.e_dictionary_creator.dictionary_creator import (
@@ -103,11 +104,22 @@ class AllLanguageDictCreator:
                     progress_file.write(language + "\n")
                 print("Dictionary for " + language + " created")
 
+    @staticmethod
+    def package_all_dictionaries(dictionary_folder: str) -> None:
+        # Iterates over all folders in dictionary_folder and creates a tar.gz file for each
+        for folder in os.listdir(dictionary_folder):
+            if os.path.isdir(f"{dictionary_folder}/{folder}"):
+                with tarfile.open(
+                    f"{dictionary_folder}/{folder}.tar.gz", "w:gz"
+                ) as tar:
+                    tar.add(f"{dictionary_folder}/{folder}", arcname=folder)
+
 
 if __name__ == "__main__":
 
     # Set current directory to D:\Wiktionary-Dictionaries
-
+    AllLanguageDictCreator.package_all_dictionaries("D:\Wiktionary-Dictionaries")
+    quit()
     ldc = AllLanguageDictCreator(
         kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
         author="Vuizur",

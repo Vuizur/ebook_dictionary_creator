@@ -35,19 +35,20 @@ def create_russian_dictionary():
 
 
 if __name__ == "__main__":
-    dict_creator = DictionaryCreator(
-        "Latin", "English", database_path="Latin_English.db"
-    )
-    # dict_creator.download_data_from_kaikki()
-    # dict_creator.create_database()
-    # dict_creator.export_to_tabfile()
-    dict_creator.export_to_kindle(
-        kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
-        try_to_fix_failed_inflections=False,
-        author="Vuizur",
-        title="Latin to English dictionary",
-        mobi_temp_folder_path="Latin-English-dict",
-    )
+    #dict_creator = DictionaryCreator(
+    #    "Latin", "English", database_path="Latin_English.db"
+    #)
+    dict_creator = DictionaryCreator("Rusyn", "English")
+    dict_creator.download_data_from_kaikki()
+    #dict_creator.create_database()
+    #dict_creator.export_to_tabfile()
+    #dict_creator.export_to_kindle(
+    #    kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
+    #    try_to_fix_failed_inflections=False,
+    #    author="Vuizur",
+    #    title="Latin to English dictionary",
+    #    mobi_temp_folder_path="Latin-English-dict",
+    #)
 
     quit()
     create_czech_english_dictionary()

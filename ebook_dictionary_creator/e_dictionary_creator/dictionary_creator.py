@@ -61,20 +61,24 @@ class DictionaryCreator:
         self.kaikki_file_path = kaikki_file_path
         self.database_path = database_path
 
-    def download_data_from_kaikki(self, kaikki_file_path: str = None):
+    def download_data_from_kaikki(self, kaikki_file_path: str = None, overwrite_if_already_exists=False):
         # This downloads the data from kaikki.org, with the following format https://kaikki.org/dictionary/Czech/kaikki.org-dictionary-Czech.json
         # Only replace Czech with whatever language you want to download
         if kaikki_file_path == None:
             kaikki_file_path = "kaikki.org-dictionary-" + self.source_language + ".json"
 
-        with open(kaikki_file_path, "w") as f:
-            lang_nospaces = self.source_language.replace(" ", "").replace("-", "")
-            f.write(
-                requests.get(
-                    f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.json"
-                ).text
-            )
         self.kaikki_file_path = kaikki_file_path
+
+        if os.path.exists(kaikki_file_path) and not overwrite_if_already_exists:
+            print("Kaikki file already exists...")
+        else:
+            with open(kaikki_file_path, "w") as f:
+                lang_nospaces = self.source_language.replace(" ", "").replace("-", "")
+                f.write(
+                    requests.get(
+                        f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.json"
+                    ).text
+                )
 
     def create_database(self, database_path: str = None, use_raw_glosses=True):
         # This creates the database from the kaikki.org file

@@ -740,6 +740,8 @@ def create_database(
                     if not "tags" in infl_form or (
                         any(c.isalpha() for c in infl_form["form"])
                         and infl_form["tags"] != ["table-tags"]
+                        and infl_form["tags"] != ["auxiliary"]
+                        and infl_form["tags"] != ["class"]
                     ):
                         inflections.append((infl_form["form"], word_id, word_pos))
 

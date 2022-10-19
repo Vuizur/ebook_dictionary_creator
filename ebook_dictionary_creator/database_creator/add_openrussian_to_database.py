@@ -2,7 +2,6 @@ import sqlite3
 from ebook_dictionary_creator.database_creator.create_database_russian import (
     add_inflection_to_db,
 )
-import jsonpickle
 from ebook_dictionary_creator.database_creator.helper_functions import (
     begins_with_star,
     remove_parantheses,

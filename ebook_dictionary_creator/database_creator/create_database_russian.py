@@ -21,7 +21,6 @@ from stressed_cyrillic_tools import (
 from ebook_dictionary_creator.database_creator.create_database import (
     directly_link_transitive_base_form_relations,
 )
-import re
 
 DO_NOT_ADD_TRANSLATIONS = False  # Set true to reduce size of DB
 

@@ -17,7 +17,7 @@ You can install the package with `pip install git+https://github.com/Vuizur/eboo
 
 And then use it like this:
 
-    from ebook_dictionary_creator.e_dictionary_creator.dictionary_creator import DictionaryCreator
+    from ebook_dictionary_creator import DictionaryCreator
 
     dict_creator = DictionaryCreator("Czech", "English")
     dict_creator.download_data_from_kaikki()

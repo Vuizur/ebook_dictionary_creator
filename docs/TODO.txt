@@ -108,3 +108,5 @@ Pull request to pyglossary with language codes
 Add support for creating reverse dictionaries (English to Language X)
 
 verstopft|verstopfter|am verstopftesten in German does not allow proper lookup
+
+Fix Russian dictionary to use the Russian specific methods for all dictionary creator

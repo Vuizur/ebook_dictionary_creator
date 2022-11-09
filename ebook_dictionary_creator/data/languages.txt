@@ -9,300 +9,316 @@ Portuguese
 Finnish
 Latvian
 Chinese
-Arabic
 Catalan
+Arabic
 Polish
 Japanese
-Dutch
 Swedish
+Dutch
 Esperanto
 Romanian
 Mandarin
 Greek
 Norwegian Bokmål
-Serbo-Croatian
 Hungarian
+Serbo-Croatian
 Translingual
 Norwegian Nynorsk
 Macedonian
 Czech
 Bulgarian
+Korean
 Danish
 Middle English
-Korean
-Galician
 Ancient Greek
+Galician
 Irish
 Vietnamese
 Asturian
 Turkish
+Tagalog
 Lithuanian
 Icelandic
-Tagalog
+Ukrainian
 Armenian
 Gothic
-Telugu
 Thai
+Telugu
 Hindi
-Ukrainian
 Cebuano
-Ido
-Scottish Gaelic
 Sanskrit
 Indonesian
-Georgian
+Ido
+Scottish Gaelic
 Persian
-Hebrew
+Georgian
 Welsh
+Hebrew
 Old English
 Azerbaijani
 Maltese
 Old Norse
 Tamil
 Swahili
-Old Armenian
 Estonian
+Old Armenian
 Norman
 Albanian
-Cantonese
 Khmer
 Kazakh
+Cantonese
 Old French
+Malayalam
+Malay
 Manx
 Yiddish
 Pali
 Faroese
-Malayalam
-Malay
-Luxembourgish
 Slovak
 Urdu
+Luxembourgish
+Basque
 Ladin
 Classical Syriac
 Navajo
-Basque
 Afrikaans
 Bengali
 Burmese
-Northern Kurdish
 Slovene
-Adyghe
+Northern Kurdish
+Proto-Germanic
 Occitan
+Adyghe
 Northern Sami
-Egyptian
 Old Irish
+Mongolian
+Egyptian
+Ottoman Turkish
+Bikol Central
 Yoruba
 Scots
-Ottoman Turkish
-Mongolian
 Aromanian
-Bikol Central
 Assamese
 Venetian
 Cimbrian
 Old Church Slavonic
-Zulu
-Middle French
-Bashkir
+Proto-Slavic
 Belarusian
+Proto-West Germanic
+Middle French
+Zulu
+Yakut
+Bashkir
 Classical Nahuatl
 Gujarati
 Lower Sorbian
 Westrobothnian
 Volapük
-Middle Dutch
 Malagasy
+Middle Dutch
 South Levantine Arabic
 Interlingua
-West Frisian
-Yakut
+Kyrgyz
 Tibetan
+West Frisian
+Ingrian
 Livonian
 Plautdietsch
 Quechua
 Phalura
 Xhosa
 Hawaiian
-Ingrian
+Sicilian
 Veps
 Javanese
-Sicilian
 Manchu
-Aramaic
 Coptic
+Aramaic
 Greenlandic
 Marathi
+Tocharian B
 Punjabi
-Kyrgyz
 Yola
 Sumerian
-Nepali
 Crimean Tatar
-Zhuang
-Tocharian B
+Nepali
 Lao
+Zhuang
 Old Saxon
 Romansch
-Pennsylvania German
-Ligurian
-Friulian
-Moroccan Arabic
-Old High German
-Uzbek
-Shan
-Moksha
-Hausa
-Breton
-Saterland Frisian
-Cornish
 Maori
+Uzbek
+Pennsylvania German
+Shan
+Friulian
+Ligurian
+Moroccan Arabic
+Assyrian Neo-Aramaic
+Old High German
+Saterland Frisian
+Moksha
+Breton
+Hausa
+Cornish
 Sundanese
 Hiligaynon
+Proto-Finnic
 Afar
 Alemannic German
-Ladino
 Uyghur
 Tajik
+Ladino
+Cherokee
 Marshallese
 Tok Pisin
+Proto-Indo-European
+Kashmiri
 Hunsrik
 Norwegian
-Kashmiri
-Swazi
 Ojibwe
+Swazi
 Kannada
-Ternate
 Pashto
-Cherokee
+Ternate
 Maquiritari
 Kumyk
-Assyrian Neo-Aramaic
+Mon
 Vilamovian
 Central Nahuatl
+Romagnol
+Proto-Samic
 Hijazi Arabic
+Laz
 Sardinian
 German Low German
-Kikuyu
+Tatar
 Haitian Creole
 Komi-Zyrian
-Tatar
+Kikuyu
 Phuthi
 Kabuverdianu
 Mapudungun
 Jeju
+Chuvash
 Dalmatian
 Walloon
 Sranan Tongo
-Romagnol
 Prakrit
-Laz
+Dhivehi
+Abkhaz
 Neapolitan
-Garo
 Amharic
-Low German
-Chuvash
+Garo
+Akkadian
 Southern Altai
+Low German
 Tangut
 Lule Sami
+Old Swedish
 Romani
 Kabardian
+Ilocano
 Mauritian Creole
-Old Swedish
 Papiamentu
-Tokelauan
-Mon
 Old Spanish
+Tokelauan
 Okinawan
-Chickasaw
 Fula
 Oromo
-Chichewa
-Old Dutch
+Chickasaw
 Maranao
-Magahi
+Old Dutch
+Chichewa
+West Makian
 Corsican
-Kashubian
-Emilian
+Magahi
 Silesian
+Kashubian
+Central Franconian
+Emilian
+Balinese
 Ugaritic
-Akkadian
-Ilocano
+Chechen
+Ossetian
+Mingrelian
 Piedmontese
 Aragonese
+Zazaki
 Chuukese
 Somali
-Bambara
-Central Franconian
-Balinese
 Makasar
-Tuvan
-Zazaki
-Karao
-Mingrelian
-Chechen
-Abkhaz
-Ossetian
-Dhivehi
-Turkmen
-Kavalan
-Choctaw
-West Makian
-Middle Irish
+Proto-Celtic
 Karelian
-Middle Korean
-Amis
-Gulf Arabic
-Inupiaq
-Erzya
-Lushootseed
-Central Atlas Tamazight
-Central Huasteca Nahuatl
-Ewe
-Old Javanese
-Gamilaraay
-Unami
-Old Georgian
-Upper Sorbian
-Aghwan
-Võro
-Tigrinya
-Dupaningan Agta
-Wolof
-Urak Lawoi&#x27;
-Egyptian Arabic
-Tausug
-Mohawk
-Ainu
+Bambara
+Tuvan
+Turkmen
+Karao
+Limburgish
+Kavalan
+East Central German
+Choctaw
 Old Polish
+Middle Irish
+Kapampangan
+Inupiaq
+Middle Korean
+Gulf Arabic
+Erzya
+Amis
+Tày
+Old Javanese
+Iban
+Proto-Indo-Iranian
+Lushootseed
+Gamilaraay
+Upper Sorbian
+Central Atlas Tamazight
+Old Georgian
+Central Huasteca Nahuatl
+Aghwan
+Ewe
+Unami
+Proto-Brythonic
+Tigrinya
+Võro
+Egyptian Arabic
+Dupaningan Agta
+Urak Lawoi'
 Old Portuguese
-Oriya
+Wolof
+Tausug
 Waray-Waray
+Louisiana Creole French
+Ainu
+Mohawk
+Oriya
+Sotho
 Rwanda-Rundi
 Southern Ndebele
-Sotho
-Lindu
-Ge&#x27;ez
+Proto-Malayo-Polynesian
 Old Occitan
+Lindu
+Proto-Turkic
+Ge'ez
 Tarantino
 Eastern Huasteca Nahuatl
-Limburgish
 Nanai
 Evenki
+Guaraní
 Skolt Sami
+Livvi
 Yogad
+Lombard
 Votic
-Louisiana Creole French
-Bourguignon
 Inari Sami
+Bourguignon
 Lingala
 Tetelcingo Nahuatl
 North Frisian
-Livvi
 Min Nan
-Kapampangan
-Lombard
 Sakizaya
 Old Frisian
+Old East Slavic
 Taos
 Anguthimri
 Lakota
@@ -310,17 +326,23 @@ Tetum
 Kalasha
 Mirandese
 Fijian
+Proto-Italic
 Cahuilla
-Baluchi
 Pite Sami
-East Central German
+Baluchi
+Tocharian A
+Latgalian
+Buryat
+Bavarian
 Northern Ndebele
 Yucatec Maya
-Latgalian
-Old East Slavic
+Avar
 Konkani
 Sambali
+Nivkh
 Brunei Malay
+Lü
 Middle Armenian
-Tocharian A
 Old Japanese
+Franco-Provençal
+Eastern Mari

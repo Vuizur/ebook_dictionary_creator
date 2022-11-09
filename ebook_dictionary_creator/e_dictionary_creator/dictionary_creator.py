@@ -73,7 +73,7 @@ class DictionaryCreator:
             print("Kaikki file already exists...")
         else:
             with open(kaikki_file_path, "w") as f:
-                lang_nospaces = self.source_language.replace(" ", "").replace("-", "")
+                lang_nospaces = self.source_language.replace(" ", "").replace("-", "").replace("'", "")
                 f.write(
                     requests.get(
                         f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.json"

@@ -460,7 +460,7 @@ WHERE g.gloss_string LIKE "% spelling of %"
 
     for word_id, sense_id, gloss_id, gloss_string in rest_spelling:
         standard_form = (
-            gloss_string.split("spelling of ")[1]
+            gloss_string.replace("Spelling", "spelling").split("spelling of ")[1]
             .replace(" (", ";")
             .replace(".", ";")
             .split(";", 1)[0]

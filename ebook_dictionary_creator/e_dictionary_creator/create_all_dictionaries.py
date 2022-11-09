@@ -1,4 +1,5 @@
 import importlib.resources as pkg_resources
+import re
 import shutil
 import tarfile
 import os
@@ -23,8 +24,8 @@ class AllLanguageDictCreator:
         # Kindlegen doesn't know Esperanto, serbo-croatian, translingual, middle english
 
         self.DONT_EXPORT_TO_KINDLE_LANGUAGES = [
-            "Finnish",
-            "Esperanto",
+            "Finnish", # Too many inflections
+            "Esperanto", # Kindlegen doesn't know Esperanto
             "Serbo-Croatian",
             "Translingual",
             "Middle English",  # Not in pyglossary
@@ -51,10 +52,22 @@ class AllLanguageDictCreator:
             "Northern Kurdish",  # Not in
             "Adyghe",  # Not in pyglossary
             "Occitan",  # Not in pyglossary
+            "Northern Sami", # Doesn't know Kindlegen
+            "Old Irish", #dk
+            "Yoruba", #dk
+            "Old Church Slavonic", # Not in Pyglossary
+            "Cimbrian", # Not in Pyglossary
+            "Venetian", # Not in Pyglossary
+            "Middle French", # Not in Pyglossary
+            "Scots", # Not in Pyglossary
+            "Old Norse", # Not in Pyglossary
+            "Classical Nahuatl" # Not in Pyglossary
+
         ]
-        # This has probably too many relations that lead to a memory overflow when creating a database
-        self.SKIP_LANGUAGES = ["Catalan", "Dutch", "Swedish"]
-        self.SKIP_LANGUAGES = []
+        # This has probably too many relations that lead to a memory overflow when creating a database (or swahili, which is simply too slow)
+        self.SKIP_LANGUAGES = ["Catalan", "Dutch", "Swedish", "Egyptian", "Nepali"] #, "Swahili"]
+        # These languages above I should probably fix at some point
+        self.log_file_path = "log.txt"
 
     @staticmethod
     def package_stardict_dictionary(dictionary_folder: str):
@@ -85,7 +98,7 @@ class AllLanguageDictCreator:
         # If the created file is larger than 100 mb, package it as a zip file and delete the tsv file
         if os.path.getsize(f"{self.dictionary_folder}/{dictionary_name}.tsv") > 100000000:
             with zipfile.ZipFile(
-                f"{self.dictionary_folder}/{dictionary_name}.zip", "w"
+                f"{self.dictionary_folder}/{dictionary_name}.zip", "w", zipfile.ZIP_DEFLATED
             ) as zip_file:
                 zip_file.write(
                     f"{self.dictionary_folder}/{dictionary_name}.tsv",
@@ -100,14 +113,19 @@ class AllLanguageDictCreator:
         )
         self.package_stardict_dictionary(stardict_folder)
         if language not in self.DONT_EXPORT_TO_KINDLE_LANGUAGES:
-            dict_creator.export_to_kindle(
-                kindlegen_path=self.kindlegen_path,
-                try_to_fix_failed_inflections=False,
-                author=self.author,
-                title=dictionary_name,
-                mobi_temp_folder_path=dictionary_name,
-                mobi_output_file_path=f"{self.dictionary_folder}/{dictionary_name}.mobi",
-            )
+            try:
+                dict_creator.export_to_kindle(
+                    kindlegen_path=self.kindlegen_path,
+                    try_to_fix_failed_inflections=False,
+                    author=self.author,
+                    title=dictionary_name,
+                    mobi_temp_folder_path=dictionary_name,
+                    mobi_output_file_path=f"{self.dictionary_folder}/{dictionary_name}.mobi",
+                )
+            except Exception as e:
+                print(e)
+                with open(self.log_file_path, "a", encoding="utf-8") as log_file:
+                    log_file.write(f"{language}: {e}\n")
         dict_creator.delete_database()
         dict_creator.delete_kaikki_file()
     
@@ -145,14 +163,57 @@ class AllLanguageDictCreator:
                     tar.add(f"{dictionary_folder}/{folder}", arcname=folder)
 
 
-if __name__ == "__main__":
 
-    # Set current directory to D:\Wiktionary-Dictionaries
-    #AllLanguageDictCreator.package_all_dictionaries("D:\Wiktionary-Dictionaries")
-    #quit()
-    ldc = AllLanguageDictCreator(
-        kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
-        author="Vuizur",
-        dictionary_folder="D:/Wiktionary-Dictionaries",
-    )
-    ldc.create_all_dictionaries("progress.txt")
+def create_lua_code_for_koreader(stardict_tar_gz_folder: str):
+
+    dictionary_template = """
+    {
+        name = "{name}",
+        lang_in = "{lang_in}",
+        lang_out = "{lang_out}",
+        entries = {entry_count},
+        license = "Dual-licensed under CC BY-SA 3.0 and GFDL",
+        url = "{url}",
+    }"""
+    lua_strings = []
+
+    # Iterate through all tar.gz files in stardict_tar_gz_folder
+    for file in os.listdir(stardict_tar_gz_folder):
+        if file.endswith(".tar.gz"):
+            # Get the name of the dictionary
+            dictionary_name = file.replace(".tar.gz", "").rsplit(" ", 1)[0]
+            # Get the language of the dictionary
+            in_language, out_language = dictionary_name.split(" ")[0].split("-")
+            # Create a dictionary folder
+            dictionary_folder = f"{stardict_tar_gz_folder}/{dictionary_name}"
+            if not os.path.exists(dictionary_folder):
+                os.makedirs(dictionary_folder)
+            # Extract the tar.gz file
+            with tarfile.open(f"{stardict_tar_gz_folder}/{file}", "r:gz") as tar:
+                tar.extractall(dictionary_folder)
+
+            # Load the ifo file
+            with open(f"{dictionary_folder}/{dictionary_name}.ifo", "r", encoding="utf-8") as ifo_file:
+                ifo_file_content = ifo_file.read()
+            
+            # Delete the unpacked tar.gz file
+            shutil.rmtree(dictionary_folder)
+
+            # Get the number of entries
+            entry_count = re.search(r"wordcount=(\d+)", ifo_file_content).group(1)
+
+            # Url like https://github.com/Vuizur/Wiktionary-Dictionaries/raw/master/Welsh-English%20Wiktionary%20dictionary.tsv
+            url = f"https://github.com/Vuizur/Wiktionary-Dictionaries/raw/master/{dictionary_name}.tar.gz"
+            # Create a lua file for Koreader
+            lua_strings.append(
+                dictionary_template.format(
+                    name=dictionary_name,
+                    lang_in=in_language,
+                    lang_out=out_language,
+                    entry_count=entry_count,
+                    url=url,
+                )
+            )
+    # Write the lua file
+    with open(f"{stardict_tar_gz_folder}/koreader.lua", "w", encoding="utf-8") as lua_file:
+        lua_file.write(",".join(lua_strings))

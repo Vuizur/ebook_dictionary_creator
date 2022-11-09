@@ -1,11 +1,12 @@
 import importlib.resources as pkg_resources
+import shutil
 import tarfile
 import os
 from ebook_dictionary_creator import data
 from ebook_dictionary_creator.e_dictionary_creator.dictionary_creator import (
     DictionaryCreator,
 )
-
+import zipfile
 
 class AllLanguageDictCreator:
     def __init__(
@@ -53,6 +54,20 @@ class AllLanguageDictCreator:
         ]
         # This has probably too many relations that lead to a memory overflow when creating a database
         self.SKIP_LANGUAGES = ["Catalan", "Dutch", "Swedish"]
+        self.SKIP_LANGUAGES = []
+
+    @staticmethod
+    def package_stardict_dictionary(dictionary_folder: str):
+        if os.path.isdir(dictionary_folder):
+                with tarfile.open(
+                    f"{dictionary_folder}.tar.gz", "w:gz"
+                ) as tar:
+                    # Get the name of the folder (and remove the base path)
+                    folder_name = os.path.basename(dictionary_folder)
+                    tar.add(dictionary_folder, arcname=folder_name)
+        # Delete dictionary folder
+        if os.path.isdir(dictionary_folder):
+            shutil.rmtree(dictionary_folder)
 
     def create_dictionary_for_language(self, language: str):
         print("Creating dictionary for " + language)
@@ -66,11 +81,24 @@ class AllLanguageDictCreator:
         dict_creator.export_to_tabfile(
             f"{self.dictionary_folder}/{dictionary_name}.tsv"
         )
+
+        # If the created file is larger than 100 mb, package it as a zip file and delete the tsv file
+        if os.path.getsize(f"{self.dictionary_folder}/{dictionary_name}.tsv") > 100000000:
+            with zipfile.ZipFile(
+                f"{self.dictionary_folder}/{dictionary_name}.zip", "w"
+            ) as zip_file:
+                zip_file.write(
+                    f"{self.dictionary_folder}/{dictionary_name}.tsv",
+                    f"{dictionary_name}.tsv",
+                )
+            os.remove(f"{self.dictionary_folder}/{dictionary_name}.tsv")
+        stardict_folder = f"{self.dictionary_folder}/{dictionary_name} stardict"
         dict_creator.export_to_stardict(
             self.author,
             dictionary_name,
-            f"{self.dictionary_folder}/{dictionary_name} stardict",
+            stardict_folder,
         )
+        self.package_stardict_dictionary(stardict_folder)
         if language not in self.DONT_EXPORT_TO_KINDLE_LANGUAGES:
             dict_creator.export_to_kindle(
                 kindlegen_path=self.kindlegen_path,
@@ -82,6 +110,8 @@ class AllLanguageDictCreator:
             )
         dict_creator.delete_database()
         dict_creator.delete_kaikki_file()
+    
+
 
     def create_all_dictionaries(self, progress_file_path: str):
         # Load progress file, otherwise create it
@@ -118,8 +148,8 @@ class AllLanguageDictCreator:
 if __name__ == "__main__":
 
     # Set current directory to D:\Wiktionary-Dictionaries
-    AllLanguageDictCreator.package_all_dictionaries("D:\Wiktionary-Dictionaries")
-    quit()
+    #AllLanguageDictCreator.package_all_dictionaries("D:\Wiktionary-Dictionaries")
+    #quit()
     ldc = AllLanguageDictCreator(
         kindlegen_path="C:/Users/hanne/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe",
         author="Vuizur",

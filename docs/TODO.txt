@@ -104,3 +104,7 @@ Info(prcgen):I1002: Parsing von Dateien  0000093
 Fix dictionary creation so that glossary does not have to be created 3 times -> Performance improvement
 
 Pull request to pyglossary with language codes
+
+Add support for creating reverse dictionaries (English to Language X)
+
+verstopft|verstopfter|am verstopftesten in German does not allow proper lookup

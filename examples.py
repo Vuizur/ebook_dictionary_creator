@@ -22,4 +22,5 @@ def create_italian_dict():
 
 if __name__ == "__main__":
     #create_all_languages()
-    create_lua_file()
+    #create_lua_file()
+    create_italian_dict()

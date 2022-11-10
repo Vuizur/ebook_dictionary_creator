@@ -112,7 +112,7 @@ class DictionaryCreator:
         # This exports the database to a tabfile
         if tabfile_path == None:
             tabfile_path = self.source_language + "_" + self.target_language + ".tsv"
-        create_nonkindle_dict(self.database_path, tabfile_path, "Tabfile")
+        create_nonkindle_dict(self.database_path, tabfile_path, "Tabfile", self.source_language, self.target_language)
         self.tabfile_path = tabfile_path
 
     def export_to_stardict(self, author: str, title: str, stardict_path: str = None):
@@ -241,10 +241,26 @@ class RussianDictionaryCreator(DictionaryCreator):
         try_to_fix_failed_inflections: str,
         author: str,
         title: str,
-        mobi_path: str = None,
+        mobi_temp_folder_path: str = None,
+        mobi_output_file_path: str = None,
     ):
-        if mobi_path == None:
-            mobi_path = self.source_language + "_" + self.target_language + ".mobi"
+        if mobi_temp_folder_path.lower().endswith(".mobi"):
+            mobi_temp_folder_path = mobi_temp_folder_path[:-4]
+        if mobi_temp_folder_path == None:
+            mobi_temp_folder_path = (
+                self.source_language + "_" + self.target_language
+            )  # + ".mobi"
+
+        if mobi_output_file_path == None:
+            mobi_output_file_path = mobi_temp_folder_path + ".mobi"
+
         create_py_glossary_and_export(
-            self.database_path, mobi_path, "Mobi", author, title, kindlegen_path
+            self.database_path, mobi_temp_folder_path, "Mobi", author, title, kindlegen_path
         )
+        shutil.move(
+            mobi_temp_folder_path + "/OEBPS/content.mobi", mobi_output_file_path
+        )
+
+        shutil.rmtree(mobi_temp_folder_path)
+
+        self.mobi_path = mobi_output_file_path

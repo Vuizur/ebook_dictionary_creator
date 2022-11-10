@@ -6,7 +6,7 @@ import collections
 from ebook_dictionary_creator.e_dictionary_creator.tatoeba_augmentation import (
     get_word_and_html_for_all_words_not_in_word_list,
 )
-
+from ebook_dictionary_creator.e_dictionary_creator.postprocess_inflections import postprocess_inflections
 
 def get_html(POS: str, definitions: list[str]):
     """
@@ -178,6 +178,7 @@ WHERE w2.word = ?""",
 
         all_forms = ["HTML_HEAD<b>" + canonical_form + "</b>", canonical_form]
         all_forms.extend(rest_inflections)
+        all_forms = postprocess_inflections(input_language, all_forms)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
 
         # Augment with data froma Tatoeba:

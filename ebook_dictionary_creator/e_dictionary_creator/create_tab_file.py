@@ -1,11 +1,11 @@
 from pyglossary import Glossary
 import sqlite3
-from unidecode import unidecode
 
 from ebook_dictionary_creator.e_dictionary_creator.create_kindle_dict import (
     Gloss,
     get_html_from_gloss_list,
 )
+from ebook_dictionary_creator.e_dictionary_creator.postprocess_inflections import postprocess_inflections
 
 
 def create_nonkindle_dict(
@@ -31,11 +31,6 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
 """
     ).fetchall()
 
-    # this serves to check overlappings with base forms
-    base_forms_unidecoded = []
-    for base_form in base_forms:
-        base_forms_unidecoded.append(unidecode(base_form[1]))
-
     inflection_num = 0
     counter = 0
     print("Iterating through base forms:")
@@ -44,7 +39,7 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
         counter = counter + 1
 
         glosses = cur.execute(
-            """SELECT g.gloss_string, w.pos
+            """SELECT g.gloss_string, w.pos, w.pronunciation
 FROM word w 
 INNER JOIN sense s ON s.word_id = w.word_id 
 INNER JOIN gloss g ON g.sense_id = s.sense_id 
@@ -68,17 +63,16 @@ WHERE w2.word = ?""",
             (canonical_form,),
         ).fetchall()
 
-        infl_list = []
-        for inflection in inflections:
-            infl_list.append(inflection[0])
-        infl_list = list(
-            set(infl_list)
-        )  # This has to do with a bug in the linkages that causes words to be doubly linked
 
+        infl_list = list(set([inflection[0] for inflection in inflections]))
+        # This has to do with a bug in the linkages that causes words to be doubly linked
+
+        
         inflection_num += len(infl_list)
 
         all_forms = [canonical_form]
         all_forms.extend(infl_list)
+        all_forms = postprocess_inflections(input_language, all_forms)
         glos.addEntryObj(glos.newEntry(all_forms, glosshtml, defiFormat))
 
         if counter % 2000 == 0:

@@ -729,9 +729,14 @@ def create_database(
 
             word_pos = obj["pos"]
             word_word = obj["word"]
+            pronunciation = None
+            if "sounds" in obj:
+                pronunciation = obj["sounds"]
+                # Keep all dicts in pronunciation that do not have a "audio" key
+                pronunciation = [x for x in pronunciation if "audio" not in x]
 
             cur.execute(
-                "INSERT INTO word (pos, word) VALUES (?, ?)", (word_pos, word_word)
+                "INSERT INTO word (pos, word, pronunciation) VALUES (?, ?, ?)", (word_pos, word_word, json.dumps(pronunciation))
             )
             word_id = cur.lastrowid
 

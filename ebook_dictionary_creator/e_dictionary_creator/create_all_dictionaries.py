@@ -182,6 +182,7 @@ def create_lua_code_for_koreader(stardict_tar_gz_folder: str):
         url = "{url}",
     }}"""
     lua_strings = []
+    total_languages = 0
 
     # Iterate through all tar.gz files in stardict_tar_gz_folder
     for file in os.listdir(stardict_tar_gz_folder):
@@ -208,7 +209,10 @@ def create_lua_code_for_koreader(stardict_tar_gz_folder: str):
             shutil.rmtree(dictionary_folder)
 
             # Get the number of entries
-            entry_count = re.search(r"wordcount=(\d+)", ifo_file_content).group(1)
+            entry_count = int(re.search(r"wordcount=(\d+)", ifo_file_content).group(1))
+
+            if entry_count < 1000: #or "Proto-" in in_language:
+               continue
 
             # Url like https://github.com/Vuizur/Wiktionary-Dictionaries/raw/master/Welsh-English%20Wiktionary%20dictionary.tsv
             url = f"https://github.com/Vuizur/Wiktionary-Dictionaries/raw/master/{dictionary_name} stardict.tar.gz".replace(
@@ -217,15 +221,18 @@ def create_lua_code_for_koreader(stardict_tar_gz_folder: str):
             # Create a lua file for Koreader
             lua_strings.append(
                 dictionary_template.format(
-                    name=dictionary_name,
+                    name=dictionary_name.split(" dictionary")[0],
                     lang_in=in_language,
                     lang_out="English",
                     entry_count=entry_count,
                     url=url,
                 )
             )
+            total_languages += 1
     # Write the lua file
     with open(
         f"{stardict_tar_gz_folder}/koreader.lua", "w", encoding="utf-8"
     ) as lua_file:
         lua_file.write(",".join(lua_strings))
+
+    print(f"Created lua file containing {total_languages} languages")

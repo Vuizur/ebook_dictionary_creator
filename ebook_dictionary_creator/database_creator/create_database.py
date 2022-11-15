@@ -747,6 +747,7 @@ def create_database(
                         and infl_form["tags"] != ["table-tags"]
                         and infl_form["tags"] != ["auxiliary"]
                         and infl_form["tags"] != ["class"]
+                        and infl_form["tags"] != ["inflection-template"]
                     ):
                         inflections.append((infl_form["form"], word_id, word_pos))
 

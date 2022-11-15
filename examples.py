@@ -23,4 +23,8 @@ def create_italian_dict():
 if __name__ == "__main__":
     #create_all_languages()
     #create_lua_file()
-    create_italian_dict()
+    #create_italian_dict()
+    dc = DictionaryCreator("Italian")
+    dc.download_data_from_kaikki()
+    dc.create_database()
+    dc.export_to_tabfile()

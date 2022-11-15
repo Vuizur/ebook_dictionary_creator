@@ -26,7 +26,7 @@ def create_nonkindle_dict(
     cur = con.cursor()
     print("Getting base forms")
     base_forms = cur.execute(
-        """SELECT word_id, word FROM word 
+        """SELECT word_id, word, pronunciation FROM word 
 WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
 """
     ).fetchall()
@@ -35,7 +35,7 @@ WHERE word.word_id IN (SELECT sense.word_id FROM sense) GROUP BY word
     counter = 0
     print("Iterating through base forms:")
 
-    for word_id, canonical_form in base_forms:
+    for word_id, canonical_form, pronunciation in base_forms:
         counter = counter + 1
 
         glosses = cur.execute(
@@ -51,7 +51,7 @@ WHERE w.word = ?""",
         for gloss in glosses:
             if gloss[0] == None:
                 continue
-            glosses_list.append(Gloss(gloss[1], gloss[0].strip()))
+            glosses_list.append(Gloss(gloss[1], gloss[0].strip(), gloss[2]))
 
         glosshtml = get_html_from_gloss_list(glosses_list)
 

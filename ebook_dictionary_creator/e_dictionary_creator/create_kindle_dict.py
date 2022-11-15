@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+import json
 from pyglossary import Glossary
 import sqlite3
 from unidecode import unidecode
@@ -14,10 +16,11 @@ def get_html(POS: str, definitions: list[str]):
     """
 
     # Remove duplicates from the definitions, keep the order
-    definitions = list(dict.fromkeys(definitions))
-
     # Write the pos in cursive to the html
     html = "<i>" + POS + "</i><br>"
+    definitions = list(dict.fromkeys(definitions))
+    
+   
     # Write the definitions to the html using an ordered list
     html += "<ol>"
     for definition in definitions:
@@ -27,16 +30,49 @@ def get_html(POS: str, definitions: list[str]):
     return html
 
 
-Gloss = collections.namedtuple("Gloss", ["pos", "definition"])
+#Gloss = collections.namedtuple("Gloss", ["pos", "definition"])
 
+@dataclass
+class Gloss:
+    pos: str
+    definition: str
+    IPA_json: str = None
+
+#def get_html_from_IPA_JSON(IPA_json: str):
+#    html = ""
+#    if IPA_json != None:
+#        IPA = json.loads(IPA_json)
+#        for el in IPA:
+#            if "tags" in el and "ipa" in el:
+#                html += f"({el['tags'][0]}): "
+#            html += el["ipa"] + "<br>"
+#    else:
+#        return ""
+
+@dataclass
+class IPA:
+    tags: list[str]
+    ipa: str
+
+def get_IPAs_from_IPA_JSON(IPA_json: str):
+    ipas: list[IPA] = []
+    if IPA_json != None:
+        IPA_obj = json.loads(IPA_json)
+        for el in IPA_obj:
+            ipas.append(IPA(el["tags"], el["ipa"]))
+    return ipas
 
 def get_html_from_gloss_list(gloss_list: list[Gloss]):
     """
     Returns the html for the given gloss list.
     """
     html = ""
+
+
     # Group the glosses by pos
     gloss_by_pos = {}
+    IPA_by_pos = {}
+
     for gloss in gloss_list:
         if gloss.pos not in gloss_by_pos:
             gloss_by_pos[gloss.pos] = []

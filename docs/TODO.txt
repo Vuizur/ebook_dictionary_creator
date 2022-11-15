@@ -110,3 +110,10 @@ Add support for creating reverse dictionaries (English to Language X)
 verstopft|verstopfter|am verstopftesten in German does not allow proper lookup
 
 Fix Russian dictionary to use the Russian specific methods for all dictionary creator
+
+Display canonical form instead of the title for 
+
+Regenerate dictionaries that have stress marks/"canonical forms" (because I think the words might have problems with being found)
+and because it is useful for people to know the stress
+
+Euklidův algoritmus|Euklidův algoritmus m Category:cs:Mathematics

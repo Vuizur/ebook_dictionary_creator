@@ -3,7 +3,7 @@ import sqlite3
 import csv
 import os
 
-# TODO: Finish
+# TODO: Finish (I don't know if I will ever finish this)
 DICT_CC_FOLDER = "dict_cc_es_de"
 
 

@@ -117,3 +117,7 @@ Regenerate dictionaries that have stress marks/"canonical forms" (because I thin
 and because it is useful for people to know the stress
 
 Euklidův algoritmus|Euklidův algoritmus m Category:cs:Mathematics
+
+Include IPA
+
+Include Etymology section

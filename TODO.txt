@@ -121,3 +121,5 @@ Euklidův algoritmus|Euklidův algoritmus m Category:cs:Mathematics
 Include IPA
 
 Include Etymology section
+
+Add proper Russian-English dictionary so that it is listed in Koreader dict file

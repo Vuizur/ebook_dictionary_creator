@@ -115,3 +115,8 @@ Latin-English-dict.mobi
 languages.html
 languages.txt
 log.txt
+*.dict.dz
+*.idx
+*.ifo
+*.syn
+*.txt

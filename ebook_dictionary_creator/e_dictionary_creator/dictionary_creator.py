@@ -233,7 +233,7 @@ class RussianDictionaryCreator(DictionaryCreator):
     def export_to_stardict(self, author: str, title: str, stardict_path: str = None):
         if stardict_path == None:
             stardict_path = self.source_language + "_" + self.target_language + ".ifo"
-        create_py_glossary_and_export(self.database_path, stardict_path, "Stardict")
+        create_py_glossary_and_export(self.database_path, stardict_path, "Stardict", author, title)
 
     def export_to_kindle(
         self,

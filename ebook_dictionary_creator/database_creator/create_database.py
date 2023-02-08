@@ -720,7 +720,7 @@ def create_database(
     con.commit()
 
     # with open(wiktextract_json_file, "r", encoding="utf-8") as f:
-    with open(wiktextract_json_file, "r") as f:
+    with open(wiktextract_json_file, "r", encoding="utf-8") as f:
         # word_id, base_word_string
         form_of_words_to_add_later: "list[tuple(int, str)]" = []
         for line in f:

@@ -72,7 +72,7 @@ class DictionaryCreator:
         if os.path.exists(kaikki_file_path) and not overwrite_if_already_exists:
             print("Kaikki file already exists...")
         else:
-            with open(kaikki_file_path, "w") as f:
+            with open(kaikki_file_path, "w", encoding="utf-8") as f:
                 lang_nospaces = self.source_language.replace(" ", "").replace("-", "").replace("'", "")
                 f.write(
                     requests.get(

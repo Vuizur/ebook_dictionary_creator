@@ -14,7 +14,8 @@ tatoebatools = "^0.2.1"
 requests = "^2.28.1"
 jsonpickle = "^2.2.0"
 wordfreq = "^3.0.1"
-pycountry = "^22.3.5"
+pycountry = {git = "https://github.com/flyingcircusio/pycountry"}
+
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"

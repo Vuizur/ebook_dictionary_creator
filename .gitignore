@@ -120,3 +120,6 @@ log.txt
 *.ifo
 *.syn
 *.txt
+ebook_dictionary_creator/data/__pycache__/
+*.xhtml
+*.opf

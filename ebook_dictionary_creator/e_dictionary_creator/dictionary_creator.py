@@ -65,7 +65,7 @@ class DictionaryCreator:
         # This downloads the data from kaikki.org, with the following format https://kaikki.org/dictionary/Czech/kaikki.org-dictionary-Czech.json
         # Only replace Czech with whatever language you want to download
         if kaikki_file_path == None:
-            kaikki_file_path = "kaikki.org-dictionary-" + self.source_language + ".json"
+            kaikki_file_path = "kaikki.org-dictionary-" + self.source_language + ".jsonl"
 
         self.kaikki_file_path = kaikki_file_path
 
@@ -76,7 +76,7 @@ class DictionaryCreator:
                 lang_nospaces = self.source_language.replace(" ", "").replace("-", "").replace("'", "")
                 f.write(
                     requests.get(
-                        f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.json"
+                        f"https://kaikki.org/dictionary/{self.source_language}/kaikki.org-dictionary-{lang_nospaces}.jsonl"
                     ).text
                 )
 

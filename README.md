@@ -31,9 +31,38 @@ And then use it like this:
         # Currently only works for latin scripts.
         author="Vuizur",
         title="Czech to English dictionary",
-        mobi_path="Czech-English-dict",
+        mobi_temp_folder_path="Czech-English-dict",
     )
     dict_creator.export_to_stardict("Vuizur", "Czech to English dictionary", "Czech-English-dict.ifo")  
+
+### Installation and usage for beginners
+1. Download and install [Python](https://www.python.org/) on your operating system
+1. Open a terminal window and check if the installation was successful by typing ```python3 --version```. It should display something like 'Python 3.13.6'.
+1. Download this repository. Click on the green <> Code button --> Download ZIP. Unzip it at a convenient location. If you are familiar with Git you can also clone the repository.
+1. We need the executable 'kindlegen' in order to create .mobi files. The Amazon software '[Kindle Previewer]'(https://www.amazon.com/Kindle-Previewer/b?ie=UTF8&node=21381691011) needs to be installed on your computer to get it. 'kindlegen' is stored at the following location as of 2025:
+   - macOS: '/Applications/Kindle Previewer 3.app/Contents/lib/fc/bin/kindlegen'
+   - Windows: 'C:/Users/USERNAME/AppData/Local/Amazon/Kindle Previewer 3/lib/fc/bin/kindlegen.exe'
+1. Open a terminal and change the directory to the unzipped repository created in 3. (```cd path/to/ebook_dictionary_creator```).
+1. Download all necessary dependencies: ```pip install -e .```
+1. Open the file 'create-dictionary.py' with a text editor and change **source** and **target language** and the **path to the 'kindlegen' executable** ('author', 'title' and 'mobi_temp_folder_path' are optional and do not have to be changed, if I am not mistaken):
+
+```
+from ebook_dictionary_creator import DictionaryCreator
+
+dict_creator = DictionaryCreator("Malay", "English")#Source language, target language
+dict_creator.download_data_from_kaikki()
+dict_creator.create_database()
+dict_creator.export_to_tabfile()
+dict_creator.export_to_kindle(
+    kindlegen_path="/Applications/Kindle Previewer 3.app/Contents/lib/fc/bin/kindlegen",# Path to kindlegen executable
+    try_to_fix_failed_inflections=False,
+    author="Vuizur",
+    title="Malay to English dictionary",
+    mobi_temp_folder_path="Malay-English-dict",
+)
+```
+1. Execute the code by typing `python3 create-dictionary.py` into the terminal window
+1. The file (e.g. 'Malay-English-dict.mobi') will be saved in the root folder (i.e. /ebook_dictionary_creator)
 
 
 ### Acknowledgements
